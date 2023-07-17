@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.Domain.Dto;
+package com.teaming.teamingserver.domain.dto;
 
 public class MemberResponseDto {
 }

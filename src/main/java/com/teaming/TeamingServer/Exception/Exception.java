@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.Exception;
+package com.teaming.teamingserver.exception;
 
 
 

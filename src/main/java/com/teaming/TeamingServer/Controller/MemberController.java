@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.Controller;
+package com.teaming.teamingserver.controller;
 
 
 

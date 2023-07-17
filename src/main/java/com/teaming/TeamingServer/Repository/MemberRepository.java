@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.Repository;
+package com.teaming.teamingserver.repository;
 
 
 

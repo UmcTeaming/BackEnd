@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.Service;
+package com.teaming.teamingserver.service;
 
 
 public class MemberService {

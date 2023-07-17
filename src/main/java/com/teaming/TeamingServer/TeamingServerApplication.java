@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer;
+package com.teaming.teamingserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
