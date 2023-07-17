@@ -1,9 +1,10 @@
-package com.teaming.TeamingServer.Domain;
+package com.teaming.TeamingServer.Domain.entity;
 
 import jakarta.persistence.*;
 
 @Entity
-public class Member_Project {
+public class MemberProject {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int member_project_id;
