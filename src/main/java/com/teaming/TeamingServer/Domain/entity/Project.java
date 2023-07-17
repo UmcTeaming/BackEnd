@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,9 +31,9 @@ public class Project extends Time {
     private LocalDate end_date;
 
     @Enumerated(EnumType.STRING)
-    @Builder.Default()
+    @ColumnDefault("STATUS_ING")
     @Column(nullable = false)
-    private Status project_status = Status.ING;
+    private Status project_status;
 
     @Column(nullable = false)
     private String project_color;
