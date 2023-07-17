@@ -1,6 +1,6 @@
-package com.teaming.teamingserver.common;
+package com.teaming.TeamingServer.common;
 
-import com.teaming.teamingserver.exception.BaseException;
+import com.teaming.TeamingServer.Exception.BaseException;
 import lombok.Getter;
 
 @Getter

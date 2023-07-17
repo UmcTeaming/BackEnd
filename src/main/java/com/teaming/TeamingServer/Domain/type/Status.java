@@ -1,4 +1,4 @@
-package com.teaming.teamingserver.domain.type;
+package com.teaming.TeamingServer.Domain.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

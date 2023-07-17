@@ -1,4 +1,4 @@
-package com.teaming.teamingserver.domain;
+package com.teaming.TeamingServer.Domain;
 
 
 import jakarta.persistence.*;

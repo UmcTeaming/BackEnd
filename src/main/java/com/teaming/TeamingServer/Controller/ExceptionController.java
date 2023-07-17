@@ -1,7 +1,7 @@
-package com.teaming.teamingserver.controller;
+package com.teaming.TeamingServer.Controller;
 
-import com.teaming.teamingserver.common.BaseErrorResponse;
-import com.teaming.teamingserver.exception.BaseException;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
+import com.teaming.TeamingServer.Exception.BaseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,4 +1,4 @@
-package com.teaming.teamingserver.common;
+package com.teaming.TeamingServer.common;
 
 import lombok.Getter;
 

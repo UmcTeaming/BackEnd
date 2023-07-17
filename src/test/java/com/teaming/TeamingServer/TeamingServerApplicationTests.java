@@ -1,4 +1,4 @@
-package com.teaming.teamingserver;
+package com.teaming.TeamingServer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

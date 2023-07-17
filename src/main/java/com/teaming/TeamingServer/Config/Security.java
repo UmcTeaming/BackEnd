@@ -1,4 +1,4 @@
-package com.teaming.teamingserver.config;
+package com.teaming.TeamingServer.Config;
 
 public class Security {
 }

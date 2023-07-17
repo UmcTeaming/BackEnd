@@ -1,6 +1,6 @@
-package com.teaming.teamingserver.domain;
+package com.teaming.TeamingServer.Domain;
 
-import com.teaming.teamingserver.domain.type.Status;
+import com.teaming.TeamingServer.Domain.type.Status;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

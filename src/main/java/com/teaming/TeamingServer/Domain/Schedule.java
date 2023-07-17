@@ -1,13 +1,11 @@
-package com.teaming.teamingserver.domain;
+package com.teaming.TeamingServer.Domain;
 
-import com.teaming.teamingserver.domain.type.Status;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter

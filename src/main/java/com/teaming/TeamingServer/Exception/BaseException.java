@@ -1,4 +1,4 @@
-package com.teaming.teamingserver.exception;
+package com.teaming.TeamingServer.Exception;
 
 
 import lombok.Getter;
