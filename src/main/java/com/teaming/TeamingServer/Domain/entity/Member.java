@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.Domain;
+package com.teaming.TeamingServer.Domain.entity;
 
 
 import jakarta.persistence.*;
@@ -6,10 +6,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @Entity
-public class Member {
+public class Member extends Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +33,14 @@ public class Member {
     @Column(nullable = false)
     private boolean agreement;
 
+    @OneToMany(mappedBy ="member")
+    public List<MemberProject> memberProjectList = new ArrayList<>();
+
+    @OneToMany(mappedBy="member")
+    public List<MemberSchedule> memberSchedules = new ArrayList<>();
+
+
+
     @Builder
     public Member(String name, String email, String password, boolean agreement) {
         this.name = name;
@@ -40,7 +51,6 @@ public class Member {
 
     public Member update(String profile_image) {
         this.profile_image = profile_image;
-
         return this;
     }
 }

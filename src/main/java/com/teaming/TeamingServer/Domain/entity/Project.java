@@ -1,6 +1,5 @@
-package com.teaming.TeamingServer.Domain;
+package com.teaming.TeamingServer.Domain.entity;
 
-import com.teaming.TeamingServer.Domain.type.Status;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,11 +7,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @Entity
-public class Project {
+public class Project extends Time {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int project_id;
@@ -30,12 +31,14 @@ public class Project {
     private LocalDate end_date;
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("STATUS_ING")
     @Column(nullable = false)
     private Status project_status;
 
     @Column(nullable = false)
     private String project_color;
+
+    @OneToMany(mappedBy="project")
+    public List<MemberProject> members = new ArrayList<>();
 
     @Builder
     public Project(String project_name, LocalDate start_date, LocalDate end_date, Status project_status) {

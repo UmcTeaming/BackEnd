@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.Domain;
+package com.teaming.TeamingServer.Domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @Entity
-public class Schedule {
+public class Schedule extends Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,10 +37,13 @@ public class Schedule {
     @Column(nullable = false)
     private String memo;
 
-    @Column(nullable = false)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+
+    @OneToMany(mappedBy="schedule")
+    public List<MemberSchedule> members = new ArrayList<>();
 
     @Builder
     public Schedule(String schedule_name, LocalDate schedule_start
