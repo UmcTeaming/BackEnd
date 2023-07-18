@@ -5,16 +5,16 @@ import lombok.Getter;
 
 @Getter
 public class BaseErrorResponse {
-    private final int code;
+    private final int status;
     private final String message;
 
-    public BaseErrorResponse(int code, String message) {
-        this.code = code;
+    public BaseErrorResponse(int status, String message) {
+        this.status = status;
         this.message = message;
     }
 
     public BaseErrorResponse(BaseException baseException) {
-        this.code = baseException.getCode();
+        this.status = baseException.getCode();
         this.message = baseException.getMessage();
     }
 }

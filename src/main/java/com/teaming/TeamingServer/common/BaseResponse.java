@@ -5,12 +5,12 @@ import lombok.Getter;
 @Getter
 public class BaseResponse<T> {
 
-    private final int code;
+    private final int status;
     private final String message;
     private final T data;
 
-    public BaseResponse(int code, String message, T data) {
-        this.code = code;
+    public BaseResponse(int status, String message, T data) {
+        this.status = status;
         this.message = message;
         this.data = data;
     }
