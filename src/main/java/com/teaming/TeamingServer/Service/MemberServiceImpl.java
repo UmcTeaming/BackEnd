@@ -22,16 +22,13 @@ public class MemberServiceImpl implements MemberService {
      */
     @Transactional
     @Override
-    public Integer join(MemberRequestDto memberRequestDto) {
-        Member member = Member.builder()
-                        .name(memberRequestDto.getName())
-                        .email(memberRequestDto.getEmail())
-                        .password(memberRequestDto.getPassword())
-                        .agreement(true).build();
+    public Integer join(Member member) {
 
+        //중복 회원 검증
+        validateDuplicateMember(member.getEmail());
 
-        validateDuplicateMember(member.getEmail()); //중복 회원 검증
-        checkPasswordMatch(member, memberRequestDto); // 비밀번호 일치 검증
+        // 비밀번호 일치 검증
+        // checkPasswordMatch(member, checkPassword);
 
         // 이메일 인증
 
@@ -50,11 +47,11 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    private void checkPasswordMatch(Member member, MemberRequestDto memberRequestDto) {
-        if(member.getPassword() != memberRequestDto.getCheckPassword()) {
-            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
-        }
-    }
+//    private void checkPasswordMatch(Member member, String checkPassword) {
+//        if(member.getPassword() != checkPassword) {
+//            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+//        }
+//    }
 
     //회원 전체 조회
     public List<Member> findMembers() {
@@ -62,7 +59,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public Member findOne(Integer id) {
-        return (memberRepository.findById(id)).get();
+        return memberRepository.findById(id).get();
     }
 
     /**

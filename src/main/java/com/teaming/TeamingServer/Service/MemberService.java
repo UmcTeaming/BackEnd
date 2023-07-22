@@ -4,7 +4,7 @@ import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
 
 public interface MemberService {
-    Integer join(MemberRequestDto memberRequestDto);
+    Integer join(Member member);
 
     void validateDuplicateMember(String email);
 }
