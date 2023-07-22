@@ -2,7 +2,9 @@ package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
+import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,13 +27,14 @@ public class MemberServiceImpl implements MemberService {
     public Integer join(Member member) {
 
         //중복 회원 검증
-        validateDuplicateMember(member.getEmail());
+        if(!validateDuplicateMember(member.getEmail())) {
+            throw new IllegalArgumentException("이미 회원가입된 이메일입니다.");
+        };
 
         // 비밀번호 일치 검증
         // checkPasswordMatch(member, checkPassword);
 
         // 이메일 인증
-
 
         // 회원 DB 에 저장
         memberRepository.save(member);
@@ -40,11 +43,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void validateDuplicateMember(String email) {
+    public boolean validateDuplicateMember(String email) {
         List<Member> findMembers = memberRepository.findByEmail(email);
-        if(!findMembers.isEmpty()) {
-            throw new IllegalArgumentException("이미 회원가입된 이메일입니다.");
-        }
+        return findMembers.isEmpty();
     }
 
 //    private void checkPasswordMatch(Member member, String checkPassword) {

@@ -6,5 +6,5 @@ import com.teaming.TeamingServer.Domain.entity.Member;
 public interface MemberService {
     Integer join(Member member);
 
-    void validateDuplicateMember(String email);
+    boolean validateDuplicateMember(String email);
 }
