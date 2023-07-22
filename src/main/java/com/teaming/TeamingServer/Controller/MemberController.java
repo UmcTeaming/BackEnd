@@ -2,10 +2,10 @@ package com.teaming.TeamingServer.Controller;
 
 
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
-import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Service.MemberService;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
+import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,25 +17,23 @@ public class MemberController {
 
     private final MemberService memberService;
 
-//    @GetMapping("/")
-//    public String Home() {
-//        return "home";
-//    }
-
-//    @GetMapping("/member/signup")
-//    public String signupMemberForm() {
-//        return "member/signupMemberForm";
-//    }
-
-    @PostMapping("/member/signup")
-    public ResponseEntity createMember(@RequestBody Member member) {
-        // 여기서 UserData는 프론트엔드에서 보낸 JSON 데이터를 자바 객체로 변환한 클래스를 가정합니다.
-
-        // 회원가입 로직을 수행합니다.
-        // 이 곳에서 데이터베이스에 저장 등의 처리를 수행합니다.
-        // ...
-
-        // 회원가입이 성공했을 때
-        return ResponseEntity.ok().body("회원가입이 성공적으로 완료되었습니다.");
+    // 회원가입
+    @PostMapping("/signup")
+    public BaseResponse signup(@RequestBody MemberRequestDto memberRequestDto) {
+        memberService.join(memberRequestDto);
+        // 여기서 Exception 을 잡아야 하나?
+        return new BaseResponse(200, "회원가입이 완료되었습니다.");
     }
+
+    // 이메일 중복체크
+    @GetMapping("/signup/email-duplication")
+    public BaseResponse duplicateEmail(@RequestBody MemberRequestDto memberRequestDto) {
+        try {
+            memberService.validateDuplicateMember(memberRequestDto.getEmail());
+        } catch (IllegalArgumentException e) {
+            return new BaseResponse<>(400, e.getMessage());
+        }
+        return new BaseResponse<>(200, "사용가능한 이메일입니다.");
+    }
+
 }
