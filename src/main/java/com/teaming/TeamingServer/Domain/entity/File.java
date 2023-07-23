@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @Entity
@@ -20,9 +22,11 @@ public class File extends Time {
     @Column(nullable = false)
     private Boolean file_status;
 
-    @Column(nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="project_id")
     private Project project;
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
+    private List<Comment> comments;
 
 }

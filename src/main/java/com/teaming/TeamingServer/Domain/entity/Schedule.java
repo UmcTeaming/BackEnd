@@ -37,7 +37,7 @@ public class Schedule extends Time {
     @Column(nullable = false)
     private String memo;
 
-    @Column(nullable = false)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
