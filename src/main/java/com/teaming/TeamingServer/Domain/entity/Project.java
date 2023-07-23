@@ -21,28 +21,28 @@ import static org.hibernate.type.descriptor.java.JdbcDateJavaType.DATE_FORMAT;
 @Entity
 public class Project extends Time {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long project_id;
 
-    @Column
+    @Column(nullable = false)
     private String project_name;
 
-    @Column
+    @Column(nullable = false)
     private String project_image;
 
-    @Column
+    @Column(nullable = false)
     private LocalDate start_date;
 
-    @Column
+    @Column(nullable = false)
     private LocalDate end_date;
 
-// 이렇게 해야 돌아가서 수정했어
-@Column
-@Enumerated(EnumType.STRING)
-private Status project_status;
-
     @Column
+    @Enumerated(EnumType.STRING)
+    private Status project_status;
+
+    @Column(nullable = false)
     private String project_color;
 
     @OneToMany(mappedBy="project")
