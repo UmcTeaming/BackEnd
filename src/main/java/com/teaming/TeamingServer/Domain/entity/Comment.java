@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 @Entity
@@ -13,7 +15,7 @@ public class Comment extends Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int comment_id;
+    private Long comment_id;
 
     @Column(nullable = false)
     private String writer;

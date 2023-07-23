@@ -14,7 +14,7 @@ public class File extends Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int file_id;
+    private Long file_id;
 
     @Column(nullable = false)
     private String file_link;

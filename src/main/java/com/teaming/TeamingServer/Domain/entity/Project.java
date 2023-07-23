@@ -23,7 +23,7 @@ public class Project extends Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int project_id;
+    private Long project_id;
 
     @Column
     private String project_name;

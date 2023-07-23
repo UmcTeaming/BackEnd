@@ -7,7 +7,7 @@ public class MemberProject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int member_project_id;
+    private Long member_project_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

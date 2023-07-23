@@ -5,6 +5,7 @@ import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.common.BaseResponse;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,14 @@ public class FileController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new BaseResponse<>(HttpStatus.OK.value(),"코멘트 정보를 불러왔습니다",list));
+    }
+
+    @DeleteMapping("/{fileId}/comments/{commentId}")
+    public ResponseEntity<BaseResponse> deleteComment (@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId) {
+        commentService.deleteComment(fileId, commentId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "커멘트를 삭제했습니다", null));
     }
 
 }

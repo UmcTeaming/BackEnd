@@ -44,10 +44,25 @@ public class CommentService {
                 .member(member) // 댓글과 멤버 연결
                 .build();
 
+
         // 댓글을 데이터베이스에 저장합니다.
         commentRepository.save(comment);
     }
 
+    @Transactional
+    public void deleteComment(Long fileId, Long commentId) {
+        // 댓글을 삭제하기 전에 해당 댓글이 속한 파일과 파일에 해당하는 댓글인지 확인해야 합니다.
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new EntityNotFoundException("File not found with id: " + fileId));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new EntityNotFoundException("Comment not found with id: " + commentId));
+        // 파일과 댓글이 연관되어 있는지 확인합니다.
+
+        if (!comment.getFile().equals(file)) {
+            throw new IllegalArgumentException("Comment does not belong to the specified file.");
+        }
+        // 댓글을 삭제합니다.
+        commentRepository.deleteById(commentId);
+    }
+
+    }
 
 
-}
