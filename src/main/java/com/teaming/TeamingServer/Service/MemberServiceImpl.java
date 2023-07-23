@@ -5,10 +5,15 @@ import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.List;
 
@@ -32,7 +37,6 @@ public class MemberServiceImpl implements MemberService {
         };
 
         // 비밀번호 일치 검증
-        // checkPasswordMatch(member, checkPassword);
 
         // 이메일 인증
 
@@ -48,11 +52,16 @@ public class MemberServiceImpl implements MemberService {
         return findMembers.isEmpty();
     }
 
-//    private void checkPasswordMatch(Member member, String checkPassword) {
-//        if(member.getPassword() != checkPassword) {
-//            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
-//        }
-//    }
+    public boolean checkBlank(MemberRequestDto memberRequestDto) {
+        if((memberRequestDto.getName() == null)
+                || (memberRequestDto.getEmail() == null)
+                || (memberRequestDto.getPassword() == null)
+                || (memberRequestDto.getCheck_password() == null)) {
+            return false;
+        }
+
+        return true;
+    }
 
     //회원 전체 조회
     public List<Member> findMembers() {

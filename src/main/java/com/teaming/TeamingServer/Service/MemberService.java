@@ -7,4 +7,6 @@ public interface MemberService {
     Integer join(Member member);
 
     boolean validateDuplicateMember(String email);
+
+    boolean checkBlank(MemberRequestDto memberRequestDto);
 }
