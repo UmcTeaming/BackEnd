@@ -3,17 +3,11 @@ package com.teaming.TeamingServer.service;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Service.MemberServiceImpl;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.jayway.jsonpath.internal.path.PathCompiler.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
