@@ -22,7 +22,8 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
 
     //인증번호 생성
-    private final String ePw = createKey();
+    // private final String ePw = createKey();
+    private String ePw;
 
     @Value("${spring.mail.username}")
     private String id;
@@ -31,6 +32,7 @@ public class EmailService {
         log.info("보내는 대상 : "+ to);
         log.info("인증 번호 : " + ePw);
         MimeMessage message = javaMailSender.createMimeMessage();
+        ePw = createKey();
 
         message.addRecipients(MimeMessage.RecipientType.TO, to); // to 보내는 대상
         message.setSubject("Teaming 회원가입 인증 코드 메일"); //메일 제목

@@ -30,7 +30,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final EmailService emailService;
 
-    private int emailCode;
+    private String emailCode;
 
     /**
      * 회원 가입
@@ -68,7 +68,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
 
-
+    @Transactional
     @Override
     public ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
         // 이메일 중복 체크
@@ -78,13 +78,14 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 이메일 인증 번호 발급
-        emailCode = Integer.parseInt(mailConfirm(memberSignUpEmailDuplicationRequestDto.getEmail()));
+        emailCode = mailConfirm(memberSignUpEmailDuplicationRequestDto.getEmail());
 
         // 이메일 검증 및 전송 정상 통과
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse<>(HttpStatus.OK.value(), "사용 가능한 이메일입니다."));
     }
 
+    @Transactional
     public ResponseEntity verificationEmail(MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
         if(checkCode(memberVerificationEmailRequestDto.getAuthentication(), emailCode)) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -95,8 +96,8 @@ public class MemberServiceImpl implements MemberService {
                 .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "인증번호가 일치하지 않습니다."));
     }
 
-    private boolean checkCode(int authentication, int emailCode) {
-        return authentication == emailCode;
+    private boolean checkCode(String authentication, String emailCode) {
+        return authentication.equals(emailCode);
     }
 
     private String mailConfirm(String email) throws Exception {

@@ -45,6 +45,7 @@ public class MemberController {
 
     }
 
+    // 이메일 인증
     @PostMapping("/member/email-verification")
     @ResponseBody // json 으로 반환해주는 어노테이션
     public ResponseEntity verificationEmail(@RequestBody MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
