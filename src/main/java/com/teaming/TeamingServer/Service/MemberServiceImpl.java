@@ -9,6 +9,7 @@ import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +20,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor // 밑에 MemberRepository 의 생성자를 쓰지 않기 위해
 public class MemberServiceImpl implements MemberService {
 
     @Autowired
     private final MemberRepository memberRepository;
+    private final EmailService emailService;
+    private String emailCode;
 
     /**
      * 회원 가입
@@ -65,19 +69,25 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
-    public ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) {
+    public ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
         // 이메일 중복 체크
         if(!checkDuplicateEmail(memberSignUpEmailDuplicationRequestDto.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "이미 회원가입된 이메일입니다."));
         }
 
-        // 이메일에 인증번호 전송
-
+        // 이메일 인증 번호 발급
+        emailCode = mailConfirm(memberSignUpEmailDuplicationRequestDto.getEmail());
 
         // 이메일 검증 및 전송 정상 통과
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse<>(HttpStatus.OK.value(), "사용 가능한 이메일입니다."));
+    }
+
+    private String mailConfirm(String email) throws Exception {
+        String code = emailService.sendSimpleMessage(email);
+        log.info("인증코드 : " + code);
+        return code;
     }
 
     private boolean checkDuplicateEmail(String email) {

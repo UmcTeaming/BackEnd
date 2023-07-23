@@ -38,7 +38,7 @@ public class MemberController {
     // 이메일 중복체크
     @PostMapping("/member/email-duplication")
     @ResponseBody // json 으로 반환해주는 어노테이션
-    public ResponseEntity duplicateEmail(@RequestBody MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) {
+    public ResponseEntity duplicateEmail(@RequestBody MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
 
         return memberService.validateDuplicateMember(memberSignUpEmailDuplicationRequestDto);
 

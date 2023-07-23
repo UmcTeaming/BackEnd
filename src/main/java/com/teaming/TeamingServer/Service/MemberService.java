@@ -8,5 +8,6 @@ import org.springframework.http.ResponseEntity;
 public interface MemberService {
     ResponseEntity join(MemberRequestDto memberRequestDto);
 
-    ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto);
+    ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception;
+    // String mailConfirm(String email) throws Exception;
 }
