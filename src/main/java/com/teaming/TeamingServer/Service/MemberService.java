@@ -1,12 +1,12 @@
 package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
+import org.springframework.http.ResponseEntity;
 
 public interface MemberService {
-    Integer join(Member member);
+    ResponseEntity join(MemberRequestDto memberRequestDto);
 
-    boolean validateDuplicateMember(String email);
-
-    boolean checkBlank(MemberRequestDto memberRequestDto);
+    ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto);
 }
