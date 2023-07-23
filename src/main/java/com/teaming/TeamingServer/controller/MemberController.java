@@ -3,6 +3,7 @@ package com.teaming.TeamingServer.controller;
 
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.MemberService;
@@ -44,11 +45,11 @@ public class MemberController {
 
     }
 
-//    @PostMapping("/member/email-verification")
-//    @ResponseBody // json 으로 반환해주는 어노테이션
-//    public ResponseEntity verificationEmail(@RequestBody MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) {
-//
-//        return
-//    }
+    @PostMapping("/member/email-verification")
+    @ResponseBody // json 으로 반환해주는 어노테이션
+    public ResponseEntity verificationEmail(@RequestBody MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
+
+        return memberService.verificationEmail(memberVerificationEmailRequestDto);
+    }
 
 }

@@ -2,6 +2,7 @@ package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.List;
 
-@Slf4j
+// @Slf4j
 @Service
 @RequiredArgsConstructor // 밑에 MemberRepository 의 생성자를 쓰지 않기 위해
 public class MemberServiceImpl implements MemberService {
@@ -28,7 +29,8 @@ public class MemberServiceImpl implements MemberService {
     @Autowired
     private final MemberRepository memberRepository;
     private final EmailService emailService;
-    private String emailCode;
+
+    private int emailCode;
 
     /**
      * 회원 가입
@@ -58,7 +60,6 @@ public class MemberServiceImpl implements MemberService {
 
         // 이메일 인증
 
-
         // 회원 DB 에 저장
         memberRepository.save(member);
 
@@ -77,16 +78,30 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 이메일 인증 번호 발급
-        emailCode = mailConfirm(memberSignUpEmailDuplicationRequestDto.getEmail());
+        emailCode = Integer.parseInt(mailConfirm(memberSignUpEmailDuplicationRequestDto.getEmail()));
 
         // 이메일 검증 및 전송 정상 통과
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse<>(HttpStatus.OK.value(), "사용 가능한 이메일입니다."));
     }
 
+    public ResponseEntity verificationEmail(MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
+        if(checkCode(memberVerificationEmailRequestDto.getAuthentication(), emailCode)) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자 이메일 인증 성공"));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "인증번호가 일치하지 않습니다."));
+    }
+
+    private boolean checkCode(int authentication, int emailCode) {
+        return authentication == emailCode;
+    }
+
     private String mailConfirm(String email) throws Exception {
         String code = emailService.sendSimpleMessage(email);
-        log.info("인증코드 : " + code);
+        // log.info("인증코드 : " + code);
         return code;
     }
 
