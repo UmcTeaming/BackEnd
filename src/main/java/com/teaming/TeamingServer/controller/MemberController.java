@@ -31,8 +31,11 @@ public class MemberController {
                 .agreement(true).build();
 
         // String checkPassword = memberRequestDto.getCheckPassword();
-
-        memberService.join(member);
+        try {
+            memberService.join(member);
+        } catch (IllegalArgumentException exception) {
+            return new BaseResponse(400, "이미 회원가입된 이메일입니다.");
+        }
 
         // 여기서 Exception 을 잡아야 하나?
         return new BaseResponse(200, "회원가입이 완료되었습니다.");
