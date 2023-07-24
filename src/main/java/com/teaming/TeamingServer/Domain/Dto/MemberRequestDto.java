@@ -16,5 +16,4 @@ public class MemberRequestDto {
     private String name;
     private String email;
     private String password;
-    private String check_password;
 }
