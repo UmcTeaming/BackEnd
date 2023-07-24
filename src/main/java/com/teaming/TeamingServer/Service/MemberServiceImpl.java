@@ -127,7 +127,7 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.findAll();
     }
 
-    public Member findOne(Integer id) {
+    public Member findOne(Long id) {
         return memberRepository.findById(id).get();
     }
 
@@ -135,7 +135,7 @@ public class MemberServiceImpl implements MemberService {
      * 회원 수정
      */
     @Transactional
-    public void update(int id, String profile_image) {
+    public void update(Long id, String profile_image) {
         Member member = (memberRepository.findById(id)).get();
         member.update(profile_image);
     }

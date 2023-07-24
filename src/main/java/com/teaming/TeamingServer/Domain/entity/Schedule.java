@@ -17,7 +17,7 @@ public class Schedule extends Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int schedule_id;
+    private Long schedule_id;
 
     @Column(nullable = false)
     private String schedule_name;

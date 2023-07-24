@@ -14,7 +14,6 @@ public class ExceptionController {
     public ResponseEntity<BaseErrorResponse> handleException(Exception e) {
         BaseException exception = new BaseException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                                     e.getMessage());
-
         return ResponseEntity.status(exception.getCode()).body(new BaseErrorResponse(exception));
     }
 
