@@ -48,6 +48,9 @@ public class Project extends Time {
     @OneToMany(mappedBy="project")
     public List<MemberProject> members = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    public List<File> files = new ArrayList<>();
+
     @Builder
     public Project(String project_name, LocalDate start_date, LocalDate end_date, Status project_status) {
         this.project_name = project_name;

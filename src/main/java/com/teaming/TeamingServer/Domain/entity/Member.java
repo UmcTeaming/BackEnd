@@ -39,6 +39,9 @@ public class Member extends Time {
     @OneToMany(mappedBy="member")
     public List<MemberSchedule> memberSchedules = new ArrayList<>();
 
+    @OneToMany(mappedBy="member")
+    public List<File> files = new ArrayList<>();
+
 
 
     @Builder
