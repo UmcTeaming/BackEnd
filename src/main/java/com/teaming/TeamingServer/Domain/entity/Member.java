@@ -16,7 +16,7 @@ public class Member extends Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int member_id;
+    private Long member_id;
 
     @Column(nullable = false)
     private String name;
