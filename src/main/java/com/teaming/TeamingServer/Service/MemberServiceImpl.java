@@ -114,8 +114,7 @@ public class MemberServiceImpl implements MemberService {
     private boolean checkBlank(MemberRequestDto memberRequestDto) {
         if((memberRequestDto.getName() == null)
                 || (memberRequestDto.getEmail() == null)
-                || (memberRequestDto.getPassword() == null)
-                || (memberRequestDto.getCheck_password() == null)) {
+                || (memberRequestDto.getPassword() == null)) {
             return false;
         }
 
