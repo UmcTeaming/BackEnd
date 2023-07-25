@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.controller;
+package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.Exception.BaseException;
