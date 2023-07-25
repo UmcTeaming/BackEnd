@@ -33,8 +33,8 @@ public class CommentService {
         String content = commentEnrollRequestDto.getContent();
 
         // 파일과 멤버를 데이터베이스에서 조회합니다.
-        File file = fileRepository.findById(fileId).orElseThrow(() -> new EntityNotFoundException("File not found with id: " + fileId));
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException("Member not found with id: " + memberId));
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(),"File not found"));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "member not found"));
 
 
         Comment comment = Comment.builder()
@@ -49,11 +49,12 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
+
     @Transactional
     public void deleteComment(Long fileId, Long commentId) {
         // 댓글을 삭제하기 전에 해당 댓글이 속한 파일과 파일에 해당하는 댓글인지 확인해야 합니다.
-        File file = fileRepository.findById(fileId).orElseThrow(() -> new EntityNotFoundException("File not found with id: " + fileId));
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new EntityNotFoundException("Comment not found with id: " + commentId));
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found"));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(),  "Comment not found"));
         // 파일과 댓글이 연관되어 있는지 확인합니다.
 
         if (!comment.getFile().equals(file)) {
