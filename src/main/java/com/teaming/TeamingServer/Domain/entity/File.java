@@ -44,12 +44,13 @@ public class File extends Time {
 
 
     @Builder
-    public File(String fileName, String file_type,Project project, Member member, String fileUrl) {
+    public File(String fileName, String file_type, Project project, Member member, String fileUrl, Boolean file_status) {
         this.fileName = fileName;
         this.fileUrl = fileUrl;
         this.file_type = file_type;
         this.project = project;
         this.member = member;
+        this.file_status = file_status; // 파일 상태 설정
     }
 
 
