@@ -28,6 +28,7 @@ public class CommentService {
     private final FileRepository fileRepository;
     private final MemberRepository memberRepository;
 
+    // comment 생성하기
     public void generateComment(Long fileId, Long memberId, CommentEnrollRequestDto commentEnrollRequestDto) {
         // 요청으로부터 댓글 내용을 가져옵니다.
         String content = commentEnrollRequestDto.getContent();
@@ -50,6 +51,7 @@ public class CommentService {
     }
 
 
+    //comment 삭제하기
     @Transactional
     public void deleteComment(Long fileId, Long commentId) {
         // 댓글을 삭제하기 전에 해당 댓글이 속한 파일과 파일에 해당하는 댓글인지 확인해야 합니다.
