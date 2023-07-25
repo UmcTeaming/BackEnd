@@ -1,5 +1,7 @@
 package com.teaming.TeamingServer.Service;
 
+import com.teaming.TeamingServer.Config.Jwt.JwtToken;
+import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
@@ -14,6 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,11 +32,17 @@ import java.util.List;
 @RequiredArgsConstructor // 밑에 MemberRepository 의 생성자를 쓰지 않기 위해
 public class MemberServiceImpl implements MemberService {
 
-    @Autowired
+    // @Autowired
     private final MemberRepository memberRepository;
     private final EmailService emailService;
 
+    // email 인증 코드
     private String emailCode;
+
+    // jwt
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private JwtTokenProvider jwtTokenProvider;
 
     /**
      * 회원 가입
@@ -94,6 +106,18 @@ public class MemberServiceImpl implements MemberService {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "인증번호가 일치하지 않습니다."));
+    }
+
+    @Transactional
+    public JwtToken login(String email, String password) {
+        // Authentication 객체 생성
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        // 검증된 인증 정보로 JWT 토큰 생성
+        JwtToken token = jwtTokenProvider.generateToken(authentication);
+
+        return token;
     }
 
     private boolean checkCode(String authentication, String emailCode) {
