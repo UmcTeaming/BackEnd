@@ -1,4 +1,4 @@
-package com.teaming.TeamingServer.Controller;
+package com.teaming.TeamingServer.controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;

@@ -1,3 +1,5 @@
+# https://growingarchive.tistory.com/244 : git ignore 적용법
+
 HELP.md
 .gradle
 build/
@@ -35,3 +37,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### 메일 관련 정보 ###
+application-mail.properties
