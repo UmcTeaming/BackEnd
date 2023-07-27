@@ -6,6 +6,7 @@ import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
+import com.teaming.TeamingServer.Domain.entity.Role;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
@@ -61,6 +62,7 @@ public class MemberServiceImpl implements MemberService {
                 .name(memberRequestDto.getName())
                 .email(memberRequestDto.getEmail())
                 .password(memberRequestDto.getPassword())
+                .role(Role.valueOf("MEMBER"))
                 .agreement(true).build();
 
         // 중복 회원 검증
