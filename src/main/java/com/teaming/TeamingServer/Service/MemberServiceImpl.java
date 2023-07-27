@@ -1,20 +1,14 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Config.Jwt.JwtToken;
-import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Role;
-import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
-import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,8 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.List;
 
@@ -39,11 +31,6 @@ public class MemberServiceImpl implements MemberService {
 
     // email 인증 코드
     private String emailCode;
-
-    // jwt
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private JwtTokenProvider jwtTokenProvider;
 
     /**
      * 회원 가입
@@ -110,17 +97,17 @@ public class MemberServiceImpl implements MemberService {
                 .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "인증번호가 일치하지 않습니다."));
     }
 
-    @Transactional
-    public JwtToken login(String email, String password) {
-        // Authentication 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        // 검증된 인증 정보로 JWT 토큰 생성
-        JwtToken token = jwtTokenProvider.generateToken(authentication);
-
-        return token;
-    }
+//    @Transactional
+//    public JwtToken login(String email, String password) {
+//        // Authentication 객체 생성
+//        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+//
+//
+//        // 검증된 인증 정보로 JWT 토큰 생성
+//        JwtToken token = jwtTokenProvider.generateToken(authentication);
+//
+//        return token;
+//    }
 
     private boolean checkCode(String authentication, String emailCode) {
         return authentication.equals(emailCode);
@@ -133,8 +120,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private boolean checkDuplicateEmail(String email) {
-        List<Member> findMembers = memberRepository.findByEmail(email);
-        return findMembers.isEmpty();
+        Member findMember = memberRepository.findByEmail(email);
+
+        return findMember == null;
     }
 
     private boolean checkBlank(MemberRequestDto memberRequestDto) {
