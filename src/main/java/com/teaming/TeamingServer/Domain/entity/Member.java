@@ -35,6 +35,10 @@ public class Member extends Time {
     @Column(nullable = false)
     private boolean agreement;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @OneToMany(mappedBy ="member")
     public List<MemberProject> memberProjectList = new ArrayList<>();
 
