@@ -73,9 +73,9 @@ public class MemberServiceImpl implements MemberService {
         };
 
         // 비밀번호 암호화
-        String encPwd = bCryptPasswordEncoder.encode(member.getPassword());
-
-        member.setPassword(encPwd);
+//        String encPwd = bCryptPasswordEncoder.encode(member.getPassword());
+//
+//        member.setPassword(encPwd);
 
         // 이메일 인증
 
@@ -128,8 +128,13 @@ public class MemberServiceImpl implements MemberService {
             throw new UsernameNotFoundException("User not found");
         }
 
+        if(!Objects.equals(findMembers.getPassword(), password)) {
+            System.out.println("find = " + findMembers.getPassword() + ", password = " + password);
+            throw new IllegalArgumentException("비밀번호를 잘못 입력했습니다.");
+        }
+
         // Authentication 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, bCryptPasswordEncoder.encode(password));
 
         System.out.println("authenticationToken 성공 : " + authenticationToken.getPrincipal() +
                 " credentials : " + authenticationToken.getCredentials());
