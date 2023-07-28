@@ -46,7 +46,6 @@ public class FileService {
 
     public List<CommentResponseDto> searchComment(Long fileId) {
 
-
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found with id: " + fileId));
 
@@ -62,7 +61,7 @@ public class FileService {
 
     private String uploadDir = "C:\\Users\\82103\\Desktop\\UMC\\";
 
-    public void generateFile(Long projectId, Long memberId, MultipartFile file) {
+    public void generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
 
@@ -86,6 +85,7 @@ public class FileService {
                 .fileUrl(fileUrl)
                 .project(project)
                 .member(member)
+                .file_status(fileStatus) // file_status 설정
                 .build();
 
         // 파일 엔티티 저장
@@ -102,6 +102,7 @@ public class FileService {
         }
     }
 
+
     public void deleteFile(Long fileId) {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found with id: " + fileId));
@@ -109,4 +110,5 @@ public class FileService {
         // 파일 삭제
         fileRepository.delete(file);
     }
+
 }
