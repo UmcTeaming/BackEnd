@@ -92,6 +92,24 @@ public class ProjectController {
         }
     }
 
+    // 프로젝트 최종 파일들 조회
+
+    @GetMapping("/{projectId}/final-files")
+    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFinalFiles(@PathVariable("projectId") Long projectId){
+        try{
+            List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(projectId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(),"최종 프로젝트 파일들을 불러왔습니다",finalInfoList));
+
+        } catch(BaseException e){
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(),e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(),e.getMessage(),null));
+        }
+    }
+
 }
 
 

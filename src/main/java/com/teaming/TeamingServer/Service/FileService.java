@@ -115,14 +115,16 @@ public class FileService {
 
         Map<LocalDate, List<FileDetailResponseDto>> fileInfoByDate = new HashMap<>();
 
-        project.getFiles().forEach(file -> {
-            int commentCount = file.getComments().size();
-            FileDetailResponseDto fileDetailResponseDto = new FileDetailResponseDto(
-                    file.getFile_type(),
-                    file.getFileName(),
-                    file.getFileUrl(),
-                    commentCount
-            );
+        project.getFiles().stream()
+                .filter(file -> !file.getFile_status()) // file_status가 false인 파일들만 고려
+                .forEach(file -> {
+                    int commentCount = file.getComments().size();
+                    FileDetailResponseDto fileDetailResponseDto = new FileDetailResponseDto(
+                            file.getFile_type(),
+                            file.getFileName(),
+                            file.getFileUrl(),
+                            commentCount
+                    );
 
             LocalDateTime createdAt = file.getCreatedAt();
             LocalDate date = createdAt.toLocalDate();
@@ -133,6 +135,39 @@ public class FileService {
 
 //
         });
+
+        return fileInfoByDate.entrySet().stream()
+                .map(entry -> new FileListResponseDto(entry.getKey().atStartOfDay(), entry.getValue()))
+                .collect(Collectors.toList());
+
+    }
+
+    public List<FileListResponseDto> searchFinalFile(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+
+        Map<LocalDate, List<FileDetailResponseDto>> fileInfoByDate = new HashMap<>();
+
+        project.getFiles().stream()
+                .filter(file -> file.getFile_status()) // file_status가 true인 파일들만 고려
+                .forEach(file -> {
+                    int commentCount = file.getComments().size();
+                    FileDetailResponseDto fileDetailResponseDto = new FileDetailResponseDto(
+                            file.getFile_type(),
+                            file.getFileName(),
+                            file.getFileUrl(),
+                            commentCount
+                    );
+
+                    LocalDateTime createdAt = file.getCreatedAt();
+                    LocalDate date = createdAt.toLocalDate();
+
+                    List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date,new ArrayList<>());
+                    filesbyDate.add(fileDetailResponseDto);
+                    fileInfoByDate.put(date,filesbyDate);
+
+//
+                });
 
         return fileInfoByDate.entrySet().stream()
                 .map(entry -> new FileListResponseDto(entry.getKey().atStartOfDay(), entry.getValue()))

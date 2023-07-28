@@ -14,6 +14,4 @@ public class FileListResponseDto {
 
     private LocalDateTime createdAt;
     private List<FileDetailResponseDto> filesDetails;
-
-
 }
