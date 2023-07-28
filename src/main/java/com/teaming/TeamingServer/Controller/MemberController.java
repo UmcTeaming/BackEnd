@@ -7,16 +7,14 @@ import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
 import com.teaming.TeamingServer.Service.MemberService;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-@Controller            // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함
+@RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -52,10 +50,16 @@ public class MemberController {
     // 로그인
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<BaseResponse<JwtToken>> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
+    public ResponseEntity login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
+        JwtToken token = memberService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
 
-        return memberService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
+        if(token == null) {
+            ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new BaseErrorResponse(HttpStatus.FORBIDDEN.value(), "잘못된 email 혹은 password 입니다."));
+        }
 
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
     }
 
 }

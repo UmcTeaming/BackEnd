@@ -4,7 +4,6 @@ import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
-import com.teaming.TeamingServer.Domain.entity.Member;
 import org.springframework.http.ResponseEntity;
 
 public interface MemberService {
@@ -14,5 +13,5 @@ public interface MemberService {
 
     ResponseEntity verificationEmail(MemberVerificationEmailRequestDto memberVerificationEmailRequestDto);
 
-    ResponseEntity login(String email, String password);
+    JwtToken login(String email, String password);
 }

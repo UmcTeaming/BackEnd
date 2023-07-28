@@ -6,33 +6,35 @@ import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
-import com.teaming.TeamingServer.Exception.BaseException;
+import com.teaming.TeamingServer.Domain.entity.Role;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
-import jakarta.validation.ConstraintViolationException;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.List;
+import java.util.Objects;
 
 // @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor // 밑에 MemberRepository 의 생성자를 쓰지 않기 위해
 public class MemberServiceImpl implements MemberService {
 
-    // @Autowired
     private final MemberRepository memberRepository;
     private final EmailService emailService;
 
@@ -42,7 +44,8 @@ public class MemberServiceImpl implements MemberService {
     // jwt
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
+
 
     /**
      * 회원 가입
@@ -61,6 +64,7 @@ public class MemberServiceImpl implements MemberService {
                 .name(memberRequestDto.getName())
                 .email(memberRequestDto.getEmail())
                 .password(memberRequestDto.getPassword())
+//                .role(Role.valueOf("MEMBER"))
                 .agreement(true).build();
 
         // 중복 회원 검증
@@ -68,7 +72,10 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("이미 회원가입된 이메일입니다.");
         };
 
-        // 비밀번호 일치 검증
+        // 비밀번호 암호화
+//        String encPwd = bCryptPasswordEncoder.encode(member.getPassword());
+//
+//        member.setPassword(encPwd);
 
         // 이메일 인증
 
@@ -109,23 +116,46 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Transactional
-    public ResponseEntity login(String email, String password) {
-        JwtToken token;
+    public JwtToken login(String email, String password) {
 
-        try {
-            // Authentication 객체 생성
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
+        Member findMembers = memberRepository.findByEmail(email);
 
-            // 검증된 인증 정보로 JWT 토큰 생성
-            token = jwtTokenProvider.generateToken(authentication);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "잘못된 email 혹은 password 입니다."));
+        System.out.println("멤버 찾기 성공 : " + findMembers.getName());
+
+        // 없는 회원이라면
+        if(findMembers == null) {
+            throw new UsernameNotFoundException("User not found");
         }
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
+        if(!Objects.equals(findMembers.getPassword(), password)) {
+            System.out.println("find = " + findMembers.getPassword() + ", password = " + password);
+            throw new IllegalArgumentException("비밀번호를 잘못 입력했습니다.");
+        }
+
+        // Authentication 객체 생성
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, bCryptPasswordEncoder.encode(password));
+
+        System.out.println("authenticationToken 성공 : " + authenticationToken.getPrincipal() +
+                " credentials : " + authenticationToken.getCredentials());
+
+        Authentication authentication = null;
+
+        try {
+            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        } catch (AuthenticationException authenticationException) {
+            authenticationException.printStackTrace();
+            System.out.println(authenticationException.getMessage());
+        }
+
+        System.out.println("authentication 성공");
+
+        // 검증된 인증 정보로 JWT 토큰 생성
+        JwtToken token = jwtTokenProvider.generateToken(authentication);
+
+        System.out.println("토큰 생성 성공");
+
+        return token;
     }
 
     private boolean checkCode(String authentication, String emailCode) {
@@ -139,8 +169,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private boolean checkDuplicateEmail(String email) {
-        List<Member> findMembers = memberRepository.findByEmail(email);
-        return findMembers.isEmpty();
+        Member findMember = memberRepository.findByEmail(email);
+
+        return findMember == null;
     }
 
     private boolean checkBlank(MemberRequestDto memberRequestDto) {
