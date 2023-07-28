@@ -2,23 +2,18 @@ package com.teaming.TeamingServer.Service;
 
 
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
-import com.teaming.TeamingServer.Domain.entity.Comment;
+import com.teaming.TeamingServer.Domain.Dto.FileDetailResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Exception.BaseException;
-import com.teaming.TeamingServer.Repository.CommentRepository;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -29,9 +24,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,9 +38,9 @@ import java.util.stream.Collectors;
 public class FileService {
 
 
-     private final FileRepository fileRepository;
-     private final ProjectRepository projectRepository;
-     private final MemberRepository memberRepository;
+    private final FileRepository fileRepository;
+    private final ProjectRepository projectRepository;
+    private final MemberRepository memberRepository;
 
     public List<CommentResponseDto> searchComment(Long fileId) {
 
@@ -111,4 +109,69 @@ public class FileService {
         fileRepository.delete(file);
     }
 
+    public List<FileListResponseDto> searchFile(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+
+        Map<LocalDate, List<FileDetailResponseDto>> fileInfoByDate = new HashMap<>();
+
+        project.getFiles().stream()
+                .filter(file -> !file.getFile_status()) // file_status가 false인 파일들만 고려
+                .forEach(file -> {
+                    int commentCount = file.getComments().size();
+                    FileDetailResponseDto fileDetailResponseDto = new FileDetailResponseDto(
+                            file.getFile_type(),
+                            file.getFileName(),
+                            file.getFileUrl(),
+                            commentCount
+                    );
+
+            LocalDateTime createdAt = file.getCreatedAt();
+            LocalDate date = createdAt.toLocalDate();
+
+            List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date,new ArrayList<>());
+            filesbyDate.add(fileDetailResponseDto);
+            fileInfoByDate.put(date,filesbyDate);
+
+//
+        });
+
+        return fileInfoByDate.entrySet().stream()
+                .map(entry -> new FileListResponseDto(entry.getKey().atStartOfDay(), entry.getValue()))
+                .collect(Collectors.toList());
+
+    }
+
+    public List<FileListResponseDto> searchFinalFile(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+
+        Map<LocalDate, List<FileDetailResponseDto>> fileInfoByDate = new HashMap<>();
+
+        project.getFiles().stream()
+                .filter(file -> file.getFile_status()) // file_status가 true인 파일들만 고려
+                .forEach(file -> {
+                    int commentCount = file.getComments().size();
+                    FileDetailResponseDto fileDetailResponseDto = new FileDetailResponseDto(
+                            file.getFile_type(),
+                            file.getFileName(),
+                            file.getFileUrl(),
+                            commentCount
+                    );
+
+                    LocalDateTime createdAt = file.getCreatedAt();
+                    LocalDate date = createdAt.toLocalDate();
+
+                    List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date,new ArrayList<>());
+                    filesbyDate.add(fileDetailResponseDto);
+                    fileInfoByDate.put(date,filesbyDate);
+
+//
+                });
+
+        return fileInfoByDate.entrySet().stream()
+                .map(entry -> new FileListResponseDto(entry.getKey().atStartOfDay(), entry.getValue()))
+                .collect(Collectors.toList());
+
+    }
 }
