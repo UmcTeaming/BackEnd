@@ -12,7 +12,6 @@ import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함
@@ -59,10 +58,8 @@ public class MemberController {
                     .body(new BaseErrorResponse(HttpStatus.FORBIDDEN.value(), "잘못된 email 혹은 password 입니다."));
         }
 
-        return ResponseEntity.ok(token);
-
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
     }
 
 }

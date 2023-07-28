@@ -10,6 +10,7 @@ import com.teaming.TeamingServer.Domain.entity.Role;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +31,10 @@ import java.util.Objects;
 
 // @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor // 밑에 MemberRepository 의 생성자를 쓰지 않기 위해
 public class MemberServiceImpl implements MemberService {
 
-    // @Autowired
     private final MemberRepository memberRepository;
     private final EmailService emailService;
 
@@ -39,8 +44,8 @@ public class MemberServiceImpl implements MemberService {
     // jwt
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
+
 
     /**
      * 회원 가입
@@ -59,7 +64,7 @@ public class MemberServiceImpl implements MemberService {
                 .name(memberRequestDto.getName())
                 .email(memberRequestDto.getEmail())
                 .password(memberRequestDto.getPassword())
-                .role(Role.valueOf("MEMBER"))
+//                .role(Role.valueOf("MEMBER"))
                 .agreement(true).build();
 
         // 중복 회원 검증
@@ -67,7 +72,7 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("이미 회원가입된 이메일입니다.");
         };
 
-        // 비밀번호 일치 검증
+        // 비밀번호 암호화
         String encPwd = bCryptPasswordEncoder.encode(member.getPassword());
 
         member.setPassword(encPwd);
@@ -116,17 +121,34 @@ public class MemberServiceImpl implements MemberService {
         // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
         Member findMembers = memberRepository.findByEmail(email);
 
+        System.out.println("멤버 찾기 성공 : " + findMembers.getName());
+
         // 없는 회원이라면
         if(findMembers == null) {
-            return null;
+            throw new UsernameNotFoundException("User not found");
         }
 
         // Authentication 객체 생성
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        System.out.println("authenticationToken 성공 : " + authenticationToken.getPrincipal() +
+                " credentials : " + authenticationToken.getCredentials());
+
+        Authentication authentication = null;
+
+        try {
+            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        } catch (AuthenticationException authenticationException) {
+            authenticationException.printStackTrace();
+            System.out.println(authenticationException.getMessage());
+        }
+
+        System.out.println("authentication 성공");
 
         // 검증된 인증 정보로 JWT 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
+
+        System.out.println("토큰 생성 성공");
 
         return token;
     }

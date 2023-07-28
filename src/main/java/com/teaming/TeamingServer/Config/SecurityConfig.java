@@ -33,16 +33,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // h2 접근 허용
         http
                 .headers((header) -> header.frameOptions(frameOptionsConfig -> frameOptionsConfig.disable()));
-        http.csrf(AbstractHttpConfigurer::disable)
+
+        http
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement((sessionManagement) ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .formLogin(AbstractHttpConfigurer::disable)
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http.formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.anyRequest().permitAll())
+                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.anyRequest().permitAll());
+                // .formLogin((formLogin) -> formLogin.loginProcessingUrl("/login"))
                 // .authorizeHttpRequests((antMatchers) -> antMatchers.requestMatchers("/member/").permitAll())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

@@ -35,9 +35,9 @@ public class Member extends Time {
     @Column(nullable = false)
     private boolean agreement;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
+//    @Column(nullable = false)
+//    @Enumerated(EnumType.STRING)
+//    private Role role;
 
     @OneToMany(mappedBy ="member")
     public List<MemberProject> memberProjectList = new ArrayList<>();
@@ -55,7 +55,7 @@ public class Member extends Time {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.role = role;
+//        this.role = role;
         this.agreement = agreement;
     }
 
