@@ -109,15 +109,23 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Transactional
-    public JwtToken login(String email, String password) {
-        // Authentication 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+    public ResponseEntity login(String email, String password) {
+        JwtToken token;
 
-        // 검증된 인증 정보로 JWT 토큰 생성
-        JwtToken token = jwtTokenProvider.generateToken(authentication);
+        try {
+            // Authentication 객체 생성
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        return token;
+            // 검증된 인증 정보로 JWT 토큰 생성
+            token = jwtTokenProvider.generateToken(authentication);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "잘못된 email 혹은 password 입니다."));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
     }
 
     private boolean checkCode(String authentication, String emailCode) {

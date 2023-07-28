@@ -14,5 +14,5 @@ public interface MemberService {
 
     ResponseEntity verificationEmail(MemberVerificationEmailRequestDto memberVerificationEmailRequestDto);
 
-    JwtToken login(String email, String password);
+    ResponseEntity login(String email, String password);
 }

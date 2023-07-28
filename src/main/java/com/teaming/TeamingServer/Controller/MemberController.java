@@ -53,9 +53,9 @@ public class MemberController {
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<BaseResponse<JwtToken>> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
-        JwtToken token = memberService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
+
+        return memberService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
+
     }
 
 }
