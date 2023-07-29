@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +43,7 @@ public class MemberServiceImpl implements MemberService {
     private String emailCode;
 
     // jwt
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+//    private final PasswordEncoder encoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -64,7 +65,6 @@ public class MemberServiceImpl implements MemberService {
                 .name(memberRequestDto.getName())
                 .email(memberRequestDto.getEmail())
                 .password(memberRequestDto.getPassword())
-//                .role(Role.valueOf("MEMBER"))
                 .agreement(true).build();
 
         // 중복 회원 검증
@@ -72,8 +72,8 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("이미 회원가입된 이메일입니다.");
         };
 
-        // 비밀번호 암호화
-//        String encPwd = bCryptPasswordEncoder.encode(member.getPassword());
+//        // 비밀번호 암호화
+//        String encPwd = encoder.encode(member.getPassword());
 //
 //        member.setPassword(encPwd);
 
@@ -115,26 +115,19 @@ public class MemberServiceImpl implements MemberService {
                 .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "인증번호가 일치하지 않습니다."));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public JwtToken login(String email, String password) {
 
         // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
-        Member findMembers = memberRepository.findByEmail(email);
+//        Member findMember = memberRepository.findByEmail(email).stream().filter(it -> encoder.matches(password, it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
+//                .findFirst().orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
-        System.out.println("멤버 찾기 성공 : " + findMembers.getName());
+        Member findMember = memberRepository.findByEmail(email).stream().findFirst().get();
 
-        // 없는 회원이라면
-        if(findMembers == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-
-        if(!Objects.equals(findMembers.getPassword(), password)) {
-            System.out.println("find = " + findMembers.getPassword() + ", password = " + password);
-            throw new IllegalArgumentException("비밀번호를 잘못 입력했습니다.");
-        }
+        System.out.println("멤버 찾기 성공 : " + findMember.getName());
 
         // Authentication 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, bCryptPasswordEncoder.encode(password));
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
         System.out.println("authenticationToken 성공 : " + authenticationToken.getPrincipal() +
                 " credentials : " + authenticationToken.getCredentials());
@@ -169,9 +162,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private boolean checkDuplicateEmail(String email) {
-        Member findMember = memberRepository.findByEmail(email);
+        List<Member> findMember = memberRepository.findByEmail(email);
 
-        return findMember == null;
+        return findMember.isEmpty();
     }
 
     private boolean checkBlank(MemberRequestDto memberRequestDto) {

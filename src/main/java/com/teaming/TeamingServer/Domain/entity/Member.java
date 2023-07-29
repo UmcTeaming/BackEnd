@@ -51,16 +51,20 @@ public class Member extends Time {
 
 
     @Builder
-    public Member(String name, String email, String password, Role role, boolean agreement) {
+    public Member(String name, String email, String password, boolean agreement) {
         this.name = name;
         this.email = email;
         this.password = password;
-//        this.role = role;
         this.agreement = agreement;
     }
 
     public Member update(String profile_image) {
         this.profile_image = profile_image;
+        return this;
+    }
+
+    public Member updatePassword(String password) {
+        this.password = password;
         return this;
     }
 }
