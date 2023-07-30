@@ -40,3 +40,4 @@ out/
 
 ### 메일 관련 정보 ###
 application-mail.properties
+application-jwt.properties
