@@ -40,7 +40,7 @@ public class Member extends Time {
 //    private Role role;
 
     @OneToMany(mappedBy ="member")
-    public List<MemberProject> memberProjectList = new ArrayList<>();
+    public List<MemberProject> memberProjects = new ArrayList<>();
 
     @OneToMany(mappedBy="member")
     public List<MemberSchedule> memberSchedules = new ArrayList<>();
