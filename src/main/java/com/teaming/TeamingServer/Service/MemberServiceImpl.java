@@ -106,12 +106,17 @@ public class MemberServiceImpl implements MemberService {
 
     @Transactional(readOnly = true)
     public JwtToken login(String email, String password) {
+
         Authentication authentication = null;
+
+        Long memberId = null;
 
         try {
             // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
-            Member findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
+           Member findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
                     .findFirst().orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+
+           memberId = findMember.getMember_id();
 
             // Authentication 객체 생성
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
@@ -125,7 +130,12 @@ public class MemberServiceImpl implements MemberService {
         // 검증된 인증 정보로 JWT 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
 
-        return token;
+        return JwtToken.builder()
+                .grantType(token.getGrantType())
+                .accessToken(token.getAccessToken())
+                .refreshToken(token.getRefreshToken())
+                .memberId(memberId)
+                .build();
     }
 
     private boolean checkCode(String authentication, String emailCode) {
