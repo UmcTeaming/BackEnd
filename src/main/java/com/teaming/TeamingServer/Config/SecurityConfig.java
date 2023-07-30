@@ -3,8 +3,10 @@ package com.teaming.TeamingServer.Config;
 import com.teaming.TeamingServer.Config.Jwt.CustomMemberDetailsService;
 import com.teaming.TeamingServer.Config.Jwt.JwtAuthenticationFilter;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
+import com.teaming.TeamingServer.Config.Redis.RedisUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,9 +23,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtil redisUtil;
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider, RedisUtil redisUtil) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.redisUtil = redisUtil;
     }
 
     @Bean
@@ -42,12 +46,14 @@ public class SecurityConfig {
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+
         http.formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.anyRequest().permitAll());
                 // .formLogin((formLogin) -> formLogin.loginProcessingUrl("/login"))
                 // .authorizeHttpRequests((antMatchers) -> antMatchers.requestMatchers("/member/").permitAll())
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisUtil), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

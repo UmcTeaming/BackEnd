@@ -2,6 +2,8 @@ package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
+import com.teaming.TeamingServer.Config.Redis.RedisUtil;
+import com.teaming.TeamingServer.Domain.Dto.MemberLogoutRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
@@ -10,6 +12,7 @@ import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +22,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -36,6 +41,9 @@ public class MemberServiceImpl implements MemberService {
 //    private final PasswordEncoder encoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+
+    // redis - logout 기능 구현을 위해
+    private final RedisUtil redisUtil;
 
 
     /**
@@ -111,9 +119,11 @@ public class MemberServiceImpl implements MemberService {
 
         Long memberId = null;
 
+        Member findMember = null;
+
         try {
             // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
-           Member findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
+           findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
                     .findFirst().orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
            memberId = findMember.getMember_id();
@@ -130,12 +140,38 @@ public class MemberServiceImpl implements MemberService {
         // 검증된 인증 정보로 JWT 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
 
+        //redis에 RT:13@gmail.com(key) / 23jijiofj2io3hi32hiongiodsninioda(value) 형태로 리프레시 토큰 저장하기
+        // redisTemplate.opsForValue().set("RT:"+findMember.getEmail(),token.getRefreshToken(),System.currentTimeMillis() + 1000 * 60 * 30, TimeUnit.MILLISECONDS);
+        redisUtil.set(findMember.getEmail(), token.getRefreshToken(), 5);
+
+
         return JwtToken.builder()
                 .grantType(token.getGrantType())
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
                 .memberId(memberId)
                 .build();
+    }
+
+    @Transactional
+    public void logout(MemberLogoutRequestDto memberLogoutRequestDto){
+        // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
+        if (!jwtTokenProvider.validateToken(memberLogoutRequestDto.getAccessToken())){
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+
+        // Access Token에서 User email을 가져온다
+        Authentication authentication = jwtTokenProvider.getAuthentication(memberLogoutRequestDto.getAccessToken());
+
+        // Redis에서 해당 User email로 저장된 Refresh Token 이 있는지 여부를 확인 후에 있을 경우 삭제를 한다.
+        if (redisUtil.hasKeyBlackList(memberLogoutRequestDto.getRefreshToken())){
+            // Refresh Token을 삭제
+            redisUtil.delete(memberLogoutRequestDto.getRefreshToken());
+        }
+
+        // 레디스에 accessToken 사용못하도록 등록
+        redisUtil.setBlackList(memberLogoutRequestDto.getAccessToken(), "accessToken", 5);
+        redisUtil.setBlackList(memberLogoutRequestDto.getRefreshToken(), "refreshToken", 5);
     }
 
     private boolean checkCode(String authentication, String emailCode) {

@@ -2,16 +2,15 @@ package com.teaming.TeamingServer.Controller;
 
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
-import com.teaming.TeamingServer.Domain.Dto.MemberLoginRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Service.MemberService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함
@@ -63,4 +62,18 @@ public class MemberController {
                 .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
     }
 
+    // 로그아웃
+    @PostMapping("/logout")
+    @ResponseBody
+    public ResponseEntity logout(MemberLogoutRequestDto memberLogoutRequestDto) {
+        try {
+            memberService.logout(memberLogoutRequestDto);
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage()));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "로그아웃 성공"));
+    }
 }

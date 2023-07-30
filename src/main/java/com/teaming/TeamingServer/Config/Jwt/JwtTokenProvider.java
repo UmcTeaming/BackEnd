@@ -1,5 +1,6 @@
 package com.teaming.TeamingServer.Config.Jwt;
 
+import com.teaming.TeamingServer.Config.Redis.RedisUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final Key key;
+    private RedisUtil redisUtil;
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);
@@ -75,6 +77,10 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            // 추가된 부분
+            if (redisUtil.hasKeyBlackList(token)){
+                throw new RuntimeException("로그아웃 되었습니다. 다시 로그인해주세요.");
+            }
             return true;
         } catch (io.jsonwebtoken.security.SignatureException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
@@ -85,7 +91,6 @@ public class JwtTokenProvider {
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
         }
-
         return false;
     }
 
@@ -97,6 +102,4 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
-
-
 }
