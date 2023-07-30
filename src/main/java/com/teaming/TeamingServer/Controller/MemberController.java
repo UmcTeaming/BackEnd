@@ -51,10 +51,11 @@ public class MemberController {
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
+
         JwtToken token = memberService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
 
         if(token == null) {
-            ResponseEntity.status(HttpStatus.FORBIDDEN)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new BaseErrorResponse(HttpStatus.FORBIDDEN.value(), "잘못된 email 혹은 password 입니다."));
         }
 

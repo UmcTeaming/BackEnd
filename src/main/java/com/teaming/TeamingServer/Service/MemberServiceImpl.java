@@ -6,31 +6,21 @@ import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
-import com.teaming.TeamingServer.Domain.entity.Role;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
-// @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor // 밑에 MemberRepository 의 생성자를 쓰지 않기 위해
@@ -74,7 +64,6 @@ public class MemberServiceImpl implements MemberService {
 
 //        // 비밀번호 암호화
 //        String encPwd = encoder.encode(member.getPassword());
-//
 //        member.setPassword(encPwd);
 
         // 이메일 인증
@@ -117,36 +106,24 @@ public class MemberServiceImpl implements MemberService {
 
     @Transactional(readOnly = true)
     public JwtToken login(String email, String password) {
-
-        // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
-//        Member findMember = memberRepository.findByEmail(email).stream().filter(it -> encoder.matches(password, it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
-//                .findFirst().orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
-
-        Member findMember = memberRepository.findByEmail(email).stream().findFirst().get();
-
-        System.out.println("멤버 찾기 성공 : " + findMember.getName());
-
-        // Authentication 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-
-        System.out.println("authenticationToken 성공 : " + authenticationToken.getPrincipal() +
-                " credentials : " + authenticationToken.getCredentials());
-
         Authentication authentication = null;
 
         try {
-            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        } catch (AuthenticationException authenticationException) {
-            authenticationException.printStackTrace();
-            System.out.println(authenticationException.getMessage());
-        }
+            // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
+            Member findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
+                    .findFirst().orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
-        System.out.println("authentication 성공");
+            // Authentication 객체 생성
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+
+            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        }
+        catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
+            return null;
+        }
 
         // 검증된 인증 정보로 JWT 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
-
-        System.out.println("토큰 생성 성공");
 
         return token;
     }
@@ -190,7 +167,7 @@ public class MemberServiceImpl implements MemberService {
      * 회원 수정
      */
     @Transactional
-    public void update(Long id, String profile_image) {
+    public void updateProfileImage(Long id, String profile_image) {
         Member member = (memberRepository.findById(id)).get();
         member.update(profile_image);
     }
