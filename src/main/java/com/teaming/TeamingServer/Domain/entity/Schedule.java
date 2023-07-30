@@ -43,7 +43,7 @@ public class Schedule extends Time {
     private Project project;
 
     @OneToMany(mappedBy="schedule")
-    public List<MemberSchedule> members = new ArrayList<>();
+    public List<MemberSchedule> membersSchedules = new ArrayList<>();
 
     @Builder
     public Schedule(String schedule_name, LocalDate schedule_start

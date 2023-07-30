@@ -46,7 +46,7 @@ public class Project extends Time {
     private String project_color;
 
     @OneToMany(mappedBy="project")
-    public List<MemberProject> members = new ArrayList<>();
+    public List<MemberProject> memberProjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     public List<File> files = new ArrayList<>();
