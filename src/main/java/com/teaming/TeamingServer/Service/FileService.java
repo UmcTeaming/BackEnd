@@ -42,17 +42,15 @@ public class FileService {
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
 
+    // 코멘트 찾기
     public List<CommentResponseDto> searchComment(Long fileId) {
 
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found with id: " + fileId));
 
         // 파일에 해당하는 코멘트들을 조회합니다.
-
-
-        // 조회한 코멘트들을 CommentResponseDto 형태로 변환하여 리스트에 담습니다.
         List<CommentResponseDto> result = file.getComments().stream()
-                .map(comment -> new CommentResponseDto(comment.getWriter(), comment.getContent(), comment.getCreatedAt()))
+                .map(comment -> new CommentResponseDto(comment.getWriter(), comment.getContent(), comment.getCreatedAt(), comment.getMember().getProfile_image()))
                 .collect(Collectors.toList());
         return result;
     }

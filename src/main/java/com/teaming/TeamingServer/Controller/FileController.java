@@ -8,6 +8,7 @@ import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ public class FileController {
     private final FileService fileService;
 
 
+    //코멘트 생성
     @PostMapping("/{fileId}/{memberId}/comments")
     public ResponseEntity<BaseResponse> makeComment(
             @RequestBody CommentEnrollRequestDto commentEnrollRequestDto,
@@ -43,6 +45,7 @@ public class FileController {
         }
     }
 
+    //코멘트 조회
     @GetMapping("/{fileId}/comments")
     public ResponseEntity<BaseResponse<List<CommentResponseDto>>> searchComments(@PathVariable("fileId") Long fileId) {
 

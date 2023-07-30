@@ -15,4 +15,5 @@ public class CommentResponseDto {
     private String writer;
     private String content;
     private LocalDateTime create_at;
+    private String profile_image;
 }
