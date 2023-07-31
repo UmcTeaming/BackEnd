@@ -2,10 +2,7 @@ package com.teaming.TeamingServer.Controller;
 
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
-import com.teaming.TeamingServer.Domain.Dto.MemberLoginRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Service.AuthService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
@@ -21,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     // 회원가입
-    @PostMapping("/member/signup")
+    @PostMapping("/auth/signup")
     @ResponseBody // json 으로 반환해주는 어노테이션
     public ResponseEntity signup(@RequestBody MemberRequestDto memberRequestDto) {
 
@@ -31,7 +28,7 @@ public class AuthController {
     }
 
     // 이메일 중복체크
-    @PostMapping("/member/email-duplication")
+    @PostMapping("/auth/email-duplication")
     @ResponseBody // json 으로 반환해주는 어노테이션
     public ResponseEntity duplicateEmail(@RequestBody MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
 
@@ -40,7 +37,7 @@ public class AuthController {
     }
 
     // 이메일 인증
-    @PostMapping("/member/email-verification")
+    @PostMapping("/auth/email-verification")
     @ResponseBody // json 으로 반환해주는 어노테이션
     public ResponseEntity verificationEmail(@RequestBody MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
 
@@ -48,7 +45,7 @@ public class AuthController {
     }
 
     // 로그인
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     @ResponseBody
     public ResponseEntity login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
 
@@ -62,5 +59,12 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
     }
+
+    // 비밀번호 재설정
+    @PostMapping("/auth/reset-password")
+    public ResponseEntity resetPassword(@RequestBody MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception {
+        return authService.resetPassword(memberResetPasswordRequestDto);
+    }
+
 
 }

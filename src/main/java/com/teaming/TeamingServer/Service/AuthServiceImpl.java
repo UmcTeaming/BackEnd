@@ -152,9 +152,15 @@ public class AuthServiceImpl implements AuthService {
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "회원가입되지 않은 이메일입니다."));
         }
 
-        // 2. 회원가입된 이메일이라면, 랜덤 비밀번호를 이메일로 보낸 뒤 DB 에 반영한다.
-        String resetPassword = passwordResetMailConfirm(memberResetPasswordRequestDto.getEmail());
-        findMember.stream().findFirst().get().setPassword(resetPassword);
+        try {
+            // 2. 회원가입된 이메일이라면, 랜덤 비밀번호를 이메일로 보낸 뒤 DB 에 반영한다.
+            String resetPassword = passwordResetMailConfirm(memberResetPasswordRequestDto.getEmail());
+            findMember.stream().findFirst().get().setPassword(resetPassword);
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage()));
+        }
+
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse(HttpStatus.OK.value(), "비밀번호가 재설정되었습니다."));
