@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Transactional
-public class MemberServiceImplTest {
+public class AuthServiceImplTest {
 
     @Autowired
-    MemberService memberService;
+    AuthService authService;
 
     @Test
     public void 로그인_기능() {
@@ -24,8 +24,8 @@ public class MemberServiceImplTest {
 
         MemberRequestDto memberRequestDto = new MemberRequestDto(name, email, password);
 
-        memberService.join(memberRequestDto);
+        authService.join(memberRequestDto);
 
-        memberService.login(email, password);
+        authService.login(email, password);
     }
 }
