@@ -142,7 +142,8 @@ public class MemberServiceImpl implements MemberService {
 
         //redis에 RT:13@gmail.com(key) / 23jijiofj2io3hi32hiongiodsninioda(value) 형태로 리프레시 토큰 저장하기
         // redisTemplate.opsForValue().set("RT:"+findMember.getEmail(),token.getRefreshToken(),System.currentTimeMillis() + 1000 * 60 * 30, TimeUnit.MILLISECONDS);
-        redisUtil.set(findMember.getEmail(), token.getRefreshToken(), 5);
+        // Redis 로그아웃 방식
+        // redisUtil.set(findMember.getEmail(), token.getRefreshToken(), 5);
 
 
         return JwtToken.builder()
@@ -153,25 +154,46 @@ public class MemberServiceImpl implements MemberService {
                 .build();
     }
 
+    // Redis BlackList 방법
+//    @Transactional
+//    public void logout(MemberLogoutRequestDto memberLogoutRequestDto){
+//        // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
+//        if (!jwtTokenProvider.validateToken(memberLogoutRequestDto.getAccessToken())){
+//            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+//        }
+//
+//        // Access Token에서 User email을 가져온다
+//        Authentication authentication = jwtTokenProvider.getAuthentication(memberLogoutRequestDto.getAccessToken());
+//
+//        // Redis에서 해당 User email로 저장된 Refresh Token 이 있는지 여부를 확인 후에 있을 경우 삭제를 한다.
+//        if (redisUtil.hasKeyBlackList(memberLogoutRequestDto.getRefreshToken())){
+//            // Refresh Token을 삭제
+//            redisUtil.delete(memberLogoutRequestDto.getRefreshToken());
+//        }
+//
+//        // 레디스에 accessToken 사용못하도록 등록
+//        redisUtil.setBlackList(memberLogoutRequestDto.getAccessToken(), "accessToken", 5);
+//        redisUtil.setBlackList(memberLogoutRequestDto.getRefreshToken(), "refreshToken", 5);
+//    }
+
+    // 토큰 유효기간 변경하는 방법
     @Transactional
-    public void logout(MemberLogoutRequestDto memberLogoutRequestDto){
-        // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
-        if (!jwtTokenProvider.validateToken(memberLogoutRequestDto.getAccessToken())){
+    public JwtToken logout(MemberLogoutRequestDto memberLogoutRequestDto) {
+        // 로그아웃 하고 싶은 토큰이 유효한지 검증
+        if(!jwtTokenProvider.validateToken(memberLogoutRequestDto.getAccessToken()) || !jwtTokenProvider.validateToken(memberLogoutRequestDto.getRefreshToken())) {
             throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
 
-        // Access Token에서 User email을 가져온다
-        Authentication authentication = jwtTokenProvider.getAuthentication(memberLogoutRequestDto.getAccessToken());
+        // 유효하다면, 로그아웃을 진행한다.
+        JwtToken token = JwtToken.builder()
+                .grantType(memberLogoutRequestDto.getGrantType())
+                .memberId(memberLogoutRequestDto.getMemberId())
+                .accessToken(memberLogoutRequestDto.getAccessToken())
+                .refreshToken(memberLogoutRequestDto.getRefreshToken())
+                .build();
 
-        // Redis에서 해당 User email로 저장된 Refresh Token 이 있는지 여부를 확인 후에 있을 경우 삭제를 한다.
-        if (redisUtil.hasKeyBlackList(memberLogoutRequestDto.getRefreshToken())){
-            // Refresh Token을 삭제
-            redisUtil.delete(memberLogoutRequestDto.getRefreshToken());
-        }
+        return jwtTokenProvider.invalidateToken(token);
 
-        // 레디스에 accessToken 사용못하도록 등록
-        redisUtil.setBlackList(memberLogoutRequestDto.getAccessToken(), "accessToken", 5);
-        redisUtil.setBlackList(memberLogoutRequestDto.getRefreshToken(), "refreshToken", 5);
     }
 
     private boolean checkCode(String authentication, String emailCode) {

@@ -102,4 +102,35 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
+
+    // JwtTokenProvider에 유효기간을 변경하는 메서드를 추가합니다.
+    public JwtToken invalidateToken(JwtToken token) {
+        // 토큰을 파싱하여 Claims 객체를 얻어옵니다.
+        Claims accessClaims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token.getAccessToken()).getBody();
+        Claims refreshClaims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token.getRefreshToken()).getBody();
+
+        // 토큰의 만료시간을 현재 시간보다 이전으로 설정하여 토큰을 무효화합니다.
+        accessClaims.setExpiration(new Date(System.currentTimeMillis() - 1));
+        refreshClaims.setExpiration(new Date(System.currentTimeMillis() -1));
+
+        // 변경된 Claims로 새로운 토큰을 생성합니다.
+        String newAccessToken = Jwts.builder()
+                .setClaims(accessClaims)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        String newRefreshToken = Jwts.builder()
+                .setClaims(refreshClaims)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        // 새로운 토큰을 클라이언트에게 전달하거나, 필요한 처리를 진행합니다.
+        // 예: response.setHeader("Authorization", "Bearer " + newToken);
+
+        return JwtToken.builder()
+                .grantType("Bearer")
+                .accessToken(newAccessToken)
+                .accessToken(newRefreshToken)
+                .build();
+    }
 }

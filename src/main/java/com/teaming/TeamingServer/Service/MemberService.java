@@ -16,5 +16,5 @@ public interface MemberService {
 
     JwtToken login(String email, String password);
 
-    void logout(MemberLogoutRequestDto memberLogoutRequestDto);
+    JwtToken logout(MemberLogoutRequestDto memberLogoutRequestDto);
 }

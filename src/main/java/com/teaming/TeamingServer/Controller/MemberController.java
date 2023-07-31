@@ -63,17 +63,46 @@ public class MemberController {
     }
 
     // 로그아웃
+//    @PostMapping("/logout")
+//    @ResponseBody
+//    public ResponseEntity logout(MemberLogoutRequestDto memberLogoutRequestDto) {
+//        try {
+//            memberService.logout(memberLogoutRequestDto);
+//        } catch (Exception exception) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage()));
+//        }
+//
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(new BaseResponse(HttpStatus.OK.value(), "로그아웃 성공"));
+//    }
+
     @PostMapping("/logout")
     @ResponseBody
-    public ResponseEntity logout(MemberLogoutRequestDto memberLogoutRequestDto) {
+    public ResponseEntity logout(@RequestBody MemberLogoutRequestDto memberLogoutRequestDto) {
         try {
+            // 여기서는 서비스 메서드를 호출하여 토큰의 유효기간을 조정합니다.
+            // 만약 Spring Security의 기능을 사용한다면, 토큰의 만료시간을 변경하는 로직을 추가합니다.
+            // 예: jwtTokenProvider.invalidateToken(memberLogoutRequestDto.getAccessToken());
             memberService.logout(memberLogoutRequestDto);
         } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage()));
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "만료된 ACCESS TOKEN 입니다."));
         }
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse(HttpStatus.OK.value(), "로그아웃 성공"));
+    }
+
+    @GetMapping("/logout-success")
+    public ResponseEntity logout_success() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "로그아웃 성공"));
+    }
+
+    @GetMapping("/logout-fail")
+    public ResponseEntity logout_fail() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "만료된 ACCESS TOKEN 입니다."));
     }
 }
