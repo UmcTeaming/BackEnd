@@ -24,7 +24,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor // 밑에 MemberRepository 의 생성자를 쓰지 않기 위해
-public class MemberServiceImpl implements MemberService {
+public class AuthServiceImpl implements AuthService {
 
     private final MemberRepository memberRepository;
     private final EmailService emailService;
@@ -174,7 +174,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     /**
-     * 회원 수정
+     * 회원 수정 : 프로필 사진 업데이트 + 비밀번호
      */
     @Transactional
     public void updateProfileImage(Long id, String profile_image) {
