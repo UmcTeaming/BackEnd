@@ -3,7 +3,6 @@ package com.teaming.TeamingServer.Domain.Dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -11,7 +10,7 @@ import java.time.LocalTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleDto {
+public class ScheduleEnrollRequestDto {
     private String schedule_name;
     private LocalDate schedule_start;
     private LocalDate schedule_end;

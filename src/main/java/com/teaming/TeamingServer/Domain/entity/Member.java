@@ -5,18 +5,20 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @Entity
 public class Member extends Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int member_id;
+    private Long member_id;
 
     @Column(nullable = false)
     private String name;
@@ -39,7 +41,11 @@ public class Member extends Time {
     @OneToMany(mappedBy="member")
     public List<MemberSchedule> memberSchedules = new ArrayList<>();
 
+    @OneToMany(mappedBy="member")
+    public List<File> files = new ArrayList<>();
 
+
+    // 여기도 스케줄 관련 추가해야줘야하나??
 
     @Builder
     public Member(String name, String email, String password, boolean agreement) {

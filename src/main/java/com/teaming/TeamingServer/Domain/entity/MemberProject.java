@@ -7,7 +7,7 @@ public class MemberProject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int member_project_id;
+    private Long member_project_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -16,4 +16,8 @@ public class MemberProject {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 }
