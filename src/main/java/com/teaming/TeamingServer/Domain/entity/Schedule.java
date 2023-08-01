@@ -45,8 +45,8 @@ public class Schedule extends Time {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @OneToMany(mappedBy="schedule", cascade = CascadeType.ALL)  // 얘 없애야하나??
-    public List<MemberProject> members = new ArrayList<>();
+//    @OneToMany(mappedBy="schedule", cascade = CascadeType.ALL)
+//    public List<MemberProject> members = new ArrayList<>();
 
     @OneToMany(mappedBy="schedule")
     public List<MemberSchedule> membersSchedules = new ArrayList<>();
@@ -63,13 +63,4 @@ public class Schedule extends Time {
         this.memo = memo;
         this.project = project;
     }
-
-//    public Schedule update(LocalDate schedule_end, LocalTime schedule_end_time, String memo) {
-//        this.schedule_end = schedule_end;
-//        this.schedule_end_time = schedule_end_time;
-//        this.memo = memo;
-//
-//        return this;
-//    }
-    // update부분 싹다 바꿔야할수도
 }
