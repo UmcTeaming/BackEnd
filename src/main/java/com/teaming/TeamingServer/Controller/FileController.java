@@ -63,6 +63,7 @@ public class FileController {
         }
     }
 
+    //코멘트 삭제
     @DeleteMapping("/{fileId}/comments/{commentId}")
     public ResponseEntity<BaseResponse> deleteComment (@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId) {
 

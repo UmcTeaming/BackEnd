@@ -39,13 +39,13 @@ public class Member extends Time {
 //    @Enumerated(EnumType.STRING)
 //    private Role role;
 
-    @OneToMany(mappedBy ="member")
+    @OneToMany(mappedBy ="member", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<MemberProject> memberProjects = new ArrayList<>();
 
-    @OneToMany(mappedBy="member")
+    @OneToMany(mappedBy="member",  cascade = CascadeType.ALL, orphanRemoval = true)
     public List<MemberSchedule> memberSchedules = new ArrayList<>();
 
-    @OneToMany(mappedBy="member")
+    @OneToMany(mappedBy="member",  cascade = CascadeType.ALL, orphanRemoval = true)
     public List<File> files = new ArrayList<>();
 
 
