@@ -1,8 +1,13 @@
 package com.teaming.TeamingServer.Domain.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@Getter
+@NoArgsConstructor
 public class MemberProject {
 
     @Id

@@ -38,8 +38,8 @@ public class Project extends Time {
     @Column(nullable = false)
     private LocalDate end_date;
 
+    @Column
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Status project_status;
 
     @Column(nullable = false)
@@ -48,11 +48,14 @@ public class Project extends Time {
     @OneToMany(mappedBy="project", cascade = CascadeType.ALL)
     public List<MemberProject> members = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    public List<Schedule> schedules = new ArrayList<>();
+    @OneToMany(mappedBy="project")
+    public List<MemberProject> memberProjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     public List<File> files = new ArrayList<>();
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    public List<Schedule> schedules = new ArrayList<>();
 
     @Builder
     public Project(String project_name, LocalDate start_date, LocalDate end_date, Status project_status) {

@@ -35,8 +35,12 @@ public class Member extends Time {
     @Column(nullable = false)
     private boolean agreement;
 
+//    @Column(nullable = false)
+//    @Enumerated(EnumType.STRING)
+//    private Role role;
+
     @OneToMany(mappedBy ="member")
-    public List<MemberProject> memberProjectList = new ArrayList<>();
+    public List<MemberProject> memberProjects = new ArrayList<>();
 
     @OneToMany(mappedBy="member")
     public List<MemberSchedule> memberSchedules = new ArrayList<>();
@@ -57,6 +61,15 @@ public class Member extends Time {
 
     public Member update(String profile_image) {
         this.profile_image = profile_image;
+        return this;
+    }
+
+    public Member updatePassword(String password) {
+        this.password = password;
+        return this;
+    }
+    public Member updateMemberProject(MemberProject memberProject){
+        this.memberProjects.add(memberProject);
         return this;
     }
 }

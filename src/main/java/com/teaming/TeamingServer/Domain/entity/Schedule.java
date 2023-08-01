@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.LocalDate;
@@ -44,9 +45,11 @@ public class Schedule extends Time {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @OneToMany(mappedBy="schedule", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="schedule", cascade = CascadeType.ALL)  // 얘 없애야하나??
     public List<MemberProject> members = new ArrayList<>();
 
+    @OneToMany(mappedBy="schedule")
+    public List<MemberSchedule> membersSchedules = new ArrayList<>();
 
     @Builder
     public Schedule(String schedule_name, LocalDate schedule_start
@@ -68,4 +71,5 @@ public class Schedule extends Time {
 //
 //        return this;
 //    }
+    // update부분 싹다 바꿔야할수도
 }

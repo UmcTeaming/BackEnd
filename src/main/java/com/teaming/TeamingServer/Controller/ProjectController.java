@@ -1,9 +1,11 @@
 package com.teaming.TeamingServer.Controller;
 
+
+import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
+import com.teaming.TeamingServer.Exception.BaseException;
+import com.teaming.TeamingServer.Service.*;
 import com.teaming.TeamingServer.Domain.Dto.ScheduleEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
-import com.teaming.TeamingServer.Service.ScheduleService;
-import com.teaming.TeamingServer.Service.ProjectService;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,15 +26,16 @@ public class ProjectController {
     private final ScheduleService scheduleService;
     private final ProjectService projectService;
     private final FileService fileService;
+    private final MemberService memberService;
 
     // 스케줄 추가
-    @PostMapping("/{projectId}/schedule/{memberId}")
+    @PostMapping("/{memberId}/{projectId}/schedule")
     public ResponseEntity<BaseResponse> makeSchedule(
             @RequestBody ScheduleEnrollRequestDto scheduleEnrollRequestDto,
-            @PathVariable("projectId") Long projectId,
-            @PathVariable("memberId") Long memberId) {
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("projectId") Long projectId) {
         try {
-            scheduleService.generateSchedule(projectId, memberId, scheduleEnrollRequestDto);
+            scheduleService.generateSchedule(memberId, projectId, scheduleEnrollRequestDto);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -48,10 +51,11 @@ public class ProjectController {
     }
 
     // 프로젝트의 스케줄 확인
-    @GetMapping("/{projectId}/schedule")
-    public ResponseEntity<BaseResponse<List<ScheduleResponseDto>>> searchSchedules(@PathVariable("projectId") Long projectId) {
+    @GetMapping("/{memberId}/{projectId}/schedule")
+    public ResponseEntity<BaseResponse<List<ScheduleResponseDto>>> searchSchedules(
+            @PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId) {
         try {
-            List<ScheduleResponseDto> list = projectService.searchSchedule(projectId);
+            List<ScheduleResponseDto> list = projectService.searchSchedule(memberId, projectId);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -67,11 +71,12 @@ public class ProjectController {
     }
 
     // 프로젝트의 스케줄 삭제
-    @DeleteMapping("/{projectId}/{scheduleId}")
-    public ResponseEntity<BaseResponse> deleteSchedule (@PathVariable("projectId") Long projectId,
+    @DeleteMapping("/{memberId}/{projectId}/{scheduleId}")
+    public ResponseEntity<BaseResponse> deleteSchedule (@PathVariable("memberId") Long memberId,
+                                                        @PathVariable("projectId") Long projectId,
                                                         @PathVariable("scheduleId") Long scheduleId) {
         try {
-            scheduleService.deleteSchedule(projectId, scheduleId);
+            scheduleService.deleteSchedule(memberId, projectId, scheduleId);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -136,4 +141,40 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
+    // 프로젝트 파일들 조회
+
+    @GetMapping("/{projectId}/files")
+    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFiles(@PathVariable("projectId") Long projectId) {
+        try {
+            List<FileListResponseDto> fileInfoList = fileService.searchFile(projectId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 파일들을 불러왔습니다", fileInfoList));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+    // 프로젝트 최종 파일들 조회
+
+    @GetMapping("/{projectId}/final-files")
+    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFinalFiles(@PathVariable("projectId") Long projectId){
+        try{
+            List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(projectId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(),"최종 프로젝트 파일들을 불러왔습니다",finalInfoList));
+
+        } catch(BaseException e){
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(),e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(),e.getMessage(),null));
+        }
+    }
+
 }

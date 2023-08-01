@@ -33,11 +33,12 @@ public class ProjectService {
     private final MemberRepository memberRepository;
     private final FileRepository fileRepository;
 
-    public List<ScheduleResponseDto> searchSchedule(Long projectId) {
+    public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {
 
         Project project = projectRepository.findById(projectId).orElseThrow(()
                 -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found with id: " + projectId));
-
+        Member member = memberRepository.findById(memberId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found with id: " + memberId));
         // 프로젝트에 해당하는 스케줄들을 조회한다.
 
         // 조회한 스케줄들을 ScheduleResponseDto 형태로 변환하여 리스트에 담는다.

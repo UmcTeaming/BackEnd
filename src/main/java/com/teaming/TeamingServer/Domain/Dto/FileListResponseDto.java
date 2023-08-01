@@ -1,19 +1,17 @@
 package com.teaming.TeamingServer.Domain.Dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentResponseDto {
+public class FileListResponseDto {
 
-    private String writer;
-    private String content;
-    private LocalDateTime create_at;
-    private String profile_image;
+    private LocalDateTime createdAt;
+    private List<FileDetailResponseDto> filesDetails;
 }
