@@ -37,9 +37,8 @@ dependencies {
 	// jwt : DatatypeConverterImpl use
 	implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.1'
 
-	// jwt
-//	implementation 'com.auth0:java-jwt:3.4.1'
-
+	// randomPassword create
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'

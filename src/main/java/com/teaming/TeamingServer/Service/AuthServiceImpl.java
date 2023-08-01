@@ -3,6 +3,7 @@ package com.teaming.TeamingServer.Service;
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberResetPasswordRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
@@ -24,7 +25,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor // 밑에 MemberRepository 의 생성자를 쓰지 않기 위해
-public class MemberServiceImpl implements MemberService {
+public class AuthServiceImpl implements AuthService {
 
     private final MemberRepository memberRepository;
     private final EmailService emailService;
@@ -75,7 +76,6 @@ public class MemberServiceImpl implements MemberService {
                 .body(new BaseResponse<>(HttpStatus.OK.value(), "회원가입이 완료되었습니다."));
     }
 
-
     @Transactional
     @Override
     public ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
@@ -94,6 +94,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Transactional
+    @Override
     public ResponseEntity verificationEmail(MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
         if(checkCode(memberVerificationEmailRequestDto.getAuthentication(), emailCode)) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -105,6 +106,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Transactional(readOnly = true)
+    @Override
     public JwtToken login(String email, String password) {
 
         Authentication authentication = null;
@@ -138,6 +140,35 @@ public class MemberServiceImpl implements MemberService {
                 .build();
     }
 
+    @Transactional
+    @Override
+    public ResponseEntity resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception {
+
+        // 1. 이메일이 회원 DB 에 있는지 체크 한다.
+        List<Member> findMember = memberRepository.findByEmail(memberResetPasswordRequestDto.getEmail());
+
+        if(findMember.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "회원가입되지 않은 이메일입니다."));
+        }
+
+        try {
+            // 2. 회원가입된 이메일이라면, 랜덤 비밀번호를 이메일로 보낸 뒤 DB 에 반영한다.
+            String resetPassword = passwordResetMailConfirm(memberResetPasswordRequestDto.getEmail());
+            findMember.stream().findFirst().get().setPassword(resetPassword);
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage()));
+        }
+
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "비밀번호가 재설정되었습니다."));
+
+    }
+
+
+
     private boolean checkCode(String authentication, String emailCode) {
         return authentication.equals(emailCode);
     }
@@ -146,6 +177,12 @@ public class MemberServiceImpl implements MemberService {
         String code = emailService.sendSimpleMessage(email);
         // log.info("인증코드 : " + code);
         return code;
+    }
+
+    private String passwordResetMailConfirm(String email) throws Exception {
+        String resetPassword = emailService.sendResetPasswordMessage(email);
+        // log.info("인증코드 : " + code);
+        return resetPassword;
     }
 
     private boolean checkDuplicateEmail(String email) {
@@ -174,7 +211,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     /**
-     * 회원 수정
+     * 회원 수정 : 프로필 사진 업데이트 + 비밀번호
      */
     @Transactional
     public void updateProfileImage(Long id, String profile_image) {
