@@ -49,6 +49,7 @@ public class Member extends Time {
     public List<File> files = new ArrayList<>();
 
 
+    // 여기도 스케줄 관련 추가해야줘야하나??
 
     @Builder
     public Member(String name, String email, String password, boolean agreement) {
@@ -65,6 +66,10 @@ public class Member extends Time {
 
     public Member updatePassword(String password) {
         this.password = password;
+        return this;
+    }
+    public Member updateMemberProject(MemberProject memberProject){
+        this.memberProjects.add(memberProject);
         return this;
     }
 }

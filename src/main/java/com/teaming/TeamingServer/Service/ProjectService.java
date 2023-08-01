@@ -1,29 +1,28 @@
 package com.teaming.TeamingServer.Service;
 
-
-import com.teaming.TeamingServer.Domain.entity.File;
-import com.teaming.TeamingServer.Domain.entity.Member;
+import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.Domain.entity.Project;
+import com.teaming.TeamingServer.Domain.entity.Schedule;
+import com.teaming.TeamingServer.Domain.entity.Member;
+import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Exception.BaseException;
+import com.teaming.TeamingServer.Repository.ProjectRepository;
+import com.teaming.TeamingServer.Repository.ScheduleRepository;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
-import com.teaming.TeamingServer.Repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
+import java.util.function.Function;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
+
 
 @Service
 @Transactional
@@ -34,7 +33,18 @@ public class ProjectService {
     private final MemberRepository memberRepository;
     private final FileRepository fileRepository;
 
+    public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {
 
+        Project project = projectRepository.findById(projectId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found with id: " + projectId));
+        Member member = memberRepository.findById(memberId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found with id: " + memberId));
+        // 프로젝트에 해당하는 스케줄들을 조회한다.
 
-
+        // 조회한 스케줄들을 ScheduleResponseDto 형태로 변환하여 리스트에 담는다.
+        List<ScheduleResponseDto> result = project.getSchedules().stream()
+                .map(schedule -> new ScheduleResponseDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
+                 schedule.getSchedule_start_time())).collect(Collectors.toList());
+        return result;
+    }
 }
