@@ -26,7 +26,7 @@ public class ProjectController {
     private final ScheduleService scheduleService;
     private final ProjectService projectService;
     private final FileService fileService;
-    private final MemberService memberService;
+//    private final MemberService memberService;
 
     // 스케줄 추가
     @PostMapping("/{memberId}/{projectId}/schedule")
