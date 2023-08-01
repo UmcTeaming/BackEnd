@@ -25,7 +25,7 @@ public class ProjectController {
     private final FileService fileService;
 
     // 파일 업로드
-    @PostMapping("/{projectId}/files-upload/{memberId}")
+    @PostMapping("/{memberId}/{projectId}/files-upload")
     public ResponseEntity<BaseResponse> uploadFile(@PathVariable Long projectId,
                                                    @PathVariable Long memberId,
                                                    @RequestPart MultipartFile file) {
@@ -43,8 +43,8 @@ public class ProjectController {
     }
 
     // 파일 삭제
-    @DeleteMapping("/{projectId}/files/{fileId}")
-    public ResponseEntity<BaseResponse> deleteFile(@PathVariable Long fileId) {
+    @DeleteMapping("/{memberId}/{projectId}/files/{fileId}")
+    public ResponseEntity<BaseResponse> deleteFile(@PathVariable Long projectId, @PathVariable Long memberId, @PathVariable Long fileId) {
         try {
             fileService.deleteFile(fileId);
             return ResponseEntity
@@ -58,7 +58,7 @@ public class ProjectController {
     }
 
     // 최종 파일 업로드
-    @PostMapping("/{projectId}/final-file/{memberId}")
+    @PostMapping("/{memberId}/{projectId}/final-file")
     public ResponseEntity<BaseResponse> uploadFinalFile(@PathVariable Long projectId,
                                                    @PathVariable Long memberId,
                                                    @RequestPart MultipartFile file) {
@@ -77,7 +77,7 @@ public class ProjectController {
 
     // 프로젝트 파일들 조회
 
-    @GetMapping("/{projectId}/files")
+    @GetMapping("/{memberId}/{projectId}/files")
     public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFiles(@PathVariable("projectId") Long projectId) {
         try {
             List<FileListResponseDto> fileInfoList = fileService.searchFile(projectId);
@@ -94,7 +94,7 @@ public class ProjectController {
 
     // 프로젝트 최종 파일들 조회
 
-    @GetMapping("/{projectId}/final-files")
+    @GetMapping("/{memberId}/{projectId}/final-files")
     public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFinalFiles(@PathVariable("projectId") Long projectId){
         try{
             List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(projectId);
