@@ -1,6 +1,7 @@
 package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,17 @@ public class MemberController {
 
     @PostMapping("/member/{memberId}/change-password/check-password")
     public ResponseEntity checkCurrentPassword(@PathVariable("memberId") Long memberId
-                                            , @RequestBody CheckCurrentPasswordRequestDto checkCurrentPasswordRequestDto) throws Exception {
+                                            , @RequestBody CheckCurrentPasswordRequestDto checkCurrentPasswordRequestDto) {
 
         return memberService.checkCurrentPassword(memberId, checkCurrentPasswordRequestDto);
 
+    }
+
+    @PostMapping("/member/{memberId}/change-password")
+    public ResponseEntity changePassword(@PathVariable("memberId") Long memberId
+                                        , @RequestBody MemberChangePasswordDto memberChangePasswordDto) {
+
+        return memberService.changePassword(memberId, memberChangePasswordDto);
     }
 
 }
