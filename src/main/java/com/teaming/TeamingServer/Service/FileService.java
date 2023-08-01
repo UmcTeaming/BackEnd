@@ -52,6 +52,10 @@ public class FileService {
         List<CommentResponseDto> result = file.getComments().stream()
                 .map(comment -> new CommentResponseDto(comment.getWriter(), comment.getContent(), comment.getCreatedAt(), comment.getMember().getProfile_image()))
                 .collect(Collectors.toList());
+
+        if (result.isEmpty()) {
+            return null;
+        }
         return result;
     }
 
@@ -110,6 +114,7 @@ public class FileService {
         // 파일 삭제
     }
 
+     // 프로젝트 파일 조회
     public List<FileListResponseDto> searchFile(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
@@ -143,6 +148,7 @@ public class FileService {
 
     }
 
+     // 프로젝트 최종 파일 조회
     public List<FileListResponseDto> searchFinalFile(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
