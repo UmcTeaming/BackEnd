@@ -52,6 +52,10 @@ public class FileService {
         List<CommentResponseDto> result = file.getComments().stream()
                 .map(comment -> new CommentResponseDto(comment.getWriter(), comment.getContent(), comment.getCreatedAt(), comment.getMember().getProfile_image()))
                 .collect(Collectors.toList());
+
+        if (result.isEmpty()) {
+            return null;
+        }
         return result;
     }
 
