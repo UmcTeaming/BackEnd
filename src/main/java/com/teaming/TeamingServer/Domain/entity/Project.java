@@ -45,13 +45,13 @@ public class Project extends Time {
     @Column(nullable = false)
     private String project_color;
 
-    @OneToMany(mappedBy="project")
+    @OneToMany(mappedBy="project" , cascade = CascadeType.ALL, orphanRemoval = true)
     public List<MemberProject> memberProjects = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project",  cascade = CascadeType.ALL, orphanRemoval = true)
     public List<File> files = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project" , cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Schedule> schedules = new ArrayList<>();
 
     @Builder

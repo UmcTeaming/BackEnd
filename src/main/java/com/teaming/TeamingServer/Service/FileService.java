@@ -55,6 +55,8 @@ public class FileService {
         return result;
     }
 
+
+    //파일 업로드
     private String uploadDir = "C:\\Users\\82103\\Desktop\\UMC\\";
 
     public void generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
@@ -99,12 +101,13 @@ public class FileService {
     }
 
 
+    //파일 삭제
     public void deleteFile(Long fileId) {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found with id: " + fileId));
 
+        fileRepository.delete(file); // 파일 엔티티를 데이터베이스에서 삭제
         // 파일 삭제
-        fileRepository.delete(file);
     }
 
     public List<FileListResponseDto> searchFile(Long projectId) {
