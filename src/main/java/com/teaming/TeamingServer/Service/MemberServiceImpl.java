@@ -4,6 +4,7 @@ import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
 import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberMyPageResponseDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
@@ -18,7 +19,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -77,7 +77,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public ResponseEntity checkCurrentPassword(Long memberId, CheckCurrentPasswordRequestDto checkCurrentPasswordRequestDto) {
         // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
-        List<Member> findMember = memberRepository.findById(memberId).stream().toList();
+        Optional<Member> findMember = memberRepository.findById(memberId);
 
         if(findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -97,7 +97,25 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public ResponseEntity MemberMyPage() {
-        return null;
+    public ResponseEntity MemberMyPage(Long memberId) {
+        // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        if(findMember.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
+        }
+
+        Member member = findMember.stream().findFirst().get();
+
+        MemberMyPageResponseDto memberMyPageResponseDto = MemberMyPageResponseDto.builder()
+                .memberId(memberId)
+                .name(member.getName())
+                .email(member.getEmail())
+                .profileImage(member.getProfile_image()).build();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<MemberMyPageResponseDto>(HttpStatus.OK.value(), memberMyPageResponseDto));
     }
+
 }

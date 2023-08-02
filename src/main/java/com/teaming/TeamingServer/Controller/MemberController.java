@@ -6,10 +6,7 @@ import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestD
 import com.teaming.TeamingServer.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함 - ResponseBody 어노테이션도 포함하고 있음
 @RequiredArgsConstructor
@@ -30,6 +27,11 @@ public class MemberController {
                                         , @RequestBody MemberChangePasswordDto memberChangePasswordDto) {
 
         return memberService.changePassword(memberId, memberChangePasswordDto);
+    }
+
+    @GetMapping("/member/{memberId}/mypage")
+    public ResponseEntity myPage(@PathVariable("memberId") Long memberId) {
+        return memberService.MemberMyPage(memberId);
     }
 
 }
