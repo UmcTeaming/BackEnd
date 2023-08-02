@@ -17,4 +17,6 @@ public interface MemberService {
 
     ResponseEntity changeProfileImage(Long memberId, MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto);
 
+    ResponseEntity mainPage(Long memberId); // main 페이지 Response 를 따로 만들어서 매개변수로 넣을 예정 : 최근 프로젝트, 진행 중인 프로젝트, 포트폴리오
+
 }

@@ -165,4 +165,10 @@ public class MemberServiceImpl implements MemberService {
                 .body(new BaseResponse(HttpStatus.OK.value(), "프로필 변경이 완료되었습니다."));
     }
 
+    @Override
+    public ResponseEntity mainPage(Long memberId) {
+        return null;
+    }
+
+
 }
