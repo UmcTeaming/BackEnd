@@ -1,9 +1,9 @@
 package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberChangeProfileImageRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberNicknameChangeRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +25,9 @@ public class MemberController {
 
     @PostMapping("/member/{memberId}/change-password")
     public ResponseEntity changePassword(@PathVariable("memberId") Long memberId
-                                        , @RequestBody MemberChangePasswordDto memberChangePasswordDto) {
+                                        , @RequestBody MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
 
-        return memberService.changePassword(memberId, memberChangePasswordDto);
+        return memberService.changePassword(memberId, memberChangePasswordRequestDto);
     }
 
     @GetMapping("/member/{memberId}/mypage")
@@ -41,4 +41,9 @@ public class MemberController {
         return memberService.changeNickName(memberId, memberNicknameChangeRequestDto);
     }
 
+    @PatchMapping("/member/{memberId}/mypage/change-image")
+    public ResponseEntity changeProfileImage(@PathVariable("memberId") Long memberId
+                                             , @RequestBody MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
+        return memberService.changeProfileImage(memberId, memberChangeProfileImageRequestDto);
+    }
 }

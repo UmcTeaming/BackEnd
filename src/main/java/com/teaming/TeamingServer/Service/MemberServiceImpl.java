@@ -2,10 +2,7 @@ package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
-import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberMyPageResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberNicknameChangeRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
@@ -34,7 +31,8 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
-    public ResponseEntity changePassword(Long memberId, MemberChangePasswordDto memberChangePasswordDto) {
+    @Transactional
+    public ResponseEntity changePassword(Long memberId, MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
         // 1. memberId 를 가진 멤버가 존재하는지 확인
         Optional<Member> findMember = memberRepository.findById(memberId);
         if(findMember.isEmpty()) {
@@ -48,7 +46,7 @@ public class MemberServiceImpl implements MemberService {
         // (1) 비밀번호 변경
         Member member = findMember.get();
 
-        member.updatePassword(memberChangePasswordDto.getChange_password());
+        member.updatePassword(memberChangePasswordRequestDto.getChange_password());
 
         try {
             // Authentication 객체 생성
@@ -76,6 +74,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity checkCurrentPassword(Long memberId, CheckCurrentPasswordRequestDto checkCurrentPasswordRequestDto) {
         // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
         Optional<Member> findMember = memberRepository.findById(memberId);
@@ -98,6 +97,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity MemberMyPage(Long memberId) {
         // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
         Optional<Member> findMember = memberRepository.findById(memberId);
@@ -120,6 +120,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity changeNickName(Long memberId, MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
         // 1. 존재하는 회원인지 조회
         Optional<Member> findMember = memberRepository.findById(memberId);
@@ -144,4 +145,24 @@ public class MemberServiceImpl implements MemberService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse(HttpStatus.OK.value(), "닉네임 변경이 완료되었습니다."));
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity changeProfileImage(Long memberId, MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
+        // 1. 존재하는 회원인지 조회
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        if(findMember.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
+        }
+
+        // 2. member 프로필 이미지 변경
+        Member member = findMember.stream().findFirst().get();
+        member.updateProfileImage(memberChangeProfileImageRequestDto.getChange_image_link());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "프로필 변경이 완료되었습니다."));
+    }
+
 }
