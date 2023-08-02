@@ -35,8 +35,9 @@ public class ProjectService {
 
     public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {
 
-        Project project = projectRepository.findById(projectId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found with id: " + projectId));
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+
         Member member = memberRepository.findById(memberId).orElseThrow(()
                 -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found with id: " + memberId));
         // 프로젝트에 해당하는 스케줄들을 조회한다.
@@ -45,6 +46,11 @@ public class ProjectService {
         List<ScheduleResponseDto> result = project.getSchedules().stream()
                 .map(schedule -> new ScheduleResponseDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
                  schedule.getSchedule_start_time())).collect(Collectors.toList());
+
+        if (result.isEmpty()) {
+            return null;
+        }
         return result;
+
     }
 }
