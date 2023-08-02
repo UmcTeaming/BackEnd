@@ -59,13 +59,18 @@ public class Member extends Time {
         this.agreement = agreement;
     }
 
-    public Member update(String profile_image) {
+    public Member updateProfileImage(String profile_image) {
         this.profile_image = profile_image;
         return this;
     }
 
     public Member updatePassword(String password) {
         this.password = password;
+        return this;
+    }
+
+    public Member updateNickName(String nickName) {
+        this.name = nickName;
         return this;
     }
     public Member updateMemberProject(MemberProject memberProject){

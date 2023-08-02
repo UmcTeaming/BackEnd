@@ -2,8 +2,7 @@ package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
-import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
@@ -18,7 +17,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,7 +31,8 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
-    public ResponseEntity changePassword(Long memberId, MemberChangePasswordDto memberChangePasswordDto) {
+    @Transactional
+    public ResponseEntity changePassword(Long memberId, MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
         // 1. memberId 를 가진 멤버가 존재하는지 확인
         Optional<Member> findMember = memberRepository.findById(memberId);
         if(findMember.isEmpty()) {
@@ -47,7 +46,7 @@ public class MemberServiceImpl implements MemberService {
         // (1) 비밀번호 변경
         Member member = findMember.get();
 
-        member.updatePassword(memberChangePasswordDto.getChange_password());
+        member.updatePassword(memberChangePasswordRequestDto.getChange_password());
 
         try {
             // Authentication 객체 생성
@@ -66,7 +65,6 @@ public class MemberServiceImpl implements MemberService {
         JwtToken newToken = JwtToken.builder()
                     .grantType(token.getGrantType())
                     .accessToken(token.getAccessToken())
-                    .refreshToken(token.getRefreshToken())
                     .memberId(memberId)
                     .build();
 
@@ -76,9 +74,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity checkCurrentPassword(Long memberId, CheckCurrentPasswordRequestDto checkCurrentPasswordRequestDto) {
         // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
-        List<Member> findMember = memberRepository.findById(memberId).stream().toList();
+        Optional<Member> findMember = memberRepository.findById(memberId);
 
         if(findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -98,7 +97,72 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public ResponseEntity MemberMyPage() {
-        return null;
+    @Transactional
+    public ResponseEntity MemberMyPage(Long memberId) {
+        // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        if(findMember.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
+        }
+
+        Member member = findMember.stream().findFirst().get();
+
+        MemberMyPageResponseDto memberMyPageResponseDto = MemberMyPageResponseDto.builder()
+                .memberId(memberId)
+                .name(member.getName())
+                .email(member.getEmail())
+                .profileImage(member.getProfile_image()).build();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<MemberMyPageResponseDto>(HttpStatus.OK.value(), memberMyPageResponseDto));
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity changeNickName(Long memberId, MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
+        // 1. 존재하는 회원인지 조회
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        if(findMember.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
+        }
+
+        // 2. 바꾸려는 닉네임이 이미 존재하는지 확인
+        Optional<Member> equalNickname = memberRepository.findByName(memberNicknameChangeRequestDto.getChange_nickname());
+
+        if(!equalNickname.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "이미 사용 중인 닉네임입니다."));
+        }
+
+        // 3. 사용 가능한 닉네임이라면, 변경 후 변경 완료
+        Member member = findMember.stream().findFirst().get();
+        member.updateNickName(memberNicknameChangeRequestDto.getChange_nickname());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "닉네임 변경이 완료되었습니다."));
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity changeProfileImage(Long memberId, MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
+        // 1. 존재하는 회원인지 조회
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        if(findMember.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
+        }
+
+        // 2. member 프로필 이미지 변경
+        Member member = findMember.stream().findFirst().get();
+        member.updateProfileImage(memberChangeProfileImageRequestDto.getChange_image_link());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "프로필 변경이 완료되었습니다."));
+    }
+
 }

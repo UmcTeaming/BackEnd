@@ -1,15 +1,13 @@
 package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberChangeProfileImageRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberNicknameChangeRequestDto;
 import com.teaming.TeamingServer.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함 - ResponseBody 어노테이션도 포함하고 있음
 @RequiredArgsConstructor
@@ -27,9 +25,25 @@ public class MemberController {
 
     @PostMapping("/member/{memberId}/change-password")
     public ResponseEntity changePassword(@PathVariable("memberId") Long memberId
-                                        , @RequestBody MemberChangePasswordDto memberChangePasswordDto) {
+                                        , @RequestBody MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
 
-        return memberService.changePassword(memberId, memberChangePasswordDto);
+        return memberService.changePassword(memberId, memberChangePasswordRequestDto);
     }
 
+    @GetMapping("/member/{memberId}/mypage")
+    public ResponseEntity myPage(@PathVariable("memberId") Long memberId) {
+        return memberService.MemberMyPage(memberId);
+    }
+
+    @PatchMapping("/member/{memberId}/mypage/change-nickname")
+    public ResponseEntity changeNickName(@PathVariable("memberId") Long memberId
+                                         , @RequestBody MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
+        return memberService.changeNickName(memberId, memberNicknameChangeRequestDto);
+    }
+
+    @PatchMapping("/member/{memberId}/mypage/change-image")
+    public ResponseEntity changeProfileImage(@PathVariable("memberId") Long memberId
+                                             , @RequestBody MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
+        return memberService.changeProfileImage(memberId, memberChangeProfileImageRequestDto);
+    }
 }

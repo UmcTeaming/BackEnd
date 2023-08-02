@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(possibleAccess).permitAll()
                         .anyRequest().authenticated());
-        // .formLogin((formLogin) -> formLogin.loginProcessingUrl("/login"))
+
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
