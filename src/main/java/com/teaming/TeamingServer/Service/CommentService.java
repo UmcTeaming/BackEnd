@@ -66,7 +66,6 @@ public class CommentService {
         // 댓글을 삭제합니다.
         commentRepository.deleteById(commentId);
     }
-
     }
 
 

@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -26,7 +27,7 @@ public class FileController {
 
 
     //코멘트 생성
-    @PostMapping("/{fileId}/{memberId}/comments")
+    @PostMapping("/{memberId}/{fileId}/comments")
     public ResponseEntity<BaseResponse> makeComment(
             @RequestBody CommentEnrollRequestDto commentEnrollRequestDto,
             @PathVariable("fileId") Long fileId,
@@ -46,8 +47,9 @@ public class FileController {
     }
 
     //코멘트 조회
-    @GetMapping("/{fileId}/comments")
-    public ResponseEntity<BaseResponse<List<CommentResponseDto>>> searchComments(@PathVariable("fileId") Long fileId) {
+    @GetMapping("/{memberId}/{fileId}/comments")
+    public ResponseEntity<BaseResponse<List<CommentResponseDto>>> searchComments(@PathVariable("fileId") Long fileId,
+     @PathVariable("memberId") Long memberId) {
 
         try {
             List<CommentResponseDto> list = fileService.searchComment(fileId);
@@ -64,8 +66,9 @@ public class FileController {
     }
 
     //코멘트 삭제
-    @DeleteMapping("/{fileId}/comments/{commentId}")
-    public ResponseEntity<BaseResponse> deleteComment (@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId) {
+    @DeleteMapping("/{memberId}/{fileId}/comments/{commentId}")
+    public ResponseEntity<BaseResponse> deleteComment (@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId,
+                                                       @PathVariable("memberId") Long memberId) {
 
         try {
             commentService.deleteComment(fileId, commentId);

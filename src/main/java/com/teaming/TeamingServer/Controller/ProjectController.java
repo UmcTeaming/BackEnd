@@ -3,14 +3,17 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
 import com.teaming.TeamingServer.Exception.BaseException;
-import com.teaming.TeamingServer.Service.FileService;
-import com.teaming.TeamingServer.Service.ProjectService;
-import com.teaming.TeamingServer.common.BaseErrorResponse;
+import com.teaming.TeamingServer.Service.*;
+import com.teaming.TeamingServer.Domain.Dto.ScheduleEnrollRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.teaming.TeamingServer.Exception.BaseException;
+import com.teaming.TeamingServer.Service.FileService;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -20,12 +23,76 @@ import java.util.List;
 @RequestMapping("/projects")
 public class ProjectController {
 
+    private final ScheduleService scheduleService;
     private final ProjectService projectService;
-
     private final FileService fileService;
+//    private final MemberService memberService;
+
+    // 스케줄 추가
+    @PostMapping("/{memberId}/{projectId}/schedule")
+    public ResponseEntity<BaseResponse> makeSchedule(
+            @RequestBody ScheduleEnrollRequestDto scheduleEnrollRequestDto,
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("projectId") Long projectId) {
+        try {
+            scheduleService.generateSchedule(memberId, projectId, scheduleEnrollRequestDto);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "일정이 추가되었습니다.:)", null));
+        }
+        catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+    // 프로젝트의 스케줄 확인
+    @GetMapping("/{memberId}/{projectId}/schedule")
+    public ResponseEntity<BaseResponse<List<ScheduleResponseDto>>> searchSchedules(
+            @PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId) {
+        try {
+            List<ScheduleResponseDto> list = projectService.searchSchedule(memberId, projectId);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트의 스케줄", list));
+        }
+        catch(BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+    // 프로젝트의 스케줄 삭제
+    @DeleteMapping("/{memberId}/{projectId}/{scheduleId}")
+    public ResponseEntity<BaseResponse> deleteSchedule (@PathVariable("memberId") Long memberId,
+                                                        @PathVariable("projectId") Long projectId,
+                                                        @PathVariable("scheduleId") Long scheduleId) {
+        try {
+            scheduleService.deleteSchedule(memberId, projectId, scheduleId);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse(HttpStatus.OK.value(), "스케줄 삭제 성공", null));
+        }
+        catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
 
     // 파일 업로드
-    @PostMapping("/{projectId}/files-upload/{memberId}")
+    @PostMapping("/{memberId}/{projectId}/files-upload")
     public ResponseEntity<BaseResponse> uploadFile(@PathVariable Long projectId,
                                                    @PathVariable Long memberId,
                                                    @RequestPart MultipartFile file) {
@@ -43,8 +110,8 @@ public class ProjectController {
     }
 
     // 파일 삭제
-    @DeleteMapping("/{projectId}/files/{fileId}")
-    public ResponseEntity<BaseResponse> deleteFile(@PathVariable Long fileId) {
+    @DeleteMapping("/{memberId}/{projectId}/files/{fileId}")
+    public ResponseEntity<BaseResponse> deleteFile(@PathVariable Long projectId, @PathVariable Long memberId, @PathVariable Long fileId) {
         try {
             fileService.deleteFile(fileId);
             return ResponseEntity
@@ -58,10 +125,10 @@ public class ProjectController {
     }
 
     // 최종 파일 업로드
-    @PostMapping("/{projectId}/final-file/{memberId}")
+    @PostMapping("/{memberId}/{projectId}/final-file")
     public ResponseEntity<BaseResponse> uploadFinalFile(@PathVariable Long projectId,
-                                                   @PathVariable Long memberId,
-                                                   @RequestPart MultipartFile file) {
+                                                        @PathVariable Long memberId,
+                                                        @RequestPart MultipartFile file) {
         try {
             fileService.generateFile(projectId, memberId, file,true);
             return ResponseEntity
@@ -77,7 +144,7 @@ public class ProjectController {
 
     // 프로젝트 파일들 조회
 
-    @GetMapping("/{projectId}/files")
+    @GetMapping("/{memberId}/{projectId}/files")
     public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFiles(@PathVariable("projectId") Long projectId) {
         try {
             List<FileListResponseDto> fileInfoList = fileService.searchFile(projectId);
@@ -94,7 +161,7 @@ public class ProjectController {
 
     // 프로젝트 최종 파일들 조회
 
-    @GetMapping("/{projectId}/final-files")
+    @GetMapping("/{memberId}/{projectId}/final-files")
     public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFinalFiles(@PathVariable("projectId") Long projectId){
         try{
             List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(projectId);
@@ -111,5 +178,3 @@ public class ProjectController {
     }
 
 }
-
-

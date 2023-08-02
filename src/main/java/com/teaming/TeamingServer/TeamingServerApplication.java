@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-@SpringBootApplication
 @EnableJpaAuditing
+@SpringBootApplication
 public class TeamingServerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TeamingServerApplication.class, args);
