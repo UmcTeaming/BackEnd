@@ -139,8 +139,11 @@ public class FileService {
             filesbyDate.add(fileDetailResponseDto);
             fileInfoByDate.put(date,filesbyDate);
 
-//
         });
+
+        if (fileInfoByDate.isEmpty()) {
+            return null;
+        }
 
         return fileInfoByDate.entrySet().stream()
                 .map(entry -> new FileListResponseDto(entry.getKey().atStartOfDay(), entry.getValue()))
@@ -175,6 +178,10 @@ public class FileService {
 
 //
                 });
+
+        if (fileInfoByDate.isEmpty()) {
+            return null;
+        }
 
         return fileInfoByDate.entrySet().stream()
                 .map(entry -> new FileListResponseDto(entry.getKey().atStartOfDay(), entry.getValue()))

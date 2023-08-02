@@ -25,34 +25,22 @@ public class ScheduleService {
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
 
-    public void generateSchedule(Long projectId, Long memberId, ScheduleEnrollRequestDto scheduleEnrollRequestDto) {
-        // 요청으로부터 프로젝트의 스케줄을 가져온다.
-        String schedule_name = scheduleEnrollRequestDto.getSchedule_name();
-
-        // 프로젝트와 멤버를 데이터베이스에서 조회한다.
+    public void generateSchedule(Long memberId, Long projectId, ScheduleEnrollRequestDto scheduleEnrollRequestDto) {
         Project project = projectRepository.findById(projectId).orElseThrow(()
                 -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
-        Member member = memberRepository.findById(memberId).orElseThrow(()
-               -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
         Schedule schedule = Schedule.builder()
-                .schedule_name(schedule_name)   // 스케줄 이름 설정
+                .schedule_name(scheduleEnrollRequestDto.getSchedule_name())   // 스케줄 이름 설정
                 .schedule_start(scheduleEnrollRequestDto.getSchedule_start())   // 스케줄시작날짜
                 .schedule_start_time(scheduleEnrollRequestDto.getSchedule_start_time())    // 스케줄시작시간
                 .schedule_end(scheduleEnrollRequestDto.getSchedule_end())    // 스케줄끝날짜
                 .schedule_end_time(scheduleEnrollRequestDto.getSchedule_end_time())   // 스케줄끝시간
                 .memo(scheduleEnrollRequestDto.getMemo())
-                .project(project)// 프로젝트와 스케줄 연결
+                .project(project)  // 프로젝트와 스케줄 연결
                 .build();
+
         // 스케줄을 데이터베이스에 저장한다.
         scheduleRepository.save(schedule);
-
-//        MemberProject memberProject = MemberProject.builder()
-//                .member(memberRepository.findById(memberId).orElseThrow(()->new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found")))
-//                .schedule(scheduleRepository.save(schedule))
-//                .project(projectRepository.findById(projectId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found")))
-//                .build();
-//        memberRepository.save(member.updateMemberProject(memberProject));
     }
 
     @Transactional
