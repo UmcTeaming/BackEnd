@@ -2,6 +2,7 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberNicknameChangeRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
 import com.teaming.TeamingServer.Service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,12 @@ public class MemberController {
     @GetMapping("/member/{memberId}/mypage")
     public ResponseEntity myPage(@PathVariable("memberId") Long memberId) {
         return memberService.MemberMyPage(memberId);
+    }
+
+    @PatchMapping("/member/{memberId}/mypage/change-nickname")
+    public ResponseEntity changeNickName(@PathVariable("memberId") Long memberId
+                                         , @RequestBody MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
+        return memberService.changeNickName(memberId, memberNicknameChangeRequestDto);
     }
 
 }

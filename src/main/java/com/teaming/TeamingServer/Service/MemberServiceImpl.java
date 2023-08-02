@@ -5,6 +5,7 @@ import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
 import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberMyPageResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberNicknameChangeRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
@@ -118,4 +119,29 @@ public class MemberServiceImpl implements MemberService {
                 .body(new BaseResponse<MemberMyPageResponseDto>(HttpStatus.OK.value(), memberMyPageResponseDto));
     }
 
+    @Override
+    public ResponseEntity changeNickName(Long memberId, MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
+        // 1. 존재하는 회원인지 조회
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        if(findMember.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
+        }
+
+        // 2. 바꾸려는 닉네임이 이미 존재하는지 확인
+        Optional<Member> equalNickname = memberRepository.findByName(memberNicknameChangeRequestDto.getChange_nickname());
+
+        if(!equalNickname.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "이미 사용 중인 닉네임입니다."));
+        }
+
+        // 3. 사용 가능한 닉네임이라면, 변경 후 변경 완료
+        Member member = findMember.stream().findFirst().get();
+        member.updateNickName(memberNicknameChangeRequestDto.getChange_nickname());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "닉네임 변경이 완료되었습니다."));
+    }
 }

@@ -3,6 +3,7 @@ package com.teaming.TeamingServer.Service;
 import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberMyPageResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberNicknameChangeRequestDto;
 import org.springframework.http.ResponseEntity;
 
 public interface MemberService {
@@ -12,6 +13,6 @@ public interface MemberService {
 
     ResponseEntity MemberMyPage(Long memberId); // 액세스 토큰을 확인한 후, 사용자 정보 페이지 반환 : MemberMyPageRequest 가 매개변수로 들어갈 예정
 
-    ResponseEntity changeNickName();
+    ResponseEntity changeNickName(Long memberId, MemberNicknameChangeRequestDto memberNicknameChangeRequestDto);
 
 }

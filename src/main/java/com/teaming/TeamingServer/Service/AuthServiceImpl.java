@@ -215,6 +215,6 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void updateProfileImage(Long id, String profile_image) {
         Member member = (memberRepository.findById(id)).get();
-        member.update(profile_image);
+        member.updateProfileImage(profile_image);
     }
 }
