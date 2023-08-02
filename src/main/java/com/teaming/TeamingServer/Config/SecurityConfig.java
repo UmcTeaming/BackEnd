@@ -21,7 +21,7 @@ public class SecurityConfig {
 
     private String[] possibleAccess = {"/auth/signup"
             , "/auth/email-duplication", "/auth/email-verification", "/auth/login"
-            , "/auth/reset-password", "/member/reissue", "/h2-console/*", "/error"};
+            , "/auth/reset-password", "/h2-console/**", "/error"};
 
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
