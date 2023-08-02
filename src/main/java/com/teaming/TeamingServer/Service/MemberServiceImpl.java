@@ -66,7 +66,6 @@ public class MemberServiceImpl implements MemberService {
         JwtToken newToken = JwtToken.builder()
                     .grantType(token.getGrantType())
                     .accessToken(token.getAccessToken())
-                    .refreshToken(token.getRefreshToken())
                     .memberId(memberId)
                     .build();
 

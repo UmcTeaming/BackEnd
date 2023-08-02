@@ -135,7 +135,6 @@ public class AuthServiceImpl implements AuthService {
         return JwtToken.builder()
                 .grantType(token.getGrantType())
                 .accessToken(token.getAccessToken())
-                .refreshToken(token.getRefreshToken())
                 .memberId(memberId)
                 .build();
     }

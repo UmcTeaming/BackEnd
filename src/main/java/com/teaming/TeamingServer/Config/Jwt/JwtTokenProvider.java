@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final Key key;
+    private final Long expiration = System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30; // 유효 기간 한달!
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);
@@ -39,20 +40,21 @@ public class JwtTokenProvider {
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+                .setExpiration(new Date(expiration))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        // Refresh token 생성
-        String refreshToken = Jwts.builder()
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 36))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        log.info("expiration = " + new Date(expiration));
+
+//        // Refresh token 생성
+//        String refreshToken = Jwts.builder()
+//                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 36))
+//                .signWith(key, SignatureAlgorithm.HS256)
+//                .compact();
 
         return JwtToken.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -70,7 +72,9 @@ public class JwtTokenProvider {
 //                        .collect(Collectors.toList());
 
         Collection<? extends GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+
         UserDetails principal = new User(claims.getSubject(), "", authorities);
+
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
