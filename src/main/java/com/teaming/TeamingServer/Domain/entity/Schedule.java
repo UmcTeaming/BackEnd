@@ -38,9 +38,6 @@ public class Schedule extends Time {
     @Column(nullable = false)
     private LocalTime schedule_end_time;
 
-    @Column(nullable = false)
-    private String memo;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
@@ -51,13 +48,12 @@ public class Schedule extends Time {
     @Builder
     public Schedule(String schedule_name, LocalDate schedule_start
             , LocalDate schedule_end, LocalTime schedule_start_time
-            , LocalTime schedule_end_time, String memo, Project project) {
+            , LocalTime schedule_end_time, Project project) {
         this.schedule_name = schedule_name;
         this.schedule_start = schedule_start;
         this.schedule_end = schedule_end;
         this.schedule_start_time = schedule_start_time;
         this.schedule_end_time = schedule_end_time;
-        this.memo = memo;
         this.project = project;
     }
 }
