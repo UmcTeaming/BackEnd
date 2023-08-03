@@ -214,6 +214,7 @@ public class MemberServiceImpl implements MemberService {
         // 최종 반환 MainPageResponse 생성
         MainPageResponseDto mainPageResponseDto = MainPageResponseDto.builder()
                 .memberId(memberId)
+                .name(member.getName())
                 .recentlyProject(recentlyProject)
                 .progressProject(progressProjects)
                 .portfolio(portfolios).build();
