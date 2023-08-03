@@ -6,7 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+
 
 @Data
 @AllArgsConstructor
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 public class RecentlyProject {
     private Long projectId;
     private String projectName;
-    private LocalDateTime projectCreatedDate;
+    private LocalDate projectCreatedDate;
     private Status projectStatus;
     private String projectImage;
 }

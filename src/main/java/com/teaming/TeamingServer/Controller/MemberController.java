@@ -4,6 +4,7 @@ import com.teaming.TeamingServer.Domain.Dto.CheckCurrentPasswordRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberChangePasswordRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberChangeProfileImageRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberNicknameChangeRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.mainPageDto.TestDto;
 import com.teaming.TeamingServer.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,5 +46,16 @@ public class MemberController {
     public ResponseEntity changeProfileImage(@PathVariable("memberId") Long memberId
                                              , @RequestBody MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
         return memberService.changeProfileImage(memberId, memberChangeProfileImageRequestDto);
+    }
+
+    @GetMapping("/member/{memberId}/home")
+    public ResponseEntity mainPage(@PathVariable("memberId") Long memberId) {
+        return memberService.mainPage(memberId);
+    }
+
+    @PostMapping("/member/saveData")
+    public ResponseEntity saveData(@RequestBody TestDto testDto) {
+        memberService.saveMemberProject(testDto.getMember_id(), testDto.getProject_id(), testDto.getSchedule_id());
+        return ResponseEntity.ok("성공");
     }
 }
