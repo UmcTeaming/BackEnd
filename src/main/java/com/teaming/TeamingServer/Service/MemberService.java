@@ -17,4 +17,8 @@ public interface MemberService {
 
     ResponseEntity changeProfileImage(Long memberId, MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto);
 
+    ResponseEntity mainPage(Long memberId);
+
+    void saveMemberProject(Long member_id, Long project_id, Long schedule_id); // 테스트용
+
 }

@@ -29,7 +29,7 @@ public class Project extends Time {
     @Column(nullable = false)
     private String project_name;
 
-    @Column(nullable = false)
+    @Column
     private String project_image;
 
     @Column(nullable = false)
