@@ -203,6 +203,29 @@ public class MemberServiceImpl implements MemberService {
         // (2) 찾은 프로젝트들이 있다면, 프로젝트 최근 시작 기준으로 정렬 - 최근 프로젝트
         List<Project> projects = new ArrayList<>();
 
+        List<RecentlyProject> recentlyProject = searchRecentlyProject(memberProject, projects);
+
+        // (3) 진행중인 프로젝트 - 오름차순 정렬
+        List<ProgressProject> progressProjects = searchProgressProject(memberProject, projects);
+
+        // (4) 끝난 프로젝트 - 내림차순 정렬 - 포트폴리오
+        List<Portfolio> portfolios = searchPortPolio(memberProject, projects);
+
+        // 최종 반환 MainPageResponse 생성
+        MainPageResponseDto mainPageResponseDto = MainPageResponseDto.builder()
+                .memberId(memberId)
+                .recentlyProject(recentlyProject)
+                .progressProject(progressProjects)
+                .portfolio(portfolios).build();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<MainPageResponseDto>(HttpStatus.OK.value(), mainPageResponseDto));
+    }
+
+    // 최근 프로젝트
+    private List<RecentlyProject> searchRecentlyProject(List<MemberProject> memberProject, List<Project> projects) {
+        projects = new ArrayList<>();
+
         for(int i = 0; i<memberProject.stream().toList().size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
             // Status 가 ING 인 것만
@@ -227,7 +250,22 @@ public class MemberServiceImpl implements MemberService {
             recentlyProject.add(project);
         }
 
-        // (3) 진행중인 프로젝트 - 오름차순 정렬
+        return recentlyProject;
+    }
+
+    // 진행 중인 프로젝트
+    private List<ProgressProject> searchProgressProject(List<MemberProject> memberProject, List<Project> projects) {
+
+        projects = new ArrayList<>();
+
+        for(int i = 0; i<memberProject.stream().toList().size(); i++) {
+            Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
+            // Status 가 ING 인 것만
+            if(project.getProject_status().equals(Status.ING)) {
+                projects.add(project);
+            }
+        }
+
         Collections.sort(projects, new SortByDate());
         List<ProgressProject> progressProjects = new ArrayList<>();
         for(int i = 0; i<projects.size(); i++) {
@@ -240,7 +278,11 @@ public class MemberServiceImpl implements MemberService {
             progressProjects.add(project);
         }
 
-        // (4) 끝난 프로젝트 - 내림차순 정렬 - 포트폴리오
+        return progressProjects;
+    }
+
+    // 포트폴리오
+    private List<Portfolio> searchPortPolio(List<MemberProject> memberProject, List<Project> projects) {
         projects = new ArrayList<>();
         for(int i = 0; i<memberProject.stream().toList().size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
@@ -264,15 +306,7 @@ public class MemberServiceImpl implements MemberService {
             portfolios.add(portfolio);
         }
 
-        // 최종 반환 MainPageResponse 생성
-        MainPageResponseDto mainPageResponseDto = MainPageResponseDto.builder()
-                .memberId(memberId)
-                .recentlyProject(recentlyProject)
-                .progressProject(progressProjects)
-                .portfolio(portfolios).build();
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<MainPageResponseDto>(HttpStatus.OK.value(), mainPageResponseDto));
+        return portfolios;
     }
 
     // 테스트용 Member_Project 저장 코드
