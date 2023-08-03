@@ -186,7 +186,7 @@ public class MemberServiceImpl implements MemberService {
         }
         // 2. memberId 로 프로젝트 조회
         Member member = findMember.stream().findFirst().get();
-        List<MemberProject> memberProject = memberProjectRepository.findByMember(member);
+        List<MemberProject> memberProject = findMemberProject(member);
 
         // (1) 찾은 아예 프로젝트가 없다면 null 반환
         if(memberProject.isEmpty()) {
@@ -223,6 +223,43 @@ public class MemberServiceImpl implements MemberService {
                 .body(new BaseResponse<MainPageResponseDto>(HttpStatus.OK.value(), mainPageResponseDto));
     }
 
+    @Override
+    public ResponseEntity portfolioPage(Long memberId) {
+        // 1. 존재하는 회원인지 조회
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        if(findMember.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
+        }
+
+        // 2. memberId 로 프로젝트 조회
+        Member member = findMember.stream().findFirst().get();
+        List<MemberProject> memberProject = findMemberProject(member);
+
+        // (1) 찾은 아예 프로젝트가 없다면 null 반환
+        if(memberProject.isEmpty()) {
+            PortfolioPageResponseDto portfolioPageResponseDto = PortfolioPageResponseDto.builder()
+                    .member_id(memberId)
+                    .portfolio(null).build();
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new BaseResponse<PortfolioPageResponseDto>(HttpStatus.OK.value(), portfolioPageResponseDto));
+        }
+
+        // (2) 있다면, 끝난 순으로 project 정렬
+        List<Project> projects = new ArrayList<>();
+        List<Portfolio> portfolios = searchPortPolio(memberProject, projects);
+
+        // 최종 포트폴리오 페이지 넘기기
+        PortfolioPageResponseDto portfolioPageResponseDto = PortfolioPageResponseDto.builder()
+                .member_id(memberId)
+                .portfolio(portfolios).build();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<PortfolioPageResponseDto>(HttpStatus.OK.value(), portfolioPageResponseDto));
+
+    }
+
     // 최근 프로젝트
     private List<RecentlyProject> searchRecentlyProject(List<MemberProject> memberProject, List<Project> projects) {
         projects = new ArrayList<>();
@@ -236,7 +273,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 내림차순 정렬
-        Collections.sort(projects, new SortByDate().reversed());
+        Collections.sort(projects, new SortByStartDate().reversed());
 
         // 내림차순 정렬한 것 RecentlyProject 형식으로 3개만 담기
         List<RecentlyProject> recentlyProject = new ArrayList<>();
@@ -267,7 +304,7 @@ public class MemberServiceImpl implements MemberService {
             }
         }
 
-        Collections.sort(projects, new SortByDate());
+        Collections.sort(projects, new SortByStartDate());
         List<ProgressProject> progressProjects = new ArrayList<>();
         for(int i = 0; i<projects.size(); i++) {
             ProgressProject project = ProgressProject.builder()
@@ -293,7 +330,7 @@ public class MemberServiceImpl implements MemberService {
             }
         }
 
-        Collections.sort(projects, new SortByDate().reversed());
+        Collections.sort(projects, new SortByEndDate().reversed());
 
         List<Portfolio> portfolios = new ArrayList<>();
         for(int i = 0; i<projects.size(); i++) {
@@ -302,6 +339,7 @@ public class MemberServiceImpl implements MemberService {
                     .projectName(projects.get(i).getProject_name())
                     .projectStartDate(projects.get(i).getStart_date())
                     .projectEndDate(projects.get(i).getEnd_date())
+                    .projectImage(projects.get(i).getProject_image())
                     .projectStatus(projects.get(i).getProject_status()).build();
 
             portfolios.add(portfolio);
@@ -324,11 +362,26 @@ public class MemberServiceImpl implements MemberService {
         memberProjectRepository.save(memberProject);
     }
 
-    // 프로젝트 정렬
-    static class SortByDate implements Comparator<Project> {
+    // Member 로 MemberProject 조회
+    private List<MemberProject> findMemberProject(Member member) {
+        List<MemberProject> memberProject = memberProjectRepository.findByMember(member);
+
+        return memberProject;
+    }
+
+    // 프로젝트 정렬 : 시작 일자 기준으로 정렬
+    static class SortByStartDate implements Comparator<Project> {
         @Override
         public int compare(Project a, Project b) {
             return a.getStart_date().compareTo(b.getStart_date());
+        }
+    }
+
+    // 프로젝트 정렬 끝난 일자 기준으로 정렬
+    static class SortByEndDate implements Comparator<Project> {
+        @Override
+        public int compare(Project a, Project b) {
+            return a.getEnd_date().compareTo(b.getEnd_date());
         }
     }
 }
