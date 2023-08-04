@@ -310,7 +310,7 @@ public class MemberServiceImpl implements MemberService {
         return portfolios;
     }
 
-    // 테스트용 Member_Project 저장 코드
+   //  테스트용 Member_Project 저장 코드
     public void saveMemberProject(Long member_id, Long project_id, Long schedule_id) {
         Member member = memberRepository.findById(member_id).get();
         Project project = projectRepository.findById(project_id).get();
@@ -318,8 +318,8 @@ public class MemberServiceImpl implements MemberService {
 
         MemberProject memberProject = MemberProject.builder()
                 .member(member)
-                .project(project)
-                .schedule(schedule).build();
+                .project(project).build();
+               // .schedule(schedule).build();
 
         memberProjectRepository.save(memberProject);
     }
