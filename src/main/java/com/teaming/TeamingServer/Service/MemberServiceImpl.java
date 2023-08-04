@@ -314,12 +314,11 @@ public class MemberServiceImpl implements MemberService {
     public void saveMemberProject(Long member_id, Long project_id, Long schedule_id) {
         Member member = memberRepository.findById(member_id).get();
         Project project = projectRepository.findById(project_id).get();
-        Schedule schedule = scheduleRepository.findById(schedule_id).get();
 
         MemberProject memberProject = MemberProject.builder()
                 .member(member)
                 .project(project)
-                .schedule(schedule).build();
+                .build();
 
         memberProjectRepository.save(memberProject);
     }
