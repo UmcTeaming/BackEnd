@@ -19,6 +19,8 @@ public interface MemberService {
 
     ResponseEntity mainPage(Long memberId);
 
+    ResponseEntity portfolioPage(Long MemberId);
+
     void saveMemberProject(Long member_id, Long project_id, Long schedule_id); // 테스트용
 
 }
