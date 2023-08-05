@@ -17,5 +17,6 @@ public class Portfolio {
     private String projectName;
     private LocalDate projectStartDate;
     private LocalDate projectEndDate;
+    private String projectImage;
     private Status projectStatus;
 }
