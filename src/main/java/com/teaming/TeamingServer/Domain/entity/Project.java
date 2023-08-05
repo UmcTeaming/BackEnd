@@ -29,7 +29,7 @@ public class Project extends Time {
     @Column(nullable = false)
     private String project_name;
 
-    @Column(nullable = false)
+    @Column
     private String project_image;
 
     @Column(nullable = false)
@@ -55,11 +55,13 @@ public class Project extends Time {
     public List<Schedule> schedules = new ArrayList<>();
 
     @Builder
-    public Project(String project_name, LocalDate start_date, LocalDate end_date, Status project_status) {
+    public Project(String project_name, LocalDate start_date, LocalDate end_date, Status project_status, String project_color, String project_image) {
         this.project_name = project_name;
         this.start_date = start_date;
         this.end_date = end_date;
         this.project_status = project_status;
+        this.project_color = project_color;
+        this.project_image = project_image;
     }
 
     public Project update(String profile_image, String project_color) {

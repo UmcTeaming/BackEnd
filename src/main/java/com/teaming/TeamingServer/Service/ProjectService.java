@@ -1,10 +1,9 @@
 package com.teaming.TeamingServer.Service;
 
+import com.teaming.TeamingServer.Domain.Dto.ProjectCreateRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.ProjectResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
-import com.teaming.TeamingServer.Domain.entity.Project;
-import com.teaming.TeamingServer.Domain.entity.Schedule;
-import com.teaming.TeamingServer.Domain.entity.Member;
-import com.teaming.TeamingServer.Domain.entity.File;
+import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.Repository.ScheduleRepository;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.function.Function;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +32,23 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
     private final FileRepository fileRepository;
+
+    public Project createProject(ProjectCreateRequestDto projectCreateRequestDto) {
+        Project project = Project.builder()
+                .project_name(projectCreateRequestDto.getProject_name())
+                .start_date(projectCreateRequestDto.getStart_date())
+                .end_date(projectCreateRequestDto.getEnd_date())
+                .project_status(Status.ING)
+                .project_color(projectCreateRequestDto.getProject_color())
+                .project_image(projectCreateRequestDto.getProject_image())
+                .build();
+
+        return projectRepository.save(project);
+    }
+
+
+
+
 
     public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {
 

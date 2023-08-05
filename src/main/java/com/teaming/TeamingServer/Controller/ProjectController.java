@@ -1,11 +1,10 @@
 package com.teaming.TeamingServer.Controller;
 
 
-import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.*;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleEnrollRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -175,5 +174,16 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(),e.getMessage(),null));
         }
     }
+    @PostMapping("/{memberId}/create")
+    public ResponseEntity createProject(@RequestBody ProjectCreateRequestDto requestDto) {
+//         requestDto로부터 필요한 정보를 추출하여 ProjectService createProject 메서드를 호출
+        Project project = projectService.createProject(
+                requestDto
+        );
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "프로젝트가 생성되었습니다."));
+
+    }
+
 
 }
