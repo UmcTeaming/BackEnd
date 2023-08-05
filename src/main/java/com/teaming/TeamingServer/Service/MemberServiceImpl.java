@@ -272,7 +272,7 @@ public class MemberServiceImpl implements MemberService {
             }
         }
 
-        // 내림차순 정렬
+        // 시작 날짜를 기준으로 내림차순 정렬 - 가장 최근으로 시작한 날짜
         Collections.sort(projects, new SortByStartDate().reversed());
 
         // 내림차순 정렬한 것 RecentlyProject 형식으로 3개만 담기
@@ -304,7 +304,9 @@ public class MemberServiceImpl implements MemberService {
             }
         }
 
-        Collections.sort(projects, new SortByStartDate());
+        // 마감날짜 순으로 - 마감 날짜를 기준으로 오름차순
+        Collections.sort(projects, new SortByEndDate());
+
         List<ProgressProject> progressProjects = new ArrayList<>();
         for(int i = 0; i<projects.size(); i++) {
             ProgressProject project = ProgressProject.builder()
@@ -330,6 +332,7 @@ public class MemberServiceImpl implements MemberService {
             }
         }
 
+        // 가장 최근에 끝낸 순으로 - 마감 날짜 기준 내림차순
         Collections.sort(projects, new SortByEndDate().reversed());
 
         List<Portfolio> portfolios = new ArrayList<>();
