@@ -1,14 +1,14 @@
 package com.teaming.TeamingServer.Controller;
 
 
-import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleConfirmDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.*;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleEnrollRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.common.BaseResponse;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -197,5 +197,41 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(),e.getMessage(),null));
         }
     }
+
+    // 하나의 파일 정보 조회
+    @GetMapping("/{memberId}/{projectId}/files/{fileId}")
+    public ResponseEntity<BaseResponse<SingleFileResponseDto>> searchOneFile(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId, @PathVariable("fileId") Long fileId) {
+
+        try{
+            SingleFileResponseDto information = fileService.searchOneFile(memberId,projectId,fileId);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일 정보를 불러왔습니다", information));
+        }  catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+
+    }
+
+    // 문서 다운로드
+    @GetMapping("/{memberId}/{projectId}/files/{fileId}/download")
+    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable("memberId") Long memberId,
+                                                            @PathVariable("projectId") Long projectId,
+                                                            @PathVariable("fileId") Long fileId) {
+        try {
+            // 파일 다운로드를 수행하는 파일 서비스의 메서드를 호출합니다.
+            ResponseEntity<InputStreamResource> response = fileService.downloadFile(memberId, projectId, fileId);
+            return response;
+        } catch (BaseException e) {
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new InputStreamResource(null));
+        }
+    }
+
 
 }

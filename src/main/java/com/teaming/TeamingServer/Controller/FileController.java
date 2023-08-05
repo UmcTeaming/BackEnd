@@ -85,22 +85,6 @@ public class FileController {
     }
 
 
-    // 하나의 파일 정보 조회
-    @GetMapping("/{memberId}/{projectId}/files/{fileId}")
-    public ResponseEntity<BaseResponse<SingleFileResponseDto>> searchOneFile(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId, @PathVariable("fileId") Long fileId) {
 
-        try{
-            SingleFileResponseDto information = fileService.searchOneFile(memberId,projectId,fileId);
 
-                return ResponseEntity
-                        .status(HttpStatus.OK)
-                        .body(new BaseResponse<>(HttpStatus.OK.value(), "파일 정보를 불러왔습니다", information));
-            }  catch (BaseException e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
-            return ResponseEntity
-                    .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
-        }
-
-    }
 }

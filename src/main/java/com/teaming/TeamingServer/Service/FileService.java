@@ -12,15 +12,22 @@ import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
+import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +49,7 @@ public class FileService {
     private final FileRepository fileRepository;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private String uploadDir = "C:\\Users\\82103\\Desktop\\UMC\\";
 
     // 코멘트 찾기
     public List<CommentResponseDto> searchComment(Long fileId) {
@@ -62,7 +70,7 @@ public class FileService {
 
 
     //파일 업로드
-    private String uploadDir = "C:\\Users\\82103\\Desktop\\UMC\\";
+
 
     public void generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
         Project project = projectRepository.findById(projectId)
@@ -212,6 +220,30 @@ public class FileService {
     }
 
 
+    public ResponseEntity<InputStreamResource> downloadFile(Long memberId, Long projectId, Long fileId) {
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found with id: " + fileId));
 
+        try {
+            Path filePath = Paths.get(uploadDir, file.getFileName());
+            UrlResource resource = new UrlResource(filePath.toUri());
 
+            // 다운로드 시 파일명이 한글 등의 특수문자가 포함되어 있을 경우, 정상적으로 다운로드되지 않을 수 있습니다.
+            // 이를 방지하기 위해 파일명을 인코딩합니다.
+            String encodedFileName = new String(file.getFileName().getBytes("UTF-8"), "ISO-8859-1");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(new InputStreamResource(resource.getInputStream()));
+        } catch (MalformedURLException e) {
+            throw new BaseException(500, "파일 다운로드를 실패하였습니다");
+        } catch (IOException e) {
+            throw new BaseException(500, "파일 다운로드를 실패하였습니다");
+        }
+    }
 }
