@@ -1,7 +1,6 @@
 package com.teaming.TeamingServer.Domain.Dto;
 
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.Portfolio;
-import com.teaming.TeamingServer.Domain.Dto.portfolioPageDto.PortfolioPage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

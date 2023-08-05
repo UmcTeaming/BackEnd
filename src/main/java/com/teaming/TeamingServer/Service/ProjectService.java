@@ -1,6 +1,7 @@
 package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Domain.Dto.MainPageResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.ProjectStatusRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.ScheduleConfirmDto;
 import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.Domain.entity.*;
@@ -73,6 +74,23 @@ public class ProjectService {
             return null;
         }
         return result;
+    }
+
+    // 프로젝트 마감 (상태 변경)
+    public ResponseEntity projectChangeStatus(ProjectStatusRequestDto projectStatusRequestDto, Long projectId) {
+        Optional<Project> projects = projectRepository.findById(projectId);
+        if(projects.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 프로젝트입니다."));
+        }
+
+        Project project = projects.stream().findFirst().get();
+
+        Project result = project.updateStatus(projectStatusRequestDto.getProject_status());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "프로젝트가 종료되었습니다."));
+
     }
 
     // memberID 로 MemberProject 들 받아오기

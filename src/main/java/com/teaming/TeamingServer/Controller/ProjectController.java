@@ -1,12 +1,9 @@
 package com.teaming.TeamingServer.Controller;
 
 
-import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleConfirmDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.*;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleEnrollRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -196,6 +193,12 @@ public class ProjectController {
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(),e.getMessage(),null));
         }
+    }
+
+    @PatchMapping("/{memberId}/{projectId}/status")
+    public ResponseEntity projectChangeStatus(@RequestBody ProjectStatusRequestDto projectStatusRequestDto
+                                              , @PathVariable("projectId") Long projectId) {
+        return projectService.projectChangeStatus(projectStatusRequestDto, projectId);
     }
 
 }
