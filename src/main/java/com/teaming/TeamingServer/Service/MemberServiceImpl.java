@@ -310,16 +310,17 @@ public class MemberServiceImpl implements MemberService {
         return portfolios;
     }
 
-   //  테스트용 Member_Project 저장 코드
+    // 테스트용 Member_Project 저장 코드
     public void saveMemberProject(Long member_id, Long project_id, Long schedule_id) {
         Member member = memberRepository.findById(member_id).get();
         Project project = projectRepository.findById(project_id).get();
-        Schedule schedule = scheduleRepository.findById(schedule_id).get();
 
         MemberProject memberProject = MemberProject.builder()
                 .member(member)
-                .project(project).build();
-               // .schedule(schedule).build();
+                .project(project)
+                .build();
+
+
 
         memberProjectRepository.save(memberProject);
     }
