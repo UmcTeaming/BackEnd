@@ -4,6 +4,7 @@ package com.teaming.TeamingServer.Service;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.FileDetailResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.SingleFileResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Project;
@@ -151,6 +152,27 @@ public class FileService {
 
     }
 
+    // 하나의 파일에 대한 정보 조회
+
+   public SingleFileResponseDto searchOneFile(Long memberId, Long projectId, Long fileId){
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404,"유효하지 않은 프로젝트 ID"));
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new BaseException(404,"유효하지 않은 파일 ID"));
+
+        SingleFileResponseDto information = new SingleFileResponseDto(
+                file.getFile_type(),
+                file.getFileName(),
+                file.getMember().getName(),
+                file.getCreatedAt().toLocalDate()
+        );
+
+        return information;
+
+   }
+
      // 프로젝트 최종 파일 조회
     public List<FileListResponseDto> searchFinalFile(Long projectId) {
         Project project = projectRepository.findById(projectId)
@@ -188,4 +210,8 @@ public class FileService {
                 .collect(Collectors.toList());
 
     }
+
+
+
+
 }

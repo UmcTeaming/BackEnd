@@ -22,5 +22,4 @@ public class MemberProject {
     @JoinColumn(name = "project_id")
     private Project project;
 
-
 }

@@ -2,6 +2,7 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.SingleFileResponseDto;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
@@ -49,7 +50,7 @@ public class FileController {
     //코멘트 조회
     @GetMapping("/{memberId}/{fileId}/comments")
     public ResponseEntity<BaseResponse<List<CommentResponseDto>>> searchComments(@PathVariable("fileId") Long fileId,
-     @PathVariable("memberId") Long memberId) {
+                                                                                 @PathVariable("memberId") Long memberId) {
 
         try {
             List<CommentResponseDto> list = fileService.searchComment(fileId);
@@ -67,15 +68,15 @@ public class FileController {
 
     //코멘트 삭제
     @DeleteMapping("/{memberId}/{fileId}/comments/{commentId}")
-    public ResponseEntity<BaseResponse> deleteComment (@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId,
-                                                       @PathVariable("memberId") Long memberId) {
+    public ResponseEntity<BaseResponse> deleteComment(@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId,
+                                                      @PathVariable("memberId") Long memberId) {
 
         try {
             commentService.deleteComment(fileId, commentId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse(HttpStatus.OK.value(), "커멘트를 삭제했습니다", null));
-        }catch( BaseException e){
+        } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
@@ -83,4 +84,23 @@ public class FileController {
         }
     }
 
+
+    // 하나의 파일 정보 조회
+    @GetMapping("/{memberId}/{projectId}/files/{fileId}")
+    public ResponseEntity<BaseResponse<SingleFileResponseDto>> searchOneFile(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId, @PathVariable("fileId") Long fileId) {
+
+        try{
+            SingleFileResponseDto information = fileService.searchOneFile(memberId,projectId,fileId);
+
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(new BaseResponse<>(HttpStatus.OK.value(), "파일 정보를 불러왔습니다", information));
+            }  catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+
+    }
 }
