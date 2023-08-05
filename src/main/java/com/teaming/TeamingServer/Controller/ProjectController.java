@@ -196,7 +196,8 @@ public class ProjectController {
     }
 
     @PostMapping("/{memberId}/{projectId}/invitations")
-    public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto, @PathVariable("projectId") Long projectId) {
+    public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
+                                        , @PathVariable("projectId") Long projectId) {
         return projectService.inviteMember(projectInviteRequestDto, projectId);
     }
 
