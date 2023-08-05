@@ -12,4 +12,6 @@ public interface MemberProjectRepository extends JpaRepository<MemberProject, Lo
 
     List<MemberProject> findByMember(Member member); // member 로 MemberProject 를 찾는 것
 
+    List<MemberProject> findByProject(Project project); // project 로 참여 멤버들 조회
+
 }
