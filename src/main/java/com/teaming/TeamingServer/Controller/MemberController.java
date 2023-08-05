@@ -53,6 +53,11 @@ public class MemberController {
         return memberService.mainPage(memberId);
     }
 
+    @GetMapping("/member/{memberId}/portfolio")
+    public ResponseEntity portfolioPage(@PathVariable("memberId") Long memberId) {
+        return memberService.portfolioPage(memberId);
+    }
+
     @PostMapping("/member/saveData")
     public ResponseEntity saveData(@RequestBody TestDto testDto) {
         memberService.saveMemberProject(testDto.getMember_id(), testDto.getProject_id(), testDto.getSchedule_id());
