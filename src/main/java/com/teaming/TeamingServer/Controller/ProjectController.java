@@ -200,4 +200,10 @@ public class ProjectController {
         return projectService.inviteMember(projectInviteRequestDto, projectId);
     }
 
+    @PatchMapping("/{memberId}/{projectId}/status")
+    public ResponseEntity projectChangeStatus(@RequestBody ProjectStatusRequestDto projectStatusRequestDto
+                                              , @PathVariable("projectId") Long projectId) {
+        return projectService.projectChangeStatus(projectStatusRequestDto, projectId);
+    }
+
 }
