@@ -198,6 +198,17 @@ public class ProjectController {
         }
     }
 
+    @PostMapping("/{memberId}/{projectId}/invitations")
+    public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto, @PathVariable("projectId") Long projectId) {
+        return projectService.inviteMember(projectInviteRequestDto, projectId);
+    }
+
+    @PatchMapping("/{memberId}/{projectId}/status")
+    public ResponseEntity projectChangeStatus(@RequestBody ProjectStatusRequestDto projectStatusRequestDto
+                                              , @PathVariable("projectId") Long projectId) {
+        return projectService.projectChangeStatus(projectStatusRequestDto, projectId);
+    }
+
     // 하나의 파일 정보 조회
     @GetMapping("/{memberId}/{projectId}/files/{fileId}")
     public ResponseEntity<BaseResponse<SingleFileResponseDto>> searchOneFile(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId, @PathVariable("fileId") Long fileId) {

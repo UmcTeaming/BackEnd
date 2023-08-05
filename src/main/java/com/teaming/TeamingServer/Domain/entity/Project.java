@@ -62,9 +62,20 @@ public class Project extends Time {
         this.project_status = project_status;
     }
 
-    public Project update(String profile_image, String project_color) {
+    public Project updateProfile(String profile_image) {
         this.project_image = profile_image;
+
+        return this;
+    }
+
+    public Project updateColor(String project_color) {
         this.project_color = project_color;
+
+        return this;
+    }
+
+    public Project updateStatus(Status project_status) {
+        this.project_status = project_status;
 
         return this;
     }
