@@ -37,7 +37,12 @@ public class MemberServiceImpl implements MemberService {
 
     private final ProjectRepository projectRepository;
     private final MemberProjectRepository memberProjectRepository;
-    private final ScheduleRepository scheduleRepository;
+
+    // 상수값들 - 메인 페이지에 반환할 프로젝들 개수들
+    private final static int RECENTLY_PROJECT_NUM = 3;
+    private final static int PROGRESS_PROJECT_NUM = 8;
+    private final static int PORTFOLIO_PROJECT_NUM = 8;
+
 
 
     @Override
@@ -203,13 +208,13 @@ public class MemberServiceImpl implements MemberService {
         // (2) 찾은 프로젝트들이 있다면, 프로젝트 최근 시작 기준으로 정렬 - 최근 프로젝트
         List<Project> projects = new ArrayList<>();
 
-        List<RecentlyProject> recentlyProject = searchRecentlyProject(memberProject, projects);
+        List<RecentlyProject> recentlyProject = searchRecentlyProject(memberProject, projects, RECENTLY_PROJECT_NUM);
 
         // (3) 진행중인 프로젝트 - 오름차순 정렬
-        List<ProgressProject> progressProjects = searchProgressProject(memberProject, projects);
+        List<ProgressProject> progressProjects = searchProgressProject(memberProject, projects, PROGRESS_PROJECT_NUM);
 
         // (4) 끝난 프로젝트 - 내림차순 정렬 - 포트폴리오
-        List<Portfolio> portfolios = searchPortPolio(memberProject, projects);
+        List<Portfolio> portfolios = searchPortPolio(memberProject, projects, PORTFOLIO_PROJECT_NUM);
 
         // 최종 반환 MainPageResponse 생성
         MainPageResponseDto mainPageResponseDto = MainPageResponseDto.builder()
@@ -248,7 +253,7 @@ public class MemberServiceImpl implements MemberService {
 
         // (2) 있다면, 끝난 순으로 project 정렬
         List<Project> projects = new ArrayList<>();
-        List<Portfolio> portfolios = searchPortPolio(memberProject, projects);
+        List<Portfolio> portfolios = searchPortPolio(memberProject, projects, memberProject.size());
 
         // 최종 포트폴리오 페이지 넘기기
         PortfolioPageResponseDto portfolioPageResponseDto = PortfolioPageResponseDto.builder()
@@ -261,10 +266,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 최근 프로젝트
-    private List<RecentlyProject> searchRecentlyProject(List<MemberProject> memberProject, List<Project> projects) {
+    private List<RecentlyProject> searchRecentlyProject(List<MemberProject> memberProject, List<Project> projects, int projectNum) {
         projects = new ArrayList<>();
 
-        for(int i = 0; i<memberProject.stream().toList().size(); i++) {
+        for(int i = 0; i<memberProject.size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
             // Status 가 ING 인 것만
             if(project.getProject_status().equals(Status.ING)) {
@@ -275,9 +280,14 @@ public class MemberServiceImpl implements MemberService {
         // 시작 날짜를 기준으로 내림차순 정렬 - 가장 최근으로 시작한 날짜
         Collections.sort(projects, new SortByStartDate().reversed());
 
+        if(projectNum > projects.size()) {
+            projectNum = projects.size();
+        }
+
         // 내림차순 정렬한 것 RecentlyProject 형식으로 3개만 담기
         List<RecentlyProject> recentlyProject = new ArrayList<>();
-        for(int i = 0; i<3; i++) {
+
+        for(int i = 0; i<projectNum; i++) {
             RecentlyProject project = RecentlyProject.builder()
                     .projectId(projects.get(i).getProject_id())
                     .projectName(projects.get(i).getProject_name())
@@ -292,11 +302,12 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 진행 중인 프로젝트
-    private List<ProgressProject> searchProgressProject(List<MemberProject> memberProject, List<Project> projects) {
+    private List<ProgressProject> searchProgressProject(List<MemberProject> memberProject, List<Project> projects, int projectNum) {
 
         projects = new ArrayList<>();
 
-        for(int i = 0; i<memberProject.stream().toList().size(); i++) {
+
+        for(int i = 0; i<memberProject.size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
             // Status 가 ING 인 것만
             if(project.getProject_status().equals(Status.ING)) {
@@ -307,8 +318,13 @@ public class MemberServiceImpl implements MemberService {
         // 마감날짜 순으로 - 마감 날짜를 기준으로 오름차순
         Collections.sort(projects, new SortByEndDate());
 
+        if(projectNum > projects.size()) {
+            projectNum = projects.size();
+        }
+
         List<ProgressProject> progressProjects = new ArrayList<>();
-        for(int i = 0; i<projects.size(); i++) {
+
+        for(int i = 0; i<projectNum; i++) {
             ProgressProject project = ProgressProject.builder()
                     .projectId(projects.get(i).getProject_id())
                     .projectName(projects.get(i).getProject_name())
@@ -322,9 +338,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 포트폴리오
-    private List<Portfolio> searchPortPolio(List<MemberProject> memberProject, List<Project> projects) {
+    private List<Portfolio> searchPortPolio(List<MemberProject> memberProject, List<Project> projects, int projectNum) {
         projects = new ArrayList<>();
-        for(int i = 0; i<memberProject.stream().toList().size(); i++) {
+
+        for(int i = 0; i<memberProject.size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
             // Status 가 END 인 것만
             if(project.getProject_status().equals(Status.END)) {
@@ -335,8 +352,12 @@ public class MemberServiceImpl implements MemberService {
         // 가장 최근에 끝낸 순으로 - 마감 날짜 기준 내림차순
         Collections.sort(projects, new SortByEndDate().reversed());
 
+        if(projectNum > projects.size()) {
+            projectNum = projects.size();
+        }
+
         List<Portfolio> portfolios = new ArrayList<>();
-        for(int i = 0; i<projects.size(); i++) {
+        for(int i = 0; i<projectNum; i++) {
             Portfolio portfolio = Portfolio.builder()
                     .projectId(projects.get(i).getProject_id())
                     .projectName(projects.get(i).getProject_name())
@@ -355,12 +376,10 @@ public class MemberServiceImpl implements MemberService {
     public void saveMemberProject(Long member_id, Long project_id, Long schedule_id) {
         Member member = memberRepository.findById(member_id).get();
         Project project = projectRepository.findById(project_id).get();
-        Schedule schedule = scheduleRepository.findById(schedule_id).get();
 
         MemberProject memberProject = MemberProject.builder()
                 .member(member)
-                .project(project)
-                .schedule(schedule).build();
+                .project(project).build();
 
         memberProjectRepository.save(memberProject);
     }
