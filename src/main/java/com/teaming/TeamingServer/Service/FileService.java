@@ -1,10 +1,7 @@
 package com.teaming.TeamingServer.Service;
 
 
-import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.FileDetailResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.SingleFileResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Project;
@@ -16,28 +13,23 @@ import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,7 +115,7 @@ public class FileService {
         // 파일 삭제
     }
 
-     // 프로젝트 파일 조회
+    // 프로젝트 파일 조회
     public List<FileListResponseDto> searchFile(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
@@ -141,14 +133,14 @@ public class FileService {
                             commentCount
                     );
 
-            LocalDateTime createdAt = file.getCreatedAt();
-            LocalDate date = createdAt.toLocalDate();
+                    LocalDateTime createdAt = file.getCreatedAt();
+                    LocalDate date = createdAt.toLocalDate();
 
-            List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date,new ArrayList<>());
-            filesbyDate.add(fileDetailResponseDto);
-            fileInfoByDate.put(date,filesbyDate);
+                    List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date, new ArrayList<>());
+                    filesbyDate.add(fileDetailResponseDto);
+                    fileInfoByDate.put(date, filesbyDate);
 
-        });
+                });
 
         if (fileInfoByDate.isEmpty()) {
             return null;
@@ -162,13 +154,13 @@ public class FileService {
 
     // 하나의 파일에 대한 정보 조회
 
-   public SingleFileResponseDto searchOneFile(Long memberId, Long projectId, Long fileId){
+    public SingleFileResponseDto searchOneFile(Long memberId, Long projectId, Long fileId) {
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new BaseException(404,"유효하지 않은 프로젝트 ID"));
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
 
         File file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new BaseException(404,"유효하지 않은 파일 ID"));
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 파일 ID"));
 
         SingleFileResponseDto information = new SingleFileResponseDto(
                 file.getFile_type(),
@@ -179,9 +171,9 @@ public class FileService {
 
         return information;
 
-   }
+    }
 
-     // 프로젝트 최종 파일 조회
+    // 프로젝트 최종 파일 조회
     public List<FileListResponseDto> searchFinalFile(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
@@ -202,9 +194,9 @@ public class FileService {
                     LocalDateTime createdAt = file.getCreatedAt();
                     LocalDate date = createdAt.toLocalDate();
 
-                    List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date,new ArrayList<>());
+                    List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date, new ArrayList<>());
                     filesbyDate.add(fileDetailResponseDto);
-                    fileInfoByDate.put(date,filesbyDate);
+                    fileInfoByDate.put(date, filesbyDate);
 
 //
                 });
@@ -220,30 +212,5 @@ public class FileService {
     }
 
 
-    public ResponseEntity<InputStreamResource> downloadFile(Long memberId, Long projectId, Long fileId) {
-        File file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found with id: " + fileId));
 
-        try {
-            Path filePath = Paths.get(uploadDir, file.getFileName());
-            UrlResource resource = new UrlResource(filePath.toUri());
-
-            // 다운로드 시 파일명이 한글 등의 특수문자가 포함되어 있을 경우, 정상적으로 다운로드되지 않을 수 있습니다.
-            // 이를 방지하기 위해 파일명을 인코딩합니다.
-            String encodedFileName = new String(file.getFileName().getBytes("UTF-8"), "ISO-8859-1");
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"");
-
-            return ResponseEntity
-                    .ok()
-                    .headers(headers)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(new InputStreamResource(resource.getInputStream()));
-        } catch (MalformedURLException e) {
-            throw new BaseException(500, "파일 다운로드를 실패하였습니다");
-        } catch (IOException e) {
-            throw new BaseException(500, "파일 다운로드를 실패하였습니다");
-        }
-    }
 }
