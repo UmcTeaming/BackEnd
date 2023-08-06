@@ -2,18 +2,18 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.FileLinkRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.ViewLinkResponseDto;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -83,4 +83,24 @@ public class FileController {
         }
     }
 
+    // 문서 뷰어 띄우기
+    @PostMapping("/viewDocument")
+    public ResponseEntity<?> viewDocument(@RequestBody FileLinkRequestDto request) {
+        try {
+            ViewLinkResponseDto response;
+            FileService.DocumentService documentService = null; // 인스턴스화 방법이 여전히 필요합니다.
+            response = documentService.convertFileToViewLink((String) request.getFileLink());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "문서 뷰어 로드 성공하였습니다.", response));
+        } catch (Exception e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(404, "뷰어 로드 중 오류 발생하였습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new BaseResponse<>(404, "뷰어 로드 중 오류 발생하였습니다.", errorResponse));
+        }
+    }
+
 }
+
+
+
+

@@ -70,4 +70,8 @@ public class ProjectService {
         return result;
 
     }
+
+    public ProjectResponseDto getProject(Long projectId) {
+        return null;
+    }
 }

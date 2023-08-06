@@ -4,6 +4,7 @@ package com.teaming.TeamingServer.Service;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.FileDetailResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.ViewLinkResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Project;
@@ -188,4 +189,23 @@ public class FileService {
                 .collect(Collectors.toList());
 
     }
+
+    //문서 뷰어 띄우기
+    @Service
+    public class DocumentService {
+
+        // 외부 API 호출을 담당하는 메서드
+        public ViewLinkResponseDto convertFileToViewLink(String fileLink) throws Exception {
+            String viewLink = ""; // 외부 서비스를 통해 변환된 링크를 넣으려고 합니다
+
+            // 외부 서비스 호출 로직 (예: Google Drive API, Microsoft Graph API)
+            // 여기에 해당 API 호출 로직을 구현해야 한다고 하네요......
+
+            // 변환된 뷰 링크 생성
+            viewLink = "https://yourserver.com/view/files/123456789.html"; // 예시
+
+            return new ViewLinkResponseDto(viewLink);
+        }
+    }
+
 }

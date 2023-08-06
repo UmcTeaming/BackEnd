@@ -174,6 +174,8 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(),e.getMessage(),null));
         }
     }
+
+    //프로젝트 생성
     @PostMapping("/{memberId}/create")
     public ResponseEntity createProject(@RequestBody ProjectCreateRequestDto requestDto) {
 //         requestDto로부터 필요한 정보를 추출하여 ProjectService createProject 메서드를 호출
@@ -185,5 +187,21 @@ public class ProjectController {
 
     }
 
+
+    // 프로젝트 조회
+    @GetMapping("/{memberId}/{projectId}")
+    public ResponseEntity<BaseResponse<ProjectResponseDto>> getProject(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId) {
+        try {
+            ProjectResponseDto projectDetail = projectService.getProject(projectId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 정보를 불러왔습니다", projectDetail));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
 
 }
