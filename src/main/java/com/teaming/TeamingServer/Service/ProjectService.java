@@ -1,8 +1,6 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Domain.Dto.MainPageResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.ProjectStatusRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleConfirmDto;
 import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.InviteMember;
@@ -13,17 +11,12 @@ import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +31,6 @@ public class ProjectService {
     private final MemberRepository memberRepository;
     private final FileRepository fileRepository;
     private final MemberProjectRepository memberProjectRepository;
-    private final ScheduleRepository scheduleRepository;
 
     public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {
 
@@ -46,34 +38,16 @@ public class ProjectService {
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
 
         Member member = memberRepository.findById(memberId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found with id: " + memberId));
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 멤버 ID "));
         // 프로젝트에 해당하는 스케줄들을 조회한다.
 
         // 조회한 스케줄들을 ScheduleResponseDto 형태로 변환하여 리스트에 담는다.
         List<ScheduleResponseDto> result = project.getSchedules().stream()
                 .map(schedule -> new ScheduleResponseDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
-                 schedule.getSchedule_start_time())).collect(Collectors.toList());
+                 schedule.getSchedule_start_time(), schedule.getSchedule_end(),
+                        schedule.getSchedule_end_time())).collect(Collectors.toList());
 
         if (result.isEmpty()) {
-            return null;
-        }
-        return result;
-    }
-
-    public List<ScheduleConfirmDto> readSchedule(Long memberId, Long projectId, Long scheduleId) {
-
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 Id"));
-        Member member = memberRepository.findById(memberId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found with id: " + memberId));
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 스케줄 Id"));
-
-        List <ScheduleConfirmDto> result = project.getSchedules().stream()
-                .map(scheduleConfirm -> new ScheduleConfirmDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
-                        schedule.getSchedule_end(), schedule.getSchedule_start_time(),
-                        schedule.getSchedule_end_time())).collect(Collectors.toList());
-        if(result.isEmpty()) {
             return null;
         }
         return result;

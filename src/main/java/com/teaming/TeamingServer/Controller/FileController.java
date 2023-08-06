@@ -4,6 +4,7 @@ import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Project;
+import com.teaming.TeamingServer.Domain.Dto.SingleFileResponseDto;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Service.CommentService;
@@ -65,7 +66,7 @@ public class FileController {
     //코멘트 조회
     @GetMapping("/{memberId}/{fileId}/comments")
     public ResponseEntity<BaseResponse<List<CommentResponseDto>>> searchComments(@PathVariable("fileId") Long fileId,
-     @PathVariable("memberId") Long memberId) {
+                                                                                 @PathVariable("memberId") Long memberId) {
 
         try {
             List<CommentResponseDto> list = fileService.searchComment(fileId);
@@ -83,15 +84,15 @@ public class FileController {
 
     //코멘트 삭제
     @DeleteMapping("/{memberId}/{fileId}/comments/{commentId}")
-    public ResponseEntity<BaseResponse> deleteComment (@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId,
-                                                       @PathVariable("memberId") Long memberId) {
+    public ResponseEntity<BaseResponse> deleteComment(@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId,
+                                                      @PathVariable("memberId") Long memberId) {
 
         try {
             commentService.deleteComment(fileId, commentId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse(HttpStatus.OK.value(), "커멘트를 삭제했습니다", null));
-        }catch( BaseException e){
+        } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())

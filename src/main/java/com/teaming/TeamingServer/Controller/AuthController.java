@@ -29,15 +29,12 @@ public class AuthController {
     // 이메일 중복체크
     @PostMapping("/auth/email-duplication")
     public ResponseEntity duplicateEmail(@RequestBody MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
-
         return authService.validateDuplicateMember(memberSignUpEmailDuplicationRequestDto);
-
     }
 
     // 이메일 인증
     @PostMapping("/auth/email-verification")
     public ResponseEntity verificationEmail(@RequestBody MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
-
         return authService.verificationEmail(memberVerificationEmailRequestDto);
     }
 

@@ -381,6 +381,8 @@ public class MemberServiceImpl implements MemberService {
                 .member(member)
                 .project(project).build();
 
+
+
         memberProjectRepository.save(memberProject);
     }
 
