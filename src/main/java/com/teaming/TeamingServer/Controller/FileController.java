@@ -3,31 +3,23 @@ package com.teaming.TeamingServer.Controller;
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
-import com.teaming.TeamingServer.Domain.entity.Project;
-import com.teaming.TeamingServer.Domain.Dto.SingleFileResponseDto;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
-import com.teaming.TeamingServer.Service.FileStore;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.List;
 
 @Slf4j
@@ -40,7 +32,6 @@ public class FileController {
     private final CommentService commentService;
     private final FileService fileService;
     private final FileRepository fileRepository;
-    private final FileStore fileStore;
 
 
     //코멘트 생성
@@ -123,9 +114,9 @@ public class FileController {
         }
 
         UrlResource resource = new UrlResource("file:" +
-                fileStore.getFullPath(storeFileName));
+                fileService.getFullPath(storeFileName));
 
-        return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
+        return new ResponseEntity(resource, headers, HttpStatus.OK);
     }
 
 }
