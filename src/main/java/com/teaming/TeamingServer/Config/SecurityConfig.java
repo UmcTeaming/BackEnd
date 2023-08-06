@@ -48,6 +48,7 @@ public class SecurityConfig {
 
         http.formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((authorizationRequest) -> authorizationRequest.anyRequest().permitAll())
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(possibleAccess).permitAll()
                         .anyRequest().authenticated());
 

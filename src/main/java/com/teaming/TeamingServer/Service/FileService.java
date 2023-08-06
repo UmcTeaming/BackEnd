@@ -81,7 +81,7 @@ public class FileService {
         String sourceFileNameExtension = FilenameUtils.getExtension(sourceFileName).toLowerCase();
         FilenameUtils.removeExtension(sourceFileName);
 
-        String fileUrl = "/Users/onam-ui/Desktop/Projects/TeamingFile/";
+        String fileUrl = "C:\\Users\\82103\\Desktop\\UMC\\";
 
         File newFile = File.builder()
                 .fileName(sourceFileName)
