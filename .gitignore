@@ -40,5 +40,9 @@ out/
 
 ### 메일 관련 정보 ###
 application-mail.properties
+
 ### jwt 관련 정보 ###
 application-jwt.properties
+
+### mysql 관련 정보 ###
+application-db.properties

@@ -39,13 +39,14 @@ public class ProjectService {
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
 
         Member member = memberRepository.findById(memberId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 멤버 ID"));
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 멤버 ID "));
         // 프로젝트에 해당하는 스케줄들을 조회한다.
 
         // 조회한 스케줄들을 ScheduleResponseDto 형태로 변환하여 리스트에 담는다.
         List<ScheduleResponseDto> result = project.getSchedules().stream()
                 .map(schedule -> new ScheduleResponseDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
-                 schedule.getSchedule_start_time(), schedule.getSchedule_end(), schedule.getSchedule_end_time())).collect(Collectors.toList());
+                 schedule.getSchedule_start_time(), schedule.getSchedule_end(),
+                        schedule.getSchedule_end_time())).collect(Collectors.toList());
 
         if (result.isEmpty()) {
             return null;

@@ -21,4 +21,5 @@ public class MemberProject {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+
 }
