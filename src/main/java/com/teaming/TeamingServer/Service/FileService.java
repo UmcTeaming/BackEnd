@@ -13,6 +13,7 @@ import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
@@ -41,7 +42,9 @@ public class FileService {
     private final FileRepository fileRepository;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
-    private String uploadDir = "C:\\Users\\82103\\Desktop\\UMC\\";
+
+    @Value("${file.upload-dir}")
+    private String fileDir;
 
     // 코멘트 찾기
     public List<CommentResponseDto> searchComment(Long fileId) {
@@ -81,7 +84,7 @@ public class FileService {
         String sourceFileNameExtension = FilenameUtils.getExtension(sourceFileName).toLowerCase();
         FilenameUtils.removeExtension(sourceFileName);
 
-        String fileUrl = "C:\\Users\\82103\\Desktop\\UMC\\";
+        String fileUrl = fileDir;
 
         File newFile = File.builder()
                 .fileName(sourceFileName)
@@ -99,7 +102,7 @@ public class FileService {
         // 파일 저장
         try {
             String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-            Path filePath = Paths.get(uploadDir, fileName);
+            Path filePath = Paths.get(fileDir, fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
@@ -211,5 +214,9 @@ public class FileService {
                 .map(entry -> new FileListResponseDto(entry.getKey().atStartOfDay(), entry.getValue()))
                 .collect(Collectors.toList());
 
+    }
+
+    public String getFullPath(String filename) {
+        return fileDir + filename;
     }
 }

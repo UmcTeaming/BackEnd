@@ -27,7 +27,7 @@ public class FileStore {
     private final FileRepository fileRepository;
 
     @Value("${file.upload-dir}")
-    private static String fileDir = "C:\\Users\\82103\\Desktop\\UMC\\";
+    private static String fileDir = "/Users/onam-ui/Desktop/Projects/TeamingFile/";
 
     public String getFullPath(String filename) {
         return fileDir + filename;
