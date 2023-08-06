@@ -2,21 +2,35 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
+import com.teaming.TeamingServer.Domain.entity.File;
+import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Domain.Dto.SingleFileResponseDto;
 import com.teaming.TeamingServer.Exception.BaseException;
+import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
+import com.teaming.TeamingServer.Service.FileStore;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/files")
@@ -25,6 +39,8 @@ public class FileController {
 
     private final CommentService commentService;
     private final FileService fileService;
+    private final FileRepository fileRepository;
+    private final FileStore fileStore;
 
 
     //코멘트 생성
@@ -84,7 +100,32 @@ public class FileController {
         }
     }
 
+    // 파일 다운로드
+    @GetMapping(value = "/{memberId}/{projectId}/files/{fileId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<Resource> downloadAttach(@PathVariable("fileId") Long fileId)
+            throws MalformedURLException {
 
+        File file = fileRepository.findById(fileId).orElseThrow(
+                ()-> new BaseException(404, "유효하지 않은 파일 ID")
+        );
 
+        String storeFileName = file.getFileName();
+
+        org.springframework.http.HttpHeaders headers =
+                new org.springframework.http.HttpHeaders();
+
+        try {
+            headers.add("Content-Disposition",
+                    "attachment; filename="+
+                    new String(storeFileName.getBytes("UTF-8"), "ISO-8859-1"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        UrlResource resource = new UrlResource("file:" +
+                fileStore.getFullPath(storeFileName));
+
+        return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
+    }
 
 }

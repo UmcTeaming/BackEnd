@@ -100,6 +100,7 @@ public class ProjectController {
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 업로드하였습니다", null));
         } catch (BaseException e) {
+            e.printStackTrace();
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
@@ -176,7 +177,8 @@ public class ProjectController {
     }
 
     @PostMapping("/{memberId}/{projectId}/invitations")
-    public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto, @PathVariable("projectId") Long projectId) {
+    public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
+                                        , @PathVariable("projectId") Long projectId) {
         return projectService.inviteMember(projectInviteRequestDto, projectId);
     }
 
