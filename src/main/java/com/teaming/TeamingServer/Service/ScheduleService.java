@@ -58,4 +58,21 @@ public class ScheduleService {
         // 스케줄을 삭제한다.
         scheduleRepository.deleteById(scheduleId);
     }
+
+    public void readSchedule(Long memberId, Long projectId, Long scheduleId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Schedule not found"));
+        Member member = memberRepository.findById(memberId).orElseThrow(()
+                -> new EntityNotFoundException("Member not found"));
+
+        if(!schedule.getProject().equals(project)) {
+            throw new IllegalArgumentException("Schedule does not belong to the specified project.");
+        }
+        if(!schedule.getMembersSchedules().equals(member)) {
+            throw new IllegalArgumentException("Schedule does not belong to the specified member.");
+        }
+
+    }
 }

@@ -54,6 +54,25 @@ public class ProjectService {
         return result;
     }
 
+    public List<ScheduleConfirmDto> readSchedule(Long memberId, Long projectId, Long scheduleId) {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 Id"));
+        Member member = memberRepository.findById(memberId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found with id: " + memberId));
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 스케줄 Id"));
+
+        List <ScheduleConfirmDto> result = project.getSchedules().stream()
+                .map(scheduleConfirm -> new ScheduleConfirmDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
+                        schedule.getSchedule_end(), schedule.getSchedule_start_time(),
+                        schedule.getSchedule_end_time())).collect(Collectors.toList());
+        if(result.isEmpty()) {
+            return null;
+        }
+        return result;
+    }
+
     // 프로젝트 마감 (상태 변경)
     public ResponseEntity projectChangeStatus(ProjectStatusRequestDto projectStatusRequestDto, Long projectId) {
         Optional<Project> projects = projectRepository.findById(projectId);
