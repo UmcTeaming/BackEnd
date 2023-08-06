@@ -19,7 +19,7 @@ public class File extends Time {
     private Long file_id;
 
     @Column(nullable = true)
-    private Boolean file_status;
+    private Boolean file_status; // 파일 최종 여부
 
     @Column(nullable = false)
     private String fileName; // 파일 이름 저장

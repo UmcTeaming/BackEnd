@@ -61,7 +61,7 @@ public class FileService {
 
 
     //파일 업로드
-    private String uploadDir = "C:\\Users\\82103\\Desktop\\UMC\\";
+    private String uploadDir = "/Users/onam-ui/Desktop/Projects/TeamingFile/";
 
     public void generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
         Project project = projectRepository.findById(projectId)
@@ -79,7 +79,7 @@ public class FileService {
         String sourceFileNameExtension = FilenameUtils.getExtension(sourceFileName).toLowerCase();
         FilenameUtils.removeExtension(sourceFileName);
 
-        String fileUrl = "C:\\Users\\82103\\Desktop\\UMC\\";
+        String fileUrl = "/Users/onam-ui/Desktop/Projects/TeamingFile/";
 
         File newFile = File.builder()
                 .fileName(sourceFileName)
@@ -100,6 +100,7 @@ public class FileService {
             Path filePath = Paths.get(uploadDir, fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new BaseException(500, "파일을 저장하는데 실패하였습니다");
         }
     }
@@ -188,4 +189,7 @@ public class FileService {
                 .collect(Collectors.toList());
 
     }
+
+    // 파일 다운로드
+
 }

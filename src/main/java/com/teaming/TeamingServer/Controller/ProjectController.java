@@ -120,6 +120,7 @@ public class ProjectController {
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 업로드하였습니다", null));
         } catch (BaseException e) {
+            e.printStackTrace();
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
