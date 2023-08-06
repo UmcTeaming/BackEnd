@@ -49,6 +49,12 @@ public class SecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(possibleAccess).permitAll()
                         .anyRequest().authenticated());
+//
+//        http.formLogin(AbstractHttpConfigurer::disable)
+//                .httpBasic(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests((authorizationRequest) -> authorizationRequest.anyRequest().permitAll());
+////                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(possibleAccess).permitAll()
+////                        .anyRequest().authenticated()); 테스트
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();

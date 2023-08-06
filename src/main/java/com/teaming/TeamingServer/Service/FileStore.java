@@ -3,6 +3,7 @@ package com.teaming.TeamingServer.Service;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -27,7 +28,7 @@ public class FileStore {
     private final FileRepository fileRepository;
 
     @Value("${file.upload-dir}")
-    private static String fileDir = "/Users/onam-ui/Desktop/Projects/TeamingFile/";
+    public static String fileDir;
 
     public String getFullPath(String filename) {
         return fileDir + filename;
