@@ -101,7 +101,6 @@ public class FileController {
         );
 
         String storeFileName = file.getFileName();
-
         org.springframework.http.HttpHeaders headers =
                 new org.springframework.http.HttpHeaders();
 

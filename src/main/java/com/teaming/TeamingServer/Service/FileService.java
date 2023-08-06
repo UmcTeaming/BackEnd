@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.teaming.TeamingServer.Service.FileStore.fileDir;
+
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -44,7 +48,7 @@ public class FileService {
     private final MemberRepository memberRepository;
 
     @Value("${file.upload-dir}")
-    private String fileDir;
+    public String fileDir;
 
     // 코멘트 찾기
     public List<CommentResponseDto> searchComment(Long fileId) {
@@ -65,6 +69,9 @@ public class FileService {
 
 
     //파일 업로드
+
+//    private String uploadDir = "/Users/onam-ui/Desktop/Projects/TeamingFile/"; - 남의 경로
+
     public void generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
