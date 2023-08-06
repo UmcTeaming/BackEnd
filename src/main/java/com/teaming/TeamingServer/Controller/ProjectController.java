@@ -88,27 +88,6 @@ public class ProjectController {
         }
     }
 
-    // 프로젝트의 각 스케줄 확인
-    @GetMapping("/{memberId}/{projectId}/{scheduleId}")
-    public ResponseEntity<BaseResponse<List<ScheduleConfirmDto>>> readSchedule(
-            @PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId,
-            @PathVariable("scheduleId") Long scheduleId) {
-        try {
-            List<ScheduleConfirmDto> list = projectService.readSchedule(memberId, projectId, scheduleId);
-
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트의 스케줄", list));
-        }
-        catch(BaseException e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
-
-            return ResponseEntity
-                    .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
-        }
-    }
-
     // 파일 업로드
     @PostMapping("/{memberId}/{projectId}/files-upload")
     public ResponseEntity<BaseResponse> uploadFile(@PathVariable Long projectId,

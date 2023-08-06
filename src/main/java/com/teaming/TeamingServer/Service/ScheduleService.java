@@ -1,7 +1,6 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Domain.Dto.ScheduleEnrollRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.ScheduleRepository;
@@ -58,22 +57,5 @@ public class ScheduleService {
         }
         // 스케줄을 삭제한다.
         scheduleRepository.deleteById(scheduleId);
-    }
-
-    public void readSchedule(Long memberId, Long projectId, Long scheduleId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Schedule not found"));
-        Member member = memberRepository.findById(memberId).orElseThrow(()
-                -> new EntityNotFoundException("Member not found"));
-
-        if(!schedule.getProject().equals(project)) {
-            throw new IllegalArgumentException("Schedule does not belong to the specified project.");
-        }
-        if(!schedule.getMembersSchedules().equals(member)) {   // 요건 필요한지 잘 모르겠다,,
-            throw new IllegalArgumentException("Schedule does not belong to the specified member.");
-        }
-
     }
 }
