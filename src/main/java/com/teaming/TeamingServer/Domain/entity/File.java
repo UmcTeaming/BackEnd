@@ -18,7 +18,7 @@ public class File extends Time {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long file_id;
 
-    @Column(nullable = true)
+    @Column(nullable = true) // 이것은 파일이 최종 파일인지 아닌지를 구별하기 위해서 해놓은 것입니다.
     private Boolean file_status;
 
     @Column(nullable = false)
@@ -52,6 +52,7 @@ public class File extends Time {
         this.member = member;
         this.file_status = file_status; // 파일 상태 설정
     }
+
 
 
 }

@@ -1,9 +1,7 @@
 package com.teaming.TeamingServer.Service;
 
 
-import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.FileDetailResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.FileListResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Project;
@@ -11,25 +9,27 @@ import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
+import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +41,7 @@ public class FileService {
     private final FileRepository fileRepository;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private String uploadDir = "C:\\Users\\82103\\Desktop\\UMC\\";
 
     // 코멘트 찾기
     public List<CommentResponseDto> searchComment(Long fileId) {
@@ -61,7 +62,7 @@ public class FileService {
 
 
     //파일 업로드
-    private String uploadDir = "C:\\Users\\82103\\Desktop\\UMC\\";
+
 
     public void generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
         Project project = projectRepository.findById(projectId)
@@ -114,7 +115,7 @@ public class FileService {
         // 파일 삭제
     }
 
-     // 프로젝트 파일 조회
+    // 프로젝트 파일 조회
     public List<FileListResponseDto> searchFile(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
@@ -132,14 +133,14 @@ public class FileService {
                             commentCount
                     );
 
-            LocalDateTime createdAt = file.getCreatedAt();
-            LocalDate date = createdAt.toLocalDate();
+                    LocalDateTime createdAt = file.getCreatedAt();
+                    LocalDate date = createdAt.toLocalDate();
 
-            List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date,new ArrayList<>());
-            filesbyDate.add(fileDetailResponseDto);
-            fileInfoByDate.put(date,filesbyDate);
+                    List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date, new ArrayList<>());
+                    filesbyDate.add(fileDetailResponseDto);
+                    fileInfoByDate.put(date, filesbyDate);
 
-        });
+                });
 
         if (fileInfoByDate.isEmpty()) {
             return null;
@@ -151,7 +152,28 @@ public class FileService {
 
     }
 
-     // 프로젝트 최종 파일 조회
+    // 하나의 파일에 대한 정보 조회
+
+    public SingleFileResponseDto searchOneFile(Long memberId, Long projectId, Long fileId) {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 파일 ID"));
+
+        SingleFileResponseDto information = new SingleFileResponseDto(
+                file.getFile_type(),
+                file.getFileName(),
+                file.getMember().getName(),
+                file.getCreatedAt().toLocalDate()
+        );
+
+        return information;
+
+    }
+
+    // 프로젝트 최종 파일 조회
     public List<FileListResponseDto> searchFinalFile(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
@@ -172,9 +194,9 @@ public class FileService {
                     LocalDateTime createdAt = file.getCreatedAt();
                     LocalDate date = createdAt.toLocalDate();
 
-                    List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date,new ArrayList<>());
+                    List<FileDetailResponseDto> filesbyDate = fileInfoByDate.getOrDefault(date, new ArrayList<>());
                     filesbyDate.add(fileDetailResponseDto);
-                    fileInfoByDate.put(date,filesbyDate);
+                    fileInfoByDate.put(date, filesbyDate);
 
 //
                 });
@@ -188,4 +210,7 @@ public class FileService {
                 .collect(Collectors.toList());
 
     }
+
+
+
 }
