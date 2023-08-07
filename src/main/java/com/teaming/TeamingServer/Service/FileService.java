@@ -223,4 +223,10 @@ public class FileService {
     public String getFullPath(String filename) {
         return fileDir + filename;
     }
+
+    public class DocumentService {
+        public ViewLinkResponseDto convertFileToViewLink(String fileLink) {
+            return null;
+        }
+    }
 }

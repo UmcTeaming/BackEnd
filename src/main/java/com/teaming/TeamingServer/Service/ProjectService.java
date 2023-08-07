@@ -136,6 +136,14 @@ public class ProjectService {
 
     }
 
+    public Project createProject(ProjectCreateRequestDto requestDto) {
+        return null;
+    }
+
+    public ProjectResponseDto getProject(Long projectId) {
+        return null;
+    }
+
 //    // memberID 로 MemberProject 들 받아오기
 //    public List<MemberProject> findProjects(Member member) {
 //        return memberProjectRepository.findByMember(member);
