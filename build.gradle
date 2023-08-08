@@ -11,6 +11,8 @@ java {
 	sourceCompatibility = '17'
 }
 
+//ext["hibernate.version"] = "5.6.5.Final"
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -40,7 +42,7 @@ dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
 
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
+//	runtimeOnly 'com.h2database:h2'
 
 	// mysql
 	runtimeOnly 'com.mysql:mysql-connector-j'
