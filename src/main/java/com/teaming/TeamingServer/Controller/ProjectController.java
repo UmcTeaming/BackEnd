@@ -93,19 +93,13 @@ public class ProjectController {
     public ResponseEntity<BaseResponse> uploadFile(@PathVariable Long projectId,
                                                    @PathVariable Long memberId,
                                                    @RequestPart MultipartFile file) {
-        try {
+
             fileService.generateFile(projectId, memberId, file, false);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 업로드하였습니다", null));
-        } catch (BaseException e) {
-            e.printStackTrace();
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
-            return ResponseEntity
-                    .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
-    }
+
 
     // 프로젝트의 각 스케줄 확인
     @GetMapping("/{memberId}/{projectId}/{scheduleId}")
@@ -131,17 +125,13 @@ public class ProjectController {
     // 파일 삭제
     @DeleteMapping("/{memberId}/{projectId}/files/{fileId}")
     public ResponseEntity<BaseResponse> deleteFile(@PathVariable Long projectId, @PathVariable Long memberId, @PathVariable Long fileId) {
-        try {
-            fileService.deleteFile(fileId);
+
+            fileService.deleteFile(projectId, memberId,fileId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 삭제하였습니다", null));
-        } catch (BaseException e) {
-            return ResponseEntity
-                    .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
-    }
+
 
 
     // 최종 파일 업로드
@@ -149,53 +139,36 @@ public class ProjectController {
     public ResponseEntity<BaseResponse> uploadFinalFile(@PathVariable Long projectId,
                                                         @PathVariable Long memberId,
                                                         @RequestPart MultipartFile file) {
-        try {
+
             fileService.generateFile(projectId, memberId, file, true);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "최종 파일을 업로드하였습니다", null));
-        } catch (BaseException e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
-            return ResponseEntity
-                    .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
-    }
+
 
     // 프로젝트 파일들 조회
 
     @GetMapping("/{memberId}/{projectId}/files")
-    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFiles(@PathVariable("projectId") Long projectId) {
-        try {
-            List<FileListResponseDto> fileInfoList = fileService.searchFile(projectId);
+    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFiles(@PathVariable("projectId") Long projectId,@PathVariable("memberId") Long memberId) {
+
+            List<FileListResponseDto> fileInfoList = fileService.searchFile(memberId,projectId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 파일들을 불러왔습니다", fileInfoList));
-        } catch (BaseException e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
-            return ResponseEntity
-                    .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
-        }
     }
 
     // 프로젝트 최종 파일들 조회
-
     @GetMapping("/{memberId}/{projectId}/final-files")
-    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFinalFiles(@PathVariable("projectId") Long projectId) {
-        try {
-            List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(projectId);
+    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFinalFiles(@PathVariable("projectId") Long projectId, @PathVariable("memberId") Long memberId) {
+
+            List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(memberId,projectId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "최종 프로젝트 파일들을 불러왔습니다", finalInfoList));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 최종 파일들을 불러왔습니다", finalInfoList));
 
-        } catch (BaseException e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
-            return ResponseEntity
-                    .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
-    }
+
 
     @PostMapping("/{memberId}/{projectId}/invitations")
     public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
@@ -213,20 +186,12 @@ public class ProjectController {
     @GetMapping("/{memberId}/{projectId}/files/{fileId}")
     public ResponseEntity<BaseResponse<SingleFileResponseDto>> searchOneFile(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId, @PathVariable("fileId") Long fileId) {
 
-        try {
+
             SingleFileResponseDto information = fileService.searchOneFile(memberId, projectId, fileId);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일 정보를 불러왔습니다", information));
-        } catch (BaseException e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
-            return ResponseEntity
-                    .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일 상세 정보를 불러왔습니다", information));
         }
-
-    }
-
 
 }

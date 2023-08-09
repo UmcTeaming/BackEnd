@@ -156,10 +156,4 @@ public class ProjectService {
 
     }
 
-//    // memberID 로 MemberProject 들 받아오기
-//    public List<MemberProject> findProjects(Member member) {
-//        return memberProjectRepository.findByMember(member);
-//    }
-
-
 }
