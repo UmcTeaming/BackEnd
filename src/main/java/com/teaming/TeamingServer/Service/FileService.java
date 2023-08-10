@@ -91,9 +91,9 @@ public class FileService {
                 .file_status(fileStatus) // file_status 설정
                 .build();
 
-        // 파일 엔티티 저장
-        project.getFiles().add(newFile);
-        projectRepository.save(project);
+//        // 파일 엔티티 저장
+//        project.getFiles().add(newFile);
+//        projectRepository.save(project);
         fileRepository.save(newFile);
 
         // 파일 저장
