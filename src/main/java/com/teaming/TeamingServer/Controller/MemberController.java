@@ -17,7 +17,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/member/{memberId}/change-password/check-password")
+    @PostMapping("/api/member/{memberId}/change-password/check-password")
     public ResponseEntity checkCurrentPassword(@PathVariable("memberId") Long memberId
                                             , @RequestBody CheckCurrentPasswordRequestDto checkCurrentPasswordRequestDto) {
 
@@ -25,41 +25,41 @@ public class MemberController {
 
     }
 
-    @PostMapping("/member/{memberId}/change-password")
+    @PostMapping("/api/member/{memberId}/change-password")
     public ResponseEntity changePassword(@PathVariable("memberId") Long memberId
                                         , @RequestBody MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
 
         return memberService.changePassword(memberId, memberChangePasswordRequestDto);
     }
 
-    @GetMapping("/member/{memberId}/mypage")
+    @GetMapping("/api/member/{memberId}/mypage")
     public ResponseEntity myPage(@PathVariable("memberId") Long memberId) {
         return memberService.MemberMyPage(memberId);
     }
 
-    @PatchMapping("/member/{memberId}/mypage/change-nickname")
+    @PatchMapping("/api/member/{memberId}/mypage/change-nickname")
     public ResponseEntity changeNickName(@PathVariable("memberId") Long memberId
                                          , @RequestBody MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
         return memberService.changeNickName(memberId, memberNicknameChangeRequestDto);
     }
 
-    @PatchMapping("/member/{memberId}/mypage/change-image")
+    @PatchMapping("/api/member/{memberId}/mypage/change-image")
     public ResponseEntity changeProfileImage(@PathVariable("memberId") Long memberId
                                              , @RequestBody MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
         return memberService.changeProfileImage(memberId, memberChangeProfileImageRequestDto);
     }
 
-    @GetMapping("/member/{memberId}/home")
+    @GetMapping("/api/member/{memberId}/home")
     public ResponseEntity mainPage(@PathVariable("memberId") Long memberId) {
         return memberService.mainPage(memberId);
     }
 
-    @GetMapping("/member/{memberId}/portfolio")
+    @GetMapping("/api/member/{memberId}/portfolio")
     public ResponseEntity portfolioPage(@PathVariable("memberId") Long memberId) {
         return memberService.portfolioPage(memberId);
     }
 
-    @PostMapping("/member/saveData")
+    @PostMapping("/api/member/saveData")
     public ResponseEntity saveData(@RequestBody TestDto testDto) {
         memberService.saveMemberProject(testDto.getMember_id(), testDto.getProject_id(), testDto.getSchedule_id());
         return ResponseEntity.ok("성공");
