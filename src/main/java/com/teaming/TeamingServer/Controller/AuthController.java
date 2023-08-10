@@ -3,12 +3,15 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Service.AuthService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함 - ResponseBody 어노테이션도 포함하고 있음
@@ -42,9 +45,12 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
 
-        JwtToken token = authService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
+        JwtToken token;
 
-        if(token == null) {
+        try {
+            token = authService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
+        }
+        catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new BaseErrorResponse(HttpStatus.FORBIDDEN.value(), "잘못된 email 혹은 password 입니다."));
         }
