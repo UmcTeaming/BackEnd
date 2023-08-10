@@ -94,6 +94,7 @@ public class FileService {
         // 파일 엔티티 저장
         project.getFiles().add(newFile);
         projectRepository.save(project);
+        fileRepository.save(newFile);
 
         // 파일 저장
         try {
