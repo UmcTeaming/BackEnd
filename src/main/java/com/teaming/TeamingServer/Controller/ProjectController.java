@@ -92,17 +92,40 @@ public class ProjectController {
 
     // 파일 업로드
     @PostMapping("/{memberId}/{projectId}/files-upload")
-    public ResponseEntity<BaseResponse> uploadFile(@PathVariable Long projectId,
+    public ResponseEntity<BaseResponse<FileUploadResponseDto>> uploadFile(@PathVariable Long projectId,
                                                    @PathVariable Long memberId,
                                                    @RequestPart MultipartFile file) {
         try {
-            fileService.generateFile(projectId, memberId, file, false);
+
+
+           FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, false);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 업로드하였습니다", null));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 업로드하였습니다", fileUploadResponseDto));
         } catch (BaseException e) {
-            e.printStackTrace();
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+
+    // 프로젝트의 각 스케줄 확인
+    @GetMapping("/{memberId}/{projectId}/{scheduleId}")
+    public ResponseEntity<BaseResponse<List<ScheduleConfirmDto>>> readSchedule(
+            @PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId,
+            @PathVariable("scheduleId") Long scheduleId) {
+        try {
+            List<ScheduleConfirmDto> list = projectService.readSchedule(memberId, projectId, scheduleId);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트의 스케줄", list));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
@@ -112,47 +135,54 @@ public class ProjectController {
     // 파일 삭제
     @DeleteMapping("/{memberId}/{projectId}/files/{fileId}")
     public ResponseEntity<BaseResponse> deleteFile(@PathVariable Long projectId, @PathVariable Long memberId, @PathVariable Long fileId) {
+
         try {
-            fileService.deleteFile(fileId);
+            fileService.deleteFile(projectId, memberId, fileId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 삭제하였습니다", null));
         } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
 
+
     // 최종 파일 업로드
     @PostMapping("/{memberId}/{projectId}/final-file")
-    public ResponseEntity<BaseResponse> uploadFinalFile(@PathVariable Long projectId,
+    public ResponseEntity<BaseResponse<FileUploadResponseDto>> uploadFinalFile(@PathVariable Long projectId,
                                                         @PathVariable Long memberId,
                                                         @RequestPart MultipartFile file) {
         try {
-            fileService.generateFile(projectId, memberId, file, true);
+           FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, true);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "최종 파일을 업로드하였습니다", null));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "최종 파일을 업로드하였습니다", fileUploadResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
 
     // 프로젝트 파일들 조회
 
     @GetMapping("/{memberId}/{projectId}/files")
-    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFiles(@PathVariable("projectId") Long projectId) {
+    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFiles(@PathVariable("projectId") Long projectId, @PathVariable("memberId") Long memberId) {
         try {
-            List<FileListResponseDto> fileInfoList = fileService.searchFile(projectId);
+            List<FileListResponseDto> fileInfoList = fileService.searchFile(memberId, projectId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 파일들을 불러왔습니다", fileInfoList));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
@@ -160,26 +190,28 @@ public class ProjectController {
     }
 
     // 프로젝트 최종 파일들 조회
-
     @GetMapping("/{memberId}/{projectId}/final-files")
-    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFinalFiles(@PathVariable("projectId") Long projectId) {
+    public ResponseEntity<BaseResponse<List<FileListResponseDto>>> searchFinalFiles(@PathVariable("projectId") Long projectId, @PathVariable("memberId") Long memberId) {
+
         try {
-            List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(projectId);
+            List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(memberId, projectId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "최종 프로젝트 파일들을 불러왔습니다", finalInfoList));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 최종 파일들을 불러왔습니다", finalInfoList));
 
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
 
+
     @PostMapping("/{memberId}/{projectId}/invitations")
     public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
-                                        , @PathVariable("projectId") Long projectId) {
+            , @PathVariable("projectId") Long projectId) {
         return projectService.inviteMember(projectInviteRequestDto, projectId);
     }
 
@@ -198,9 +230,10 @@ public class ProjectController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일 정보를 불러왔습니다", information));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일 상세 정보를 불러왔습니다", information));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
@@ -239,6 +272,5 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
-
-
 }
+
