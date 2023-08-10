@@ -1,6 +1,7 @@
 package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.CommentEnrollResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Exception.BaseException;
@@ -33,63 +34,67 @@ public class FileController {
     private final FileService fileService;
     private final FileRepository fileRepository;
 
-
     //코멘트 생성
     @PostMapping("/{memberId}/{fileId}/comments")
-    public ResponseEntity<BaseResponse> makeComment(
+    public ResponseEntity<BaseResponse<CommentEnrollResponseDto>> makeComment(
             @RequestBody CommentEnrollRequestDto commentEnrollRequestDto,
             @PathVariable("fileId") Long fileId,
             @PathVariable("memberId") Long memberId) {
         try {
-            commentService.generateComment(fileId, memberId, commentEnrollRequestDto);
+
+         CommentEnrollResponseDto commentEnrollResponseDto =  commentService.generateComment(fileId, memberId, commentEnrollRequestDto);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "답글을 등록하였습니다", null));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "댓글을 등록하였습니다", commentEnrollResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
 
     //코멘트 조회
     @GetMapping("/{memberId}/{fileId}/comments")
     public ResponseEntity<BaseResponse<List<CommentResponseDto>>> searchComments(@PathVariable("fileId") Long fileId,
                                                                                  @PathVariable("memberId") Long memberId) {
-
         try {
-            List<CommentResponseDto> list = fileService.searchComment(fileId);
 
+            List<CommentResponseDto> list = fileService.searchComment(memberId, fileId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "코멘트 정보를 불러왔습니다", list));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "댓글 정보를 불러왔습니다", list));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
 
     //코멘트 삭제
     @DeleteMapping("/{memberId}/{fileId}/comments/{commentId}")
     public ResponseEntity<BaseResponse> deleteComment(@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId,
                                                       @PathVariable("memberId") Long memberId) {
-
         try {
-            commentService.deleteComment(fileId, commentId);
+            commentService.deleteComment(memberId, fileId, commentId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse(HttpStatus.OK.value(), "커멘트를 삭제했습니다", null));
+                    .body(new BaseResponse(HttpStatus.OK.value(), "댓글을 삭제했습니다", null));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
 
     // 파일 다운로드
     @GetMapping(value = "/{memberId}/{projectId}/files/{fileId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -97,7 +102,7 @@ public class FileController {
             throws MalformedURLException {
 
         File file = fileRepository.findById(fileId).orElseThrow(
-                ()-> new BaseException(404, "유효하지 않은 파일 ID")
+                () -> new BaseException(404, "유효하지 않은 파일 ID")
         );
 
         String storeFileName = file.getFileName();
@@ -106,8 +111,8 @@ public class FileController {
 
         try {
             headers.add("Content-Disposition",
-                    "attachment; filename="+
-                    new String(storeFileName.getBytes("UTF-8"), "ISO-8859-1"));
+                    "attachment; filename=" +
+                            new String(storeFileName.getBytes("UTF-8"), "ISO-8859-1"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

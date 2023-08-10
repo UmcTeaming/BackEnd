@@ -25,7 +25,7 @@ public class File extends Time {
     private String fileName; // 파일 이름 저장
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="project_id")
+    @JoinColumn(name = "project_id")
     private Project project;
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
@@ -38,10 +38,8 @@ public class File extends Time {
     @Column(nullable = false)
     private String file_type;
 
-   @Column(nullable = false)
-   private String fileUrl;
-
-
+    @Column(nullable = false)
+    private String fileUrl;
 
     @Builder
     public File(String fileName, String file_type, Project project, Member member, String fileUrl, Boolean file_status) {

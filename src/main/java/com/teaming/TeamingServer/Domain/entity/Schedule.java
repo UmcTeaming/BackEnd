@@ -42,7 +42,7 @@ public class Schedule extends Time {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @OneToMany(mappedBy="schedule" , cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<MemberSchedule> membersSchedules = new ArrayList<>();
 
     @Builder

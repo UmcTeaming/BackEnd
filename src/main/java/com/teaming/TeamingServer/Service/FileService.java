@@ -9,22 +9,17 @@ import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
-import jakarta.annotation.Resource;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,8 +28,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.teaming.TeamingServer.Service.FileStore.fileDir;
 
 
 @Service
@@ -51,10 +44,11 @@ public class FileService {
     public String fileDir;
 
     // 코멘트 찾기
-    public List<CommentResponseDto> searchComment(Long fileId) {
+    public List<CommentResponseDto> searchComment(Long memberId,Long fileId) {
 
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
         File file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found with id: " + fileId));
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found"));
 
         // 파일에 해당하는 코멘트들을 조회합니다.
         List<CommentResponseDto> result = file.getComments().stream()
@@ -69,20 +63,18 @@ public class FileService {
 
 
     //파일 업로드
-
-//    private String uploadDir = "/Users/onam-ui/Desktop/Projects/TeamingFile/"; - 남의 경로
-
-    public void generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
+    public FileUploadResponseDto generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+                .orElseThrow(() -> new BaseException(404, "Project not found"));
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(404, "유효하지 않은 회원 ID"));
+                .orElseThrow(() -> new BaseException(404, "Member not found"));
+
 
         // 파일 정보 저장
         String sourceFileName = file.getOriginalFilename();
         if (StringUtils.isEmpty(sourceFileName)) {
-            throw new BaseException(400, "업로드된 파일의 이름이 유효하지 않습니다");
+            throw new BaseException(400, "File name is not valid");
         }
 
         String sourceFileNameExtension = FilenameUtils.getExtension(sourceFileName).toLowerCase();
@@ -110,24 +102,36 @@ public class FileService {
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new BaseException(500, "파일을 저장하는데 실패하였습니다");
+            throw new BaseException(500, "Fail to save file");
         }
+
+        FileUploadResponseDto fileUploadResponseDto = new FileUploadResponseDto(newFile.getFile_id());
+
+        return fileUploadResponseDto;
     }
 
 
     //파일 삭제
-    public void deleteFile(Long fileId) {
+    public void deleteFile(Long projectId, Long memberId,Long fileId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
         File file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found with id: " + fileId));
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found"));
+        Project project = projectRepository.findById(projectId)
+                        .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
 
         fileRepository.delete(file); // 파일 엔티티를 데이터베이스에서 삭제
         // 파일 삭제
     }
 
     // 프로젝트 파일 조회
-    public List<FileListResponseDto> searchFile(Long projectId) {
+    public List<FileListResponseDto> searchFile(Long memberId,Long projectId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow( () -> new BaseException(404,"Member not found"));
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+                .orElseThrow(() -> new BaseException(404, "Project not found"));
 
         Map<LocalDate, List<FileDetailResponseDto>> fileInfoByDate = new HashMap<>();
 
@@ -139,7 +143,8 @@ public class FileService {
                             file.getFile_type(),
                             file.getFileName(),
                             file.getFileUrl(),
-                            commentCount
+                            commentCount,
+                            file.getFile_id()
                     );
 
                     LocalDateTime createdAt = file.getCreatedAt();
@@ -165,11 +170,13 @@ public class FileService {
 
     public SingleFileResponseDto searchOneFile(Long memberId, Long projectId, Long fileId) {
 
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(404,"Member not found"));
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+                .orElseThrow(() -> new BaseException(404, "Project not found"));
 
         File file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new BaseException(404, "유효하지 않은 파일 ID"));
+                .orElseThrow(() -> new BaseException(404, "File not found"));
 
         SingleFileResponseDto information = new SingleFileResponseDto(
                 file.getFile_type(),
@@ -183,9 +190,12 @@ public class FileService {
     }
 
     // 프로젝트 최종 파일 조회
-    public List<FileListResponseDto> searchFinalFile(Long projectId) {
+    public List<FileListResponseDto> searchFinalFile(Long memberId,Long projectId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(404,"Member not found"));
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 ID"));
+                .orElseThrow(() -> new BaseException(404, "Project not found"));
 
         Map<LocalDate, List<FileDetailResponseDto>> fileInfoByDate = new HashMap<>();
 
@@ -197,7 +207,8 @@ public class FileService {
                             file.getFile_type(),
                             file.getFileName(),
                             file.getFileUrl(),
-                            commentCount
+                            commentCount,
+                            file.getFile_id()
                     );
 
                     LocalDateTime createdAt = file.getCreatedAt();
