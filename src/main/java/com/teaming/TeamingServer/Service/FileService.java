@@ -145,7 +145,8 @@ public class FileService {
                             file.getFile_type(),
                             file.getFileName(),
                             file.getFileUrl(),
-                            commentCount
+                            commentCount,
+                            file.getFile_id()
                     );
 
                     LocalDateTime createdAt = file.getCreatedAt();
@@ -208,7 +209,8 @@ public class FileService {
                             file.getFile_type(),
                             file.getFileName(),
                             file.getFileUrl(),
-                            commentCount
+                            commentCount,
+                            file.getFile_id()
                     );
 
                     LocalDateTime createdAt = file.getCreatedAt();
