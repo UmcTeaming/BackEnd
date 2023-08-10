@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ public class ScheduleService {
 
         Schedule schedule = Schedule.builder()
                 .schedule_name(scheduleEnrollRequestDto.getSchedule_name())   // 스케줄 이름 설정
-                .schedule_start(scheduleEnrollRequestDto.getSchedule_start())   // 스케줄시작날짜
+                .scheduleStart(scheduleEnrollRequestDto.getSchedule_start())   // 스케줄시작날짜
                 .schedule_start_time(scheduleEnrollRequestDto.getSchedule_start_time())    // 스케줄시작시간
                 .schedule_end(scheduleEnrollRequestDto.getSchedule_end())    // 스케줄끝날짜
                 .schedule_end_time(scheduleEnrollRequestDto.getSchedule_end_time())   // 스케줄끝시간
@@ -59,20 +60,23 @@ public class ScheduleService {
         scheduleRepository.deleteById(scheduleId);
     }
 
-    public void readSchedule(Long memberId, Long projectId, Long scheduleId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Schedule not found"));
-        Member member = memberRepository.findById(memberId).orElseThrow(()
-                -> new EntityNotFoundException("Member not found"));
 
-        if(!schedule.getProject().equals(project)) {
-            throw new IllegalArgumentException("Schedule does not belong to the specified project.");
-        }
-        if(!schedule.getMembersSchedules().equals(member)) {
-            throw new IllegalArgumentException("Schedule does not belong to the specified member.");
-        }
+//    public void readSchedule(Long memberId, Long projectId, Long scheduleId) {
+//        Project project = projectRepository.findById(projectId).orElseThrow(()
+//                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
+//        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
+//                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Schedule not found"));
+//        Member member = memberRepository.findById(memberId).orElseThrow(()
+//                -> new EntityNotFoundException("Member not found"));
+//
+//        if(!schedule.getProject().equals(project)) {
+//            throw new IllegalArgumentException("Schedule does not belong to the specified project.");
+//        }
+//        if(!schedule.getMembersSchedules().equals(member)) {
+//            throw new IllegalArgumentException("Schedule does not belong to the specified member.");
+//        }
+//
+//    }
 
-    }
+
 }

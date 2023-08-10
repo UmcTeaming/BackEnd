@@ -5,14 +5,10 @@ import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.*;
 import com.teaming.TeamingServer.common.BaseResponse;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -109,11 +105,11 @@ public class ProjectController {
 
     // 프로젝트의 각 스케줄 확인
     @GetMapping("/{memberId}/{projectId}/{scheduleId}")
-    public ResponseEntity<BaseResponse<List<ScheduleConfirmDto>>> readSchedule(
+    public ResponseEntity<BaseResponse<List<ScheduleConfirmResponseDto>>> readSchedule(
             @PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId,
             @PathVariable("scheduleId") Long scheduleId) {
         try {
-            List<ScheduleConfirmDto> list = projectService.readSchedule(memberId, projectId, scheduleId);
+            List<ScheduleConfirmResponseDto> list = projectService.readSchedule(memberId, projectId, scheduleId);
 
             return ResponseEntity
                     .status(HttpStatus.OK)

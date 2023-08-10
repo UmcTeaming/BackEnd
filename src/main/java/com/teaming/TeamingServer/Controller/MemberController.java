@@ -2,9 +2,12 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.TestDto;
+import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.MemberService;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,4 +67,47 @@ public class MemberController {
         memberService.saveMemberProject(testDto.getMember_id(), testDto.getProject_id(), testDto.getSchedule_id());
         return ResponseEntity.ok("성공");
     }
+
+    // 프로젝트의 날짜별 스케줄 확인
+    @PostMapping ("/member/{memberId}/schedules?={schedule_start}")
+    public ResponseEntity<BaseResponse> confirmDateSchedule(
+            @RequestBody ScheduleConfirmRequestDto scheduleConfirmRequestDto,
+            @PathVariable("schedule_start") LocalDate schedule_start) {
+        try {
+            ResponseEntity confirm = memberService.confirmDateSchedule(schedule_start, scheduleConfirmRequestDto);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자의 일정", confirm));
+        }
+        catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+
+//    // 프로젝트의 날짜별 스케줄 확인
+//    @PostMapping ("/member/{memberId}/schedules?={schedule_start}")
+//    public ResponseEntity<BaseResponse<List<ScheduleConfirmResponseDto>>> confirmDateSchedule(
+//            @RequestBody ScheduleConfirmRequestDto scheduleConfirmRequestDto,
+//            @PathVariable("schedule_start") LocalDate schedule_start) {
+//        try {
+//            List<ScheduleConfirmResponseDto> confirm = (List<ScheduleConfirmResponseDto>) memberService.confirmDateSchedule(schedule_start, scheduleConfirmRequestDto);
+//
+//            return ResponseEntity
+//                    .status(HttpStatus.OK)
+//                    .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자의 일정", confirm));
+//        }
+//        catch (BaseException e) {
+//            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+//
+//            return ResponseEntity
+//                    .status(e.getCode())
+//                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+//        }
+//    }
 }

@@ -22,7 +22,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -38,11 +40,11 @@ public class MemberServiceImpl implements MemberService {
     private final ProjectRepository projectRepository;
     private final MemberProjectRepository memberProjectRepository;
 
+    private final ScheduleRepository scheduleRepository;
     // 상수값들 - 메인 페이지에 반환할 프로젝들 개수들
     private final static int RECENTLY_PROJECT_NUM = 3;
     private final static int PROGRESS_PROJECT_NUM = 8;
     private final static int PORTFOLIO_PROJECT_NUM = 8;
-
 
 
     @Override
@@ -50,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
     public ResponseEntity changePassword(Long memberId, MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
         // 1. memberId 를 가진 멤버가 존재하는지 확인
         Optional<Member> findMember = memberRepository.findById(memberId);
-        if(findMember.isEmpty()) {
+        if (findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
         }
@@ -68,8 +70,7 @@ public class MemberServiceImpl implements MemberService {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(member.getEmail(), member.getPassword());
 
             authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        }
-        catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
+        } catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), illegalArgumentException.getMessage()));
         }
@@ -78,10 +79,10 @@ public class MemberServiceImpl implements MemberService {
         JwtToken token = jwtTokenProvider.generateToken(authentication);
 
         JwtToken newToken = JwtToken.builder()
-                    .grantType(token.getGrantType())
-                    .accessToken(token.getAccessToken())
-                    .memberId(memberId)
-                    .build();
+                .grantType(token.getGrantType())
+                .accessToken(token.getAccessToken())
+                .memberId(memberId)
+                .build();
 
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -94,7 +95,7 @@ public class MemberServiceImpl implements MemberService {
         // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
         Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
+        if (findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
         }
@@ -117,7 +118,7 @@ public class MemberServiceImpl implements MemberService {
         // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
         Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
+        if (findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
         }
@@ -140,7 +141,7 @@ public class MemberServiceImpl implements MemberService {
         // 1. 존재하는 회원인지 조회
         Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
+        if (findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
         }
@@ -148,7 +149,7 @@ public class MemberServiceImpl implements MemberService {
         // 2. 바꾸려는 닉네임이 이미 존재하는지 확인
         Optional<Member> equalNickname = memberRepository.findByName(memberNicknameChangeRequestDto.getChange_nickname());
 
-        if(!equalNickname.isEmpty()) {
+        if (!equalNickname.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "이미 사용 중인 닉네임입니다."));
         }
@@ -167,7 +168,7 @@ public class MemberServiceImpl implements MemberService {
         // 1. 존재하는 회원인지 조회
         Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
+        if (findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
         }
@@ -185,7 +186,7 @@ public class MemberServiceImpl implements MemberService {
         // 1. 존재하는 회원인지 조회
         Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
+        if (findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
         }
@@ -194,7 +195,7 @@ public class MemberServiceImpl implements MemberService {
         List<MemberProject> memberProject = findMemberProject(member);
 
         // (1) 찾은 아예 프로젝트가 없다면 null 반환
-        if(memberProject.isEmpty()) {
+        if (memberProject.isEmpty()) {
             MainPageResponseDto mainPageResponseDto = MainPageResponseDto.builder()
                     .memberId(memberId)
                     .name(member.getName())
@@ -233,7 +234,7 @@ public class MemberServiceImpl implements MemberService {
         // 1. 존재하는 회원인지 조회
         Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
+        if (findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
         }
@@ -243,7 +244,7 @@ public class MemberServiceImpl implements MemberService {
         List<MemberProject> memberProject = findMemberProject(member);
 
         // (1) 찾은 아예 프로젝트가 없다면 null 반환
-        if(memberProject.isEmpty()) {
+        if (memberProject.isEmpty()) {
             PortfolioPageResponseDto portfolioPageResponseDto = PortfolioPageResponseDto.builder()
                     .member_id(memberId)
                     .portfolio(null).build();
@@ -269,10 +270,10 @@ public class MemberServiceImpl implements MemberService {
     private List<RecentlyProject> searchRecentlyProject(List<MemberProject> memberProject, List<Project> projects, int projectNum) {
         projects = new ArrayList<>();
 
-        for(int i = 0; i<memberProject.size(); i++) {
+        for (int i = 0; i < memberProject.size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
             // Status 가 ING 인 것만
-            if(project.getProject_status().equals(Status.ING)) {
+            if (project.getProject_status().equals(Status.ING)) {
                 projects.add(project);
             }
         }
@@ -280,14 +281,14 @@ public class MemberServiceImpl implements MemberService {
         // 시작 날짜를 기준으로 내림차순 정렬 - 가장 최근으로 시작한 날짜
         Collections.sort(projects, new SortByStartDate().reversed());
 
-        if(projectNum > projects.size()) {
+        if (projectNum > projects.size()) {
             projectNum = projects.size();
         }
 
         // 내림차순 정렬한 것 RecentlyProject 형식으로 3개만 담기
         List<RecentlyProject> recentlyProject = new ArrayList<>();
 
-        for(int i = 0; i<projectNum; i++) {
+        for (int i = 0; i < projectNum; i++) {
             RecentlyProject project = RecentlyProject.builder()
                     .projectId(projects.get(i).getProject_id())
                     .projectName(projects.get(i).getProject_name())
@@ -307,10 +308,10 @@ public class MemberServiceImpl implements MemberService {
         projects = new ArrayList<>();
 
 
-        for(int i = 0; i<memberProject.size(); i++) {
+        for (int i = 0; i < memberProject.size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
             // Status 가 ING 인 것만
-            if(project.getProject_status().equals(Status.ING)) {
+            if (project.getProject_status().equals(Status.ING)) {
                 projects.add(project);
             }
         }
@@ -318,13 +319,13 @@ public class MemberServiceImpl implements MemberService {
         // 마감날짜 순으로 - 마감 날짜를 기준으로 오름차순
         Collections.sort(projects, new SortByEndDate());
 
-        if(projectNum > projects.size()) {
+        if (projectNum > projects.size()) {
             projectNum = projects.size();
         }
 
         List<ProgressProject> progressProjects = new ArrayList<>();
 
-        for(int i = 0; i<projectNum; i++) {
+        for (int i = 0; i < projectNum; i++) {
             ProgressProject project = ProgressProject.builder()
                     .projectId(projects.get(i).getProject_id())
                     .projectName(projects.get(i).getProject_name())
@@ -341,10 +342,10 @@ public class MemberServiceImpl implements MemberService {
     private List<Portfolio> searchPortPolio(List<MemberProject> memberProject, List<Project> projects, int projectNum) {
         projects = new ArrayList<>();
 
-        for(int i = 0; i<memberProject.size(); i++) {
+        for (int i = 0; i < memberProject.size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
             // Status 가 END 인 것만
-            if(project.getProject_status().equals(Status.END)) {
+            if (project.getProject_status().equals(Status.END)) {
                 projects.add(project);
             }
         }
@@ -352,12 +353,12 @@ public class MemberServiceImpl implements MemberService {
         // 가장 최근에 끝낸 순으로 - 마감 날짜 기준 내림차순
         Collections.sort(projects, new SortByEndDate().reversed());
 
-        if(projectNum > projects.size()) {
+        if (projectNum > projects.size()) {
             projectNum = projects.size();
         }
 
         List<Portfolio> portfolios = new ArrayList<>();
-        for(int i = 0; i<projectNum; i++) {
+        for (int i = 0; i < projectNum; i++) {
             Portfolio portfolio = Portfolio.builder()
                     .projectId(projects.get(i).getProject_id())
                     .projectName(projects.get(i).getProject_name())
@@ -380,7 +381,6 @@ public class MemberServiceImpl implements MemberService {
         MemberProject memberProject = MemberProject.builder()
                 .member(member)
                 .project(project).build();
-
 
 
         memberProjectRepository.save(memberProject);
@@ -408,6 +408,43 @@ public class MemberServiceImpl implements MemberService {
             return a.getEnd_date().compareTo(b.getEnd_date());
         }
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity confirmDateSchedule(LocalDate schedule_start, ScheduleConfirmRequestDto scheduleConfirmRequest) {
+        LocalDate scheduleStart = scheduleConfirmRequest.getSchedule_start();  // 스케줄 시작 날짜 고름!
+        // 해당 스케줄 날짜 조회
+        List<Schedule> findSchedule = scheduleRepository.findByScheduleStart(scheduleStart);
+
+        // 스케줄 시작 시간 리스트 만들어서 저장하고 -> 해당하는 날짜 스케줄 있는지 찾아보고 오류처리하고 (여기까지 완)
+        // -> 해당하는 날짜의 스케줄 리스트 만들어서 저장한다음에 보여주기
+        if (findSchedule.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "해당 날짜에는 스케줄이 없습니다."));
+        }
+
+        List<SchedulesDate> confirmDateSchedules = new ArrayList<>();
+//        findSchedule = scheduleRepository.findByDate(scheduleStart);   // 여기 맞는지 모르겠음 ㅠㅠ
+
+        for (int i = 0; i < findSchedule.size(); i++) {
+            Schedule schedule = findSchedule.get(i);
+            SchedulesDate schedulesDate = SchedulesDate.builder()
+                    .schedule_name(schedule.getSchedule_name())
+                    .schedule_start(schedule.getScheduleStart())
+                    .schedule_start_time(schedule.getSchedule_start_time())
+                    .schedule_end(schedule.getSchedule_end())
+                    .schedule_end_time(schedule.getSchedule_end_time())
+                    .build();
+
+            confirmDateSchedules.add(schedulesDate);
+        }
+
+        ScheduleList scheduleList = ScheduleList.builder()
+                .schedules(confirmDateSchedules).build();
+        // 해당하는 날짜 리스트 만들어서 저장한다음에 보여줘야할듯?
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new BaseResponse<ScheduleList>(HttpStatus.OK.value(), "사용자의 당일 일정", scheduleList));
+    }
 }
-
-
