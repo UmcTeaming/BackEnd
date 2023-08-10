@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FileUploadResponseDto {
 
-    private Long fileId;
+    private Long file_Id;
 }
