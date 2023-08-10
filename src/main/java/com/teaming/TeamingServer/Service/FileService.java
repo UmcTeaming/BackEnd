@@ -9,22 +9,17 @@ import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
-import jakarta.annotation.Resource;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,8 +28,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.teaming.TeamingServer.Service.FileStore.fileDir;
 
 
 @Service
@@ -77,6 +70,7 @@ public class FileService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(404, "Member not found"));
 
+
         // 파일 정보 저장
         String sourceFileName = file.getOriginalFilename();
         if (StringUtils.isEmpty(sourceFileName)) {
@@ -110,6 +104,7 @@ public class FileService {
             e.printStackTrace();
             throw new BaseException(500, "Fail to save file");
         }
+
     }
 
 
