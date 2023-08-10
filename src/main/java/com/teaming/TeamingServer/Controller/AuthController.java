@@ -16,13 +16,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함 - ResponseBody 어노테이션도 포함하고 있음
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class AuthController {
 
     private final AuthService authService;
 
     // 회원가입
-    @PostMapping("/auth/signup")
+    @PostMapping("/api/auth/signup")
     public ResponseEntity signup(@RequestBody MemberRequestDto memberRequestDto) {
 
         // 회원가입
@@ -31,19 +30,19 @@ public class AuthController {
     }
 
     // 이메일 중복체크
-    @PostMapping("/auth/email-duplication")
+    @PostMapping("/api/auth/email-duplication")
     public ResponseEntity duplicateEmail(@RequestBody MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
         return authService.validateDuplicateMember(memberSignUpEmailDuplicationRequestDto);
     }
 
     // 이메일 인증
-    @PostMapping("/auth/email-verification")
+    @PostMapping("/api/auth/email-verification")
     public ResponseEntity verificationEmail(@RequestBody MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
         return authService.verificationEmail(memberVerificationEmailRequestDto);
     }
 
     // 로그인
-    @PostMapping("/auth/login")
+    @PostMapping("/api/auth/login")
     public ResponseEntity login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
 
         JwtToken token;
@@ -61,7 +60,7 @@ public class AuthController {
     }
 
     // 비밀번호 재설정
-    @PatchMapping("/auth/reset-password")
+    @PatchMapping("/api/auth/reset-password")
     public ResponseEntity resetPassword(@RequestBody MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception {
         return authService.resetPassword(memberResetPasswordRequestDto);
     }
