@@ -39,12 +39,19 @@ public class FileController {
             @RequestBody CommentEnrollRequestDto commentEnrollRequestDto,
             @PathVariable("fileId") Long fileId,
             @PathVariable("memberId") Long memberId) {
-
+        try {
             commentService.generateComment(fileId, memberId, commentEnrollRequestDto);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "댓글을 등록하였습니다", null));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
     }
 
 
@@ -52,24 +59,39 @@ public class FileController {
     @GetMapping("/{memberId}/{fileId}/comments")
     public ResponseEntity<BaseResponse<List<CommentResponseDto>>> searchComments(@PathVariable("fileId") Long fileId,
                                                                                  @PathVariable("memberId") Long memberId) {
+        try {
 
-            List<CommentResponseDto> list = fileService.searchComment(memberId,fileId);
+            List<CommentResponseDto> list = fileService.searchComment(memberId, fileId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "댓글 정보를 불러왔습니다", list));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
+    }
 
 
     //코멘트 삭제
     @DeleteMapping("/{memberId}/{fileId}/comments/{commentId}")
     public ResponseEntity<BaseResponse> deleteComment(@PathVariable("fileId") Long fileId, @PathVariable("commentId") Long commentId,
                                                       @PathVariable("memberId") Long memberId) {
-
-            commentService.deleteComment(memberId,fileId, commentId);
+        try {
+            commentService.deleteComment(memberId, fileId, commentId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse(HttpStatus.OK.value(), "댓글을 삭제했습니다", null));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
+    }
 
 
     // 파일 다운로드
@@ -78,7 +100,7 @@ public class FileController {
             throws MalformedURLException {
 
         File file = fileRepository.findById(fileId).orElseThrow(
-                ()-> new BaseException(404, "유효하지 않은 파일 ID")
+                () -> new BaseException(404, "유효하지 않은 파일 ID")
         );
 
         String storeFileName = file.getFileName();
@@ -87,8 +109,8 @@ public class FileController {
 
         try {
             headers.add("Content-Disposition",
-                    "attachment; filename="+
-                    new String(storeFileName.getBytes("UTF-8"), "ISO-8859-1"));
+                    "attachment; filename=" +
+                            new String(storeFileName.getBytes("UTF-8"), "ISO-8859-1"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
