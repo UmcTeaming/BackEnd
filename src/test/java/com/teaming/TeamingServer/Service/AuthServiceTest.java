@@ -20,10 +20,10 @@ public class AuthServiceTest {
     @Autowired
     AuthService authService;
 
-    @AfterEach
-    public void cleanup() {
-        memberRepository.deleteAll();
-    }
+//    @AfterEach
+//    public void cleanup() {
+//        memberRepository.deleteAll();
+//    }
 
     @Test
     public void 회원가입() {
