@@ -4,6 +4,7 @@ import com.teaming.TeamingServer.Config.Jwt.JwtAuthenticationFilter;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -47,7 +48,11 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(possibleAccess).permitAll()
+                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(HttpMethod.POST, possibleAccess).permitAll()
+                        .requestMatchers(HttpMethod.GET, possibleAccess).permitAll()
+                        .requestMatchers(HttpMethod.PUT, possibleAccess).permitAll()
+                        .requestMatchers(HttpMethod.DELETE, possibleAccess).permitAll()
+                        .requestMatchers(HttpMethod.PATCH, possibleAccess).permitAll()
                         .anyRequest().authenticated());
 //
 //        http.formLogin(AbstractHttpConfigurer::disable)
