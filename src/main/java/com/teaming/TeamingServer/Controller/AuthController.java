@@ -21,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     // 회원가입
-    @PostMapping("/api/auth/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity signup(@RequestBody MemberRequestDto memberRequestDto) {
 
         // 회원가입
@@ -30,19 +30,19 @@ public class AuthController {
     }
 
     // 이메일 중복체크
-    @PostMapping("/api/auth/email-duplication")
+    @PostMapping("/auth/email-duplication")
     public ResponseEntity duplicateEmail(@RequestBody MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
         return authService.validateDuplicateMember(memberSignUpEmailDuplicationRequestDto);
     }
 
     // 이메일 인증
-    @PostMapping("/api/auth/email-verification")
+    @PostMapping("/auth/email-verification")
     public ResponseEntity verificationEmail(@RequestBody MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
         return authService.verificationEmail(memberVerificationEmailRequestDto);
     }
 
     // 로그인
-    @PostMapping("/api/auth/login")
+    @PostMapping("/auth/login")
     public ResponseEntity login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
 
         JwtToken token;
@@ -60,7 +60,7 @@ public class AuthController {
     }
 
     // 비밀번호 재설정
-    @PatchMapping("/api/auth/reset-password")
+    @PatchMapping("/auth/reset-password")
     public ResponseEntity resetPassword(@RequestBody MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception {
         return authService.resetPassword(memberResetPasswordRequestDto);
     }
