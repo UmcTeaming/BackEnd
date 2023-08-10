@@ -3,6 +3,7 @@ package com.teaming.TeamingServer.Service;
 
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.CommentEnrollResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.entity.Comment;
 import com.teaming.TeamingServer.Domain.entity.File;
@@ -30,12 +31,12 @@ public class CommentService {
     private final MemberRepository memberRepository;
 
     // comment 생성하기
-    public void generateComment(Long fileId, Long memberId, CommentEnrollRequestDto commentEnrollRequestDto) {
+    public CommentEnrollResponseDto generateComment(Long fileId, Long memberId, CommentEnrollRequestDto commentEnrollRequestDto) {
         // 요청으로부터 댓글 내용을 가져옵니다.
         String content = commentEnrollRequestDto.getContent();
 
         // 파일과 멤버를 데이터베이스에서 조회합니다.
-        File file = fileRepository.findById(fileId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(),"File not found"));
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found"));
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
 
@@ -49,6 +50,9 @@ public class CommentService {
 
         // 댓글을 데이터베이스에 저장합니다.
         commentRepository.save(comment);
+
+        CommentEnrollResponseDto commentEnrollResponseDto = new CommentEnrollResponseDto(comment.getComment_id());
+        return commentEnrollResponseDto;
     }
 
 

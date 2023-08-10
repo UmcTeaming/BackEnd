@@ -1,6 +1,7 @@
 package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.CommentEnrollResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Exception.BaseException;
@@ -35,16 +36,17 @@ public class FileController {
 
     //코멘트 생성
     @PostMapping("/{memberId}/{fileId}/comments")
-    public ResponseEntity<BaseResponse> makeComment(
+    public ResponseEntity<BaseResponse<CommentEnrollResponseDto>> makeComment(
             @RequestBody CommentEnrollRequestDto commentEnrollRequestDto,
             @PathVariable("fileId") Long fileId,
             @PathVariable("memberId") Long memberId) {
         try {
-            commentService.generateComment(fileId, memberId, commentEnrollRequestDto);
+
+         CommentEnrollResponseDto commentEnrollResponseDto =  commentService.generateComment(fileId, memberId, commentEnrollRequestDto);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "댓글을 등록하였습니다", null));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "댓글을 등록하였습니다", commentEnrollResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
