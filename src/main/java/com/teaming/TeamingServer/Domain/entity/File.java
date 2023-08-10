@@ -41,8 +41,6 @@ public class File extends Time {
    @Column(nullable = false)
    private String fileUrl;
 
-
-
     @Builder
     public File(String fileName, String file_type, Project project, Member member, String fileUrl, Boolean file_status) {
         this.fileName = fileName;
