@@ -63,7 +63,7 @@ public class FileService {
 
 
     //파일 업로드
-    public void generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
+    public FileUploadResponseDto generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "Project not found"));
 
@@ -105,6 +105,9 @@ public class FileService {
             throw new BaseException(500, "Fail to save file");
         }
 
+        FileUploadResponseDto fileUploadResponseDto = new FileUploadResponseDto(newFile.getFile_id());
+
+        return fileUploadResponseDto;
     }
 
 

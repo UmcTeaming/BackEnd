@@ -91,14 +91,16 @@ public class ProjectController {
 
     // 파일 업로드
     @PostMapping("/{memberId}/{projectId}/files-upload")
-    public ResponseEntity<BaseResponse> uploadFile(@PathVariable Long projectId,
+    public ResponseEntity<BaseResponse<FileUploadResponseDto>> uploadFile(@PathVariable Long projectId,
                                                    @PathVariable Long memberId,
                                                    @RequestPart MultipartFile file) {
         try {
-            fileService.generateFile(projectId, memberId, file, false);
+
+
+           FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, false);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 업로드하였습니다", null));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 업로드하였습니다", fileUploadResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
@@ -150,14 +152,14 @@ public class ProjectController {
 
     // 최종 파일 업로드
     @PostMapping("/{memberId}/{projectId}/final-file")
-    public ResponseEntity<BaseResponse> uploadFinalFile(@PathVariable Long projectId,
+    public ResponseEntity<BaseResponse<FileUploadResponseDto>> uploadFinalFile(@PathVariable Long projectId,
                                                         @PathVariable Long memberId,
                                                         @RequestPart MultipartFile file) {
         try {
-            fileService.generateFile(projectId, memberId, file, true);
+           FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, true);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "최종 파일을 업로드하였습니다", null));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "최종 파일을 업로드하였습니다", fileUploadResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
