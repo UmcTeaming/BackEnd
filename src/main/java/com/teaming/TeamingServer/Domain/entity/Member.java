@@ -39,13 +39,13 @@ public class Member extends Time {
 //    @Enumerated(EnumType.STRING)
 //    private Role role;
 
-    @OneToMany(mappedBy ="member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<MemberProject> memberProjects = new ArrayList<>();
 
-    @OneToMany(mappedBy="member",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<MemberSchedule> memberSchedules = new ArrayList<>();
 
-    @OneToMany(mappedBy="member",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<File> files = new ArrayList<>();
 
 
@@ -73,7 +73,8 @@ public class Member extends Time {
         this.name = nickName;
         return this;
     }
-    public Member updateMemberProject(MemberProject memberProject){
+
+    public Member updateMemberProject(MemberProject memberProject) {
         this.memberProjects.add(memberProject);
         return this;
     }

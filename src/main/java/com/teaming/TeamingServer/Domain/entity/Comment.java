@@ -25,11 +25,11 @@ public class Comment extends Time {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="file_id")
+    @JoinColumn(name = "file_id")
     private File file;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @Builder

@@ -37,6 +37,7 @@ public class ProjectService {
     private final MemberRepository memberRepository;
     private final FileRepository fileRepository;
     private final MemberProjectRepository memberProjectRepository;
+    private final ScheduleRepository scheduleRepository;
 
     public Project createProject(ProjectCreateRequestDto projectCreateRequestDto) {
         Project project = Project.builder()
@@ -71,6 +72,25 @@ public class ProjectService {
                         schedule.getSchedule_end_time())).collect(Collectors.toList());
 
         if (result.isEmpty()) {
+            return null;
+        }
+        return result;
+    }
+
+    public List<ScheduleConfirmDto> readSchedule(Long memberId, Long projectId, Long scheduleId) {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 Id"));
+        Member member = memberRepository.findById(memberId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found with id: " + memberId));
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
+                -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 스케줄 Id"));
+
+        List <ScheduleConfirmDto> result = project.getSchedules().stream()
+                .map(scheduleConfirm -> new ScheduleConfirmDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
+                        schedule.getSchedule_end(), schedule.getSchedule_start_time(),
+                        schedule.getSchedule_end_time())).collect(Collectors.toList());
+        if(result.isEmpty()) {
             return null;
         }
         return result;

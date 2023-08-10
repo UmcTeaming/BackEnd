@@ -34,7 +34,6 @@ public class AuthServiceImpl implements AuthService {
     private String emailCode;
 
     // jwt
-//    private final PasswordEncoder encoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -62,10 +61,6 @@ public class AuthServiceImpl implements AuthService {
         if(!checkDuplicateEmail(member.getEmail())) {
             throw new IllegalArgumentException("이미 회원가입된 이메일입니다.");
         };
-
-//        // 비밀번호 암호화
-//        String encPwd = encoder.encode(member.getPassword());
-//        member.setPassword(encPwd);
 
         // 이메일 인증
 
@@ -109,25 +104,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public JwtToken login(String email, String password) {
 
-        Authentication authentication = null;
-
-        Long memberId = null;
-
-        try {
-            // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
-           Member findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
+        // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
+        Member findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
                     .findFirst().orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
-           memberId = findMember.getMember_id();
+        Long memberId = findMember.getMember_id();
 
-            // Authentication 객체 생성
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+        // Authentication 객체 생성
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
-            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        }
-        catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
-            return null;
-        }
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         // 검증된 인증 정보로 JWT 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
