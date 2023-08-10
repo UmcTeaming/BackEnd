@@ -120,8 +120,7 @@ public class ProjectController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트의 스케줄", list));
-        }
-        catch(BaseException e) {
+        } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
@@ -207,10 +206,9 @@ public class ProjectController {
     }
 
 
-
     @PostMapping("/{memberId}/{projectId}/invitations")
     public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
-                                        , @PathVariable("projectId") Long projectId) {
+            , @PathVariable("projectId") Long projectId) {
         return projectService.inviteMember(projectInviteRequestDto, projectId);
     }
 
@@ -238,4 +236,5 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+}
 
