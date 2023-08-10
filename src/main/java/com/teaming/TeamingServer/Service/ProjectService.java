@@ -1,9 +1,12 @@
 package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Domain.Dto.ProjectStatusRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.ProjectCreateRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.ProjectResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.InviteMember;
+import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.*;
@@ -17,6 +20,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.function.Function;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +37,23 @@ public class ProjectService {
     private final MemberRepository memberRepository;
     private final FileRepository fileRepository;
     private final MemberProjectRepository memberProjectRepository;
+
+    public Project createProject(ProjectCreateRequestDto projectCreateRequestDto) {
+        Project project = Project.builder()
+                .project_name(projectCreateRequestDto.getProject_name())
+                .start_date(projectCreateRequestDto.getStart_date())
+                .end_date(projectCreateRequestDto.getEnd_date())
+                .project_status(Status.ING)
+                .project_color(projectCreateRequestDto.getProject_color())
+                .project_image(projectCreateRequestDto.getProject_image())
+                .build();
+
+        return projectRepository.save(project);
+    }
+
+
+
+
 
     public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {
 
@@ -136,18 +159,7 @@ public class ProjectService {
 
     }
 
-    public Project createProject(ProjectCreateRequestDto requestDto) {
-        return null;
-    }
-
     public ProjectResponseDto getProject(Long projectId) {
         return null;
     }
-
-//    // memberID 로 MemberProject 들 받아오기
-//    public List<MemberProject> findProjects(Member member) {
-//        return memberProjectRepository.findByMember(member);
-//    }
-
-
 }

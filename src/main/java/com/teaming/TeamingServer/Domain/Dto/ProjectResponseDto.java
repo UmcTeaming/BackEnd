@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class ProjectResponseDto {
     private Long id;
     private String name;
@@ -17,7 +18,7 @@ public class ProjectResponseDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private String color;
-    //    private List<MemberImageDto> members;
+//    private List<MemberImageDto> members;
     private List<ProjectFileResponseDto> files;
     private List<PeojectScheduleResponsetDto> schedules;
 }
