@@ -1,10 +1,8 @@
 package com.teaming.TeamingServer.Service;
 
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.entity.Comment;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
@@ -12,14 +10,10 @@ import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.CommentRepository;
 import com.teaming.TeamingServer.Repository.FileRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

@@ -1,6 +1,5 @@
 package com.teaming.TeamingServer.Config.Jwt;
 
-import com.teaming.TeamingServer.Domain.entity.Member;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;

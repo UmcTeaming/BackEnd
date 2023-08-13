@@ -11,7 +11,6 @@ import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Repository.MemberProjectRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
-import com.teaming.TeamingServer.Repository.ScheduleRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
