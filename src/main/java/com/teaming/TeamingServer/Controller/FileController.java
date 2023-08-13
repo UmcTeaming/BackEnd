@@ -3,8 +3,6 @@ package com.teaming.TeamingServer.Controller;
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentEnrollResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.FileLinkRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.ViewLinkResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
@@ -123,22 +121,6 @@ public class FileController {
                 fileService.getFullPath(storeFileName));
 
         return new ResponseEntity(resource, headers, HttpStatus.OK);
-    }
-
-    // 문서 뷰어 띄우기
-    @PostMapping("/viewDocument")
-    public ResponseEntity<?> viewDocument(@RequestBody FileLinkRequestDto request) {
-        try {
-            ViewLinkResponseDto response;
-            FileService.DocumentService documentService = null; // 인스턴스화 방법이 여전히 필요합니다.
-            response = documentService.convertFileToViewLink((String) request.getFileLink());
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "문서 뷰어 로드 성공하였습니다.", response));
-        } catch (Exception e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(404, "뷰어 로드 중 오류 발생하였습니다.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new BaseResponse<>(404, "뷰어 로드 중 오류 발생하였습니다.", errorResponse));
-        }
     }
 
 }
