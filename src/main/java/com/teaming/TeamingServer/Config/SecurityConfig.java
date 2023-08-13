@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -47,13 +48,26 @@ public class SecurityConfig {
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(HttpMethod.POST, possibleAccess).permitAll()
-                        .requestMatchers(HttpMethod.GET, possibleAccess).permitAll()
-                        .requestMatchers(HttpMethod.PUT, possibleAccess).permitAll()
-                        .requestMatchers(HttpMethod.DELETE, possibleAccess).permitAll()
-                        .requestMatchers(HttpMethod.PATCH, possibleAccess).permitAll()
-                        .anyRequest().authenticated());
+        http
+                .formLogin(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((authorizeRequests) ->
+                        authorizeRequests
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청 허용
+                                .requestMatchers(HttpMethod.POST, possibleAccess).permitAll()
+                                .requestMatchers(HttpMethod.GET, possibleAccess).permitAll()
+                                .requestMatchers(HttpMethod.PUT, possibleAccess).permitAll()
+                                .requestMatchers(HttpMethod.DELETE, possibleAccess).permitAll()
+                                .requestMatchers(HttpMethod.PATCH, possibleAccess).permitAll()
+                                .anyRequest().authenticated()
+                );
+
+//        http.formLogin(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(HttpMethod.POST, possibleAccess).permitAll()
+//                        .requestMatchers(HttpMethod.GET, possibleAccess).permitAll()
+//                        .requestMatchers(HttpMethod.PUT, possibleAccess).permitAll()
+//                        .requestMatchers(HttpMethod.DELETE, possibleAccess).permitAll()
+//                        .requestMatchers(HttpMethod.PATCH, possibleAccess).permitAll()
+//                        .anyRequest().authenticated());
 //
 //        http.formLogin(AbstractHttpConfigurer::disable)
 //                .httpBasic(AbstractHttpConfigurer::disable)
