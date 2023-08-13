@@ -27,7 +27,7 @@ public class Schedule extends Time {
     private String schedule_name;
 
     @Column(nullable = false)
-    private LocalDate scheduleStart;
+    private LocalDate schedule_start;
 
     @Column(nullable = false)
     private LocalDate schedule_end;
@@ -46,11 +46,11 @@ public class Schedule extends Time {
     public List<MemberSchedule> membersSchedules = new ArrayList<>();
 
     @Builder
-    public Schedule(String schedule_name, LocalDate scheduleStart
+    public Schedule(String schedule_name, LocalDate schedule_start
             , LocalDate schedule_end, LocalTime schedule_start_time
             , LocalTime schedule_end_time, Project project) {
         this.schedule_name = schedule_name;
-        this.scheduleStart = scheduleStart;
+        this.schedule_start = schedule_start;
         this.schedule_end = schedule_end;
         this.schedule_start_time = schedule_start_time;
         this.schedule_end_time = schedule_end_time;

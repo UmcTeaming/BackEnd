@@ -23,5 +23,8 @@ public interface MemberService {
 
     void saveMemberProject(Long member_id, Long project_id, Long schedule_id); // 테스트용
 
-    ResponseEntity confirmDateSchedule(LocalDate schedule_start, ScheduleConfirmRequestDto scheduleConfirmRequestDto);
+//    ResponseEntity confirmDateSchedule(LocalDate schedule_start, ScheduleConfirmRequestDto scheduleConfirmRequestDto);
+
+    ResponseEntity scheduleByDate(LocalDate schedule_start, Long memberId, Long scheduleId);
+
 }

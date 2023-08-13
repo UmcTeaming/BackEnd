@@ -44,7 +44,7 @@ public class ProjectService {
 
         // 조회한 스케줄들을 ScheduleResponseDto 형태로 변환하여 리스트에 담는다.
         List<ScheduleResponseDto> result = project.getSchedules().stream()
-                .map(schedule -> new ScheduleResponseDto(schedule.getSchedule_name(), schedule.getScheduleStart(),
+                .map(schedule -> new ScheduleResponseDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
                  schedule.getSchedule_start_time(), schedule.getSchedule_end(),
                         schedule.getSchedule_end_time())).collect(Collectors.toList());
 
@@ -64,7 +64,7 @@ public class ProjectService {
                 -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 스케줄 Id"));
 
         List <ScheduleConfirmResponseDto> result = project.getSchedules().stream()
-                .map(scheduleConfirm -> new ScheduleConfirmResponseDto(schedule.getSchedule_name(), schedule.getScheduleStart(),
+                .map(scheduleConfirm -> new ScheduleConfirmResponseDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
                         schedule.getSchedule_start_time(), schedule.getSchedule_end(),
                         schedule.getSchedule_end_time())).collect(Collectors.toList());
         if(result.isEmpty()) {

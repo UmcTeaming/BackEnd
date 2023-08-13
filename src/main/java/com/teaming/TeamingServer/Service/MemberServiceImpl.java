@@ -7,15 +7,13 @@ import com.teaming.TeamingServer.Domain.Dto.mainPageDto.Portfolio;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.ProgressProject;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.RecentlyProject;
 import com.teaming.TeamingServer.Domain.entity.*;
-import com.teaming.TeamingServer.Repository.MemberProjectRepository;
-import com.teaming.TeamingServer.Repository.MemberRepository;
-import com.teaming.TeamingServer.Repository.ProjectRepository;
-import com.teaming.TeamingServer.Repository.ScheduleRepository;
+import com.teaming.TeamingServer.Repository.*;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -41,6 +39,9 @@ public class MemberServiceImpl implements MemberService {
     private final MemberProjectRepository memberProjectRepository;
 
     private final ScheduleRepository scheduleRepository;
+    private final MemberScheduleRepository memberScheduleRepository;
+    private final MemberSchedule2Repository memberSchedule2Repository;
+
     // 상수값들 - 메인 페이지에 반환할 프로젝들 개수들
     private final static int RECENTLY_PROJECT_NUM = 3;
     private final static int PROGRESS_PROJECT_NUM = 8;
@@ -409,39 +410,59 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+
     @Override
     @Transactional
-    public ResponseEntity confirmDateSchedule(LocalDate schedule_start, ScheduleConfirmRequestDto scheduleConfirmRequest) {
-        LocalDate scheduleStart = scheduleConfirmRequest.getSchedule_start();  // 스케줄 시작 날짜 고름!
-        // 해당 스케줄 날짜 조회
-        List<Schedule> findSchedule = scheduleRepository.findByScheduleStart(scheduleStart);
+    public ResponseEntity scheduleByDate(LocalDate schedule_start, Long memberId, Long scheduleId) {
+        // 1. 멤버 아이디로 MemberSchedule 조회
+        List<MemberSchedule> memberSchedules = memberScheduleRepository.findById(memberId).stream().toList();
 
-        // 스케줄 시작 시간 리스트 만들어서 저장하고 -> 해당하는 날짜 스케줄 있는지 찾아보고 오류처리하고 (여기까지 완)
-        // -> 해당하는 날짜의 스케줄 리스트 만들어서 저장한다음에 보여주기
-        if (findSchedule.isEmpty()) {
+        // 2. 멤버 아이디로 찾은 스케줄이 있는지 : 멤버가 가진 스케줄이 잇는지 확인
+        // 멤버랑 스케줄 연결해서 멤버한테 스케줄 있는지 확인해야하는데-멤버스케줄일까 스케줄일까
+        Optional<MemberSchedule> haveSchedules = memberSchedule2Repository.findById(scheduleId);
+
+        // 만약 멤버 아이디로 찾은 스케줄이 없다면 null 반환
+        if (haveSchedules.isEmpty()) {   // 그냥 null을 반환하는 게 맞을까?
             return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "해당 날짜에는 스케줄이 없습니다."));
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "찾은 스케줄이 없습니다."));
         }
 
-        List<SchedulesDate> confirmDateSchedules = new ArrayList<>();
-//        findSchedule = scheduleRepository.findByDate(scheduleStart);   // 여기 맞는지 모르겠음 ㅠㅠ
+        // 3. 멤버 아이디로 가진 스케줄이 있다면, 스케줄 중에 start_date 에 해당하는 날짜가 있는지 확인
+        // (1) 스케줄을 찾아서 저장하는 과정이 필요
+        List<Schedule> schedules = new ArrayList<>();
+        for (int i = 0; i < memberSchedules.size(); i++) {
+            Schedule schedule = scheduleRepository.findById(memberSchedules.get(i).getSchedule().getSchedule_id()).get();
+            schedules.add(schedule);
+        }
 
-        for (int i = 0; i < findSchedule.size(); i++) {
-            Schedule schedule = findSchedule.get(i);
+        List<Schedule> finalSchedules = new ArrayList<>();
+        for (int i = 0; i < memberSchedules.size(); i++) {
+            if (schedules.get(i).getSchedule_start().equals(schedule_start)) {
+                finalSchedules.add(schedules.get(i));
+            }
+        }    // 질문 : 여기가 맞나........ 3-(1) 부분
+
+//        scheduleRepository.save(finalSchedules);
+
+        List<SchedulesDate> schedulesDates = new ArrayList<>();
+        // (2) 저장했으니 보여준다
+        for (int i = 0; i < finalSchedules.size(); i++) {
+            Schedule schedule = finalSchedules.get(i);
+
             SchedulesDate schedulesDate = SchedulesDate.builder()
                     .schedule_name(schedule.getSchedule_name())
-                    .schedule_start(schedule.getScheduleStart())
+                    .schedule_start(schedule.getSchedule_start())
                     .schedule_start_time(schedule.getSchedule_start_time())
                     .schedule_end(schedule.getSchedule_end())
                     .schedule_end_time(schedule.getSchedule_end_time())
                     .build();
 
-            confirmDateSchedules.add(schedulesDate);
+            schedulesDates.add(schedulesDate);
         }
 
         ScheduleList scheduleList = ScheduleList.builder()
-                .schedules(confirmDateSchedules).build();
+                .schedules(schedulesDates).build();
         // 해당하는 날짜 리스트 만들어서 저장한다음에 보여줘야할듯?
         return ResponseEntity
                 .status(HttpStatus.OK)

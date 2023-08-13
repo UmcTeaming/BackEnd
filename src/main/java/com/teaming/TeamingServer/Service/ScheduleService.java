@@ -31,7 +31,7 @@ public class ScheduleService {
 
         Schedule schedule = Schedule.builder()
                 .schedule_name(scheduleEnrollRequestDto.getSchedule_name())   // 스케줄 이름 설정
-                .scheduleStart(scheduleEnrollRequestDto.getSchedule_start())   // 스케줄시작날짜
+                .schedule_start(scheduleEnrollRequestDto.getSchedule_start())   // 스케줄시작날짜
                 .schedule_start_time(scheduleEnrollRequestDto.getSchedule_start_time())    // 스케줄시작시간
                 .schedule_end(scheduleEnrollRequestDto.getSchedule_end())    // 스케줄끝날짜
                 .schedule_end_time(scheduleEnrollRequestDto.getSchedule_end_time())   // 스케줄끝시간
