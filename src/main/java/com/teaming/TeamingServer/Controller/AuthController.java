@@ -23,10 +23,15 @@ public class AuthController {
     // 회원가입
     @PostMapping("/auth/signup")
     public ResponseEntity signup(@RequestBody MemberRequestDto memberRequestDto) {
+        ResponseEntity response = null;
+        try {
+            response = authService.join(memberRequestDto);
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), illegalArgumentException.getMessage()));
+        }
 
-        // 회원가입
-        return authService.join(memberRequestDto);
-
+        return response;
     }
 
     // 이메일 중복체크
