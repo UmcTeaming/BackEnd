@@ -59,10 +59,6 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    public boolean VerifyAccess(Authentication accessToken, Member member) {
-        String email = member.getEmail();
-        return accessToken.getPrincipal().equals(email);
-    }
 
     public Authentication getAuthentication(String accessToken) {
         // 토큰 복호화
