@@ -1,15 +1,16 @@
 package com.teaming.TeamingServer.Domain.Dto;
 
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateProjectInviteMemberDto {
-    private String name;
-    private String profile_image;
+@Builder
+public class ProjectCreateResponseDto {
+
+    private Long project_id;
 }
-
-

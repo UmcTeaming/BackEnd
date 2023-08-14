@@ -15,14 +15,11 @@ import java.util.List;
 
 public class ProjectCreateRequestDto {
 
-    private String project_image;
-
-    @Size(max = 9, message = "Project name must be less than 10 characters")
     private String project_name;
+    private String project_image;
     private LocalDate start_date;
     private LocalDate end_date;
     private String project_color;
-    private List<CreateProjectInviteMemberDto> members;
 
 }
 
