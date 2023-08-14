@@ -43,7 +43,7 @@ public class FileService {
     public String fileDir;
 
     // 코멘트 찾기
-    public List<CommentResponseDto> searchComment(Long memberId,Long fileId) {
+    public List<CommentResponseDto> searchComment(Long memberId, Long fileId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
         File file = fileRepository.findById(fileId)
@@ -109,24 +109,24 @@ public class FileService {
 
 
     //파일 삭제
-    public void deleteFile(Long projectId, Long memberId,Long fileId) {
+    public void deleteFile(Long projectId, Long memberId, Long fileId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "File not found"));
         Project project = projectRepository.findById(projectId)
-                        .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
 
         fileRepository.delete(file); // 파일 엔티티를 데이터베이스에서 삭제
         // 파일 삭제
     }
 
     // 프로젝트 파일 조회
-    public List<FileListResponseDto> searchFile(Long memberId,Long projectId) {
+    public List<FileListResponseDto> searchFile(Long memberId, Long projectId) {
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow( () -> new BaseException(404,"Member not found"));
+                .orElseThrow(() -> new BaseException(404, "Member not found"));
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "Project not found"));
 
@@ -168,7 +168,7 @@ public class FileService {
     public SingleFileResponseDto searchOneFile(Long memberId, Long projectId, Long fileId) {
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(404,"Member not found"));
+                .orElseThrow(() -> new BaseException(404, "Member not found"));
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "Project not found"));
 
@@ -187,10 +187,10 @@ public class FileService {
     }
 
     // 프로젝트 최종 파일 조회
-    public List<FileListResponseDto> searchFinalFile(Long memberId,Long projectId) {
+    public List<FileListResponseDto> searchFinalFile(Long memberId, Long projectId) {
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(404,"Member not found"));
+                .orElseThrow(() -> new BaseException(404, "Member not found"));
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "Project not found"));
 
@@ -232,3 +232,5 @@ public class FileService {
         return fileDir + filename;
     }
 }
+
+
