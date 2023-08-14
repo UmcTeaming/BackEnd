@@ -13,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -60,20 +59,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.PATCH, possibleAccess).permitAll()
                                 .anyRequest().authenticated()
                 );
-
-//        http.formLogin(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(HttpMethod.POST, possibleAccess).permitAll()
-//                        .requestMatchers(HttpMethod.GET, possibleAccess).permitAll()
-//                        .requestMatchers(HttpMethod.PUT, possibleAccess).permitAll()
-//                        .requestMatchers(HttpMethod.DELETE, possibleAccess).permitAll()
-//                        .requestMatchers(HttpMethod.PATCH, possibleAccess).permitAll()
-//                        .anyRequest().authenticated());
-//
-//        http.formLogin(AbstractHttpConfigurer::disable)
-//                .httpBasic(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests((authorizationRequest) -> authorizationRequest.anyRequest().permitAll());
-////                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(possibleAccess).permitAll()
-////                        .anyRequest().authenticated()); 테스트
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
