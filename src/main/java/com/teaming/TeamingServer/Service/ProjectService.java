@@ -1,6 +1,8 @@
 package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Domain.Dto.ProjectStatusRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.ProjectCreateRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.ProjectResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.InviteMember;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
@@ -32,6 +35,38 @@ public class ProjectService {
     private final FileRepository fileRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final ScheduleRepository scheduleRepository;
+
+    public ProjectCreateResponseDto createProject(Long memberId, ProjectCreateRequestDto projectCreateRequestDto) {
+        // memberId를 통해 Member 엔터티 조회
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+
+        // DTO 정보를 사용하여 Project 객체 생성
+        Project project = Project.builder()
+                .project_name(projectCreateRequestDto.getProject_name())
+                .project_image(projectCreateRequestDto.getProject_image())
+                .start_date(projectCreateRequestDto.getStart_date())
+                .end_date(projectCreateRequestDto.getEnd_date())
+                .project_status(Status.ING)
+                .project_color(projectCreateRequestDto.getProject_color())
+                .build();
+
+        // 프로젝트 객체를 데이터베이스에 저장하고, 반환된 객체를 가져옵니다.
+        Project savedProject = projectRepository.save(project);
+
+        // Member와 Project로 MemberProject 객체 생성 및 저장
+        MemberProject memberProject = new MemberProject();
+        memberProject.setMember(member);
+        memberProject.setProject(savedProject);
+        memberProjectRepository.save(memberProject);
+
+        return ProjectCreateResponseDto.builder()
+                .project_id(savedProject.getProject_id())
+                .build();
+    }
+
 
     public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {
 
@@ -156,4 +191,7 @@ public class ProjectService {
 
     }
 
+    public ProjectResponseDto getProject(Long projectId) {
+        return null;
+    }
 }

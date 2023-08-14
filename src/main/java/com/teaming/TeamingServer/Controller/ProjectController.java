@@ -2,6 +2,7 @@ package com.teaming.TeamingServer.Controller;
 
 
 import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.*;
 import com.teaming.TeamingServer.common.BaseResponse;
@@ -27,7 +28,6 @@ public class ProjectController {
     private final ScheduleService scheduleService;
     private final ProjectService projectService;
     private final FileService fileService;
-
 
     // 스케줄 추가
     @PostMapping("/{memberId}/{projectId}/schedule")
@@ -88,6 +88,7 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
 
     // 파일 업로드
     @PostMapping("/{memberId}/{projectId}/files-upload")
@@ -207,13 +208,14 @@ public class ProjectController {
         }
     }
 
-
+    // 멤버 초대하기
     @PostMapping("/{memberId}/{projectId}/invitations")
     public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
             , @PathVariable("projectId") Long projectId) {
         return projectService.inviteMember(projectInviteRequestDto, projectId);
     }
 
+    // 프로젝트 상태 바꾸기
     @PatchMapping("/{memberId}/{projectId}/status")
     public ResponseEntity projectChangeStatus(@RequestBody ProjectStatusRequestDto projectStatusRequestDto
             , @PathVariable("projectId") Long projectId) {
@@ -233,6 +235,42 @@ public class ProjectController {
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+
+    }
+
+    //프로젝트 생성
+    @PostMapping("/{memberId}/create")
+    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> createProject(@PathVariable("memberId") Long memberId, @RequestBody ProjectCreateRequestDto projectCreateRequestDto) {
+        try {
+
+            ProjectCreateResponseDto projectCreateResponseDto = projectService.createProject(memberId,projectCreateRequestDto);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트를 생성하였습니다", projectCreateResponseDto));
+        }   catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+    // 프로젝트 조회
+    @GetMapping("/{memberId}/{projectId}")
+    public ResponseEntity<BaseResponse<ProjectResponseDto>> getProject(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId) {
+        try {
+            ProjectResponseDto projectDetail = projectService.getProject(projectId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 정보를 불러왔습니다", projectDetail));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
