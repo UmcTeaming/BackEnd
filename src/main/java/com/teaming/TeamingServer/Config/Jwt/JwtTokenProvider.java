@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -115,10 +116,10 @@ public class JwtTokenProvider {
         Long memberId = Long.parseLong(parts[2]);
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(404, "유효하지 않은 회원 ID"));
+                .orElseThrow(() -> new BaseException(HttpStatus.FORBIDDEN.value(), "유효하지 않은 회원 ID"));
 
         if(!tokenEmail.equals(member.getEmail())) {
-            throw new BaseException(404, "유효하지 않은 AccessToken");
+            throw new BaseException(HttpStatus.FORBIDDEN.value(), "유효하지 않은 AccessToken");
         }
     }
 
