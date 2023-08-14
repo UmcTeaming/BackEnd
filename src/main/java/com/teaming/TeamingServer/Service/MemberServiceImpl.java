@@ -41,7 +41,6 @@ public class MemberServiceImpl implements MemberService {
 
     private final ScheduleRepository scheduleRepository;
     private final MemberScheduleRepository memberScheduleRepository;
-    private final MemberSchedule2Repository memberSchedule2Repository;
 
     private final JwtService jwtService;
 
@@ -419,29 +418,39 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+//        private List<MemberProject> findMemberProject(Member member) {
+//        List<MemberProject> memberProject = memberProjectRepository.findByMember(member);
+//
+//        return memberProject;
+//    }
 
     @Override
     @Transactional
     public ResponseEntity scheduleByDate(LocalDate schedule_start, Long memberId, Long scheduleId) {
         // 1. 멤버 아이디로 MemberSchedule 조회
-        List<MemberSchedule> memberSchedules = memberScheduleRepository.findById(memberId).stream().toList();
+        Member member = memberRepository.findById(memberId).get();
+
+        // 2. 이 멤버가 가지고 있는 스케줄 정보를 얻는다.
+        List<MemberSchedule> memberSchedules = memberScheduleRepository.findByMember(member);
 
         // 2. 멤버 아이디로 찾은 스케줄이 있는지 : 멤버가 가진 스케줄이 잇는지 확인
         // 멤버랑 스케줄 연결해서 멤버한테 스케줄 있는지 확인해야하는데-멤버스케줄일까 스케줄일까
-        Optional<MemberSchedule> haveSchedules = memberSchedule2Repository.findById(scheduleId);
+//
+//        Schedule schedule = scheduleRepository.findById(scheduleId).get();
 
         // 만약 멤버 아이디로 찾은 스케줄이 없다면 null 반환
-        if (haveSchedules.isEmpty()) {   // 그냥 null을 반환하는 게 맞을까?
+        if (memberSchedules.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "찾은 스케줄이 없습니다."));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "찾은 스케줄이 없습니다.", null));
         }
 
         // 3. 멤버 아이디로 가진 스케줄이 있다면, 스케줄 중에 start_date 에 해당하는 날짜가 있는지 확인
         // (1) 스케줄을 찾아서 저장하는 과정이 필요
         List<Schedule> schedules = new ArrayList<>();
         for (int i = 0; i < memberSchedules.size(); i++) {
-            Schedule schedule = scheduleRepository.findById(memberSchedules.get(i).getSchedule().getSchedule_id()).get();
+            Schedule schedule = scheduleRepository.findById(scheduleId).get();
+            Optional<MemberSchedule> haveSchedules = memberScheduleRepository.findBySchedule(schedule);
             schedules.add(schedule);
         }
 
@@ -450,7 +459,7 @@ public class MemberServiceImpl implements MemberService {
             if (schedules.get(i).getSchedule_start().equals(schedule_start)) {
                 finalSchedules.add(schedules.get(i));
             }
-        }    // 질문 : 여기가 맞나........ 3-(1) 부분
+        }
 
 //        scheduleRepository.save(finalSchedules);
 

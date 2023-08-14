@@ -12,6 +12,10 @@ public interface MemberScheduleRepository extends JpaRepository<MemberSchedule, 
 
 //    List<MemberSchedule> memberSchedules = memberScheduleRepository.findById(memberId).stream().toList();
 
-    Optional<MemberSchedule> findById(Long memberId);
+    List<MemberSchedule> findByMember(Member member);
+
+    Optional<MemberSchedule> findBySchedule(Schedule schedule);
+
+//    Optional<MemberSchedule> haveSchedules = memberScheduleRepository.findBySchedule(schedule);
 
 }
