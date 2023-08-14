@@ -265,7 +265,7 @@ public class ProjectController {
     @GetMapping("/{memberId}/{projectId}")
     public ResponseEntity<BaseResponse<ProjectResponseDto>> getProject(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId) {
         try {
-            ProjectResponseDto projectDetail = projectService.getProject(projectId);
+            ProjectResponseDto projectDetail = projectService.getProject(memberId,projectId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 정보를 불러왔습니다", projectDetail));
