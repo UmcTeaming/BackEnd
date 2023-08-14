@@ -1,13 +1,13 @@
 package com.teaming.TeamingServer.Controller;
 
-import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.CommentEnrollResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.CommentResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
+import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
+import com.teaming.TeamingServer.Service.ProjectService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +33,7 @@ public class FileController {
     private final CommentService commentService;
     private final FileService fileService;
     private final FileRepository fileRepository;
+    private final ProjectService projectService;
 
     //코멘트 생성
     @PostMapping("/{memberId}/{fileId}/comments")
@@ -122,5 +123,6 @@ public class FileController {
 
         return new ResponseEntity(resource, headers, HttpStatus.OK);
     }
+
 
 }

@@ -25,8 +25,12 @@ public class ScheduleService {
     private final MemberRepository memberRepository;
 
     public void generateSchedule(Long memberId, Long projectId, ScheduleEnrollRequestDto scheduleEnrollRequestDto) {
+
         Project project = projectRepository.findById(projectId).orElseThrow(()
                 -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_MODIFIED.value(), "Member not found"));
 
         Schedule schedule = Schedule.builder()
                 .schedule_name(scheduleEnrollRequestDto.getSchedule_name())   // 스케줄 이름 설정
@@ -39,6 +43,8 @@ public class ScheduleService {
 
         // 스케줄을 데이터베이스에 저장한다.
         scheduleRepository.save(schedule);
+
+
     }
 
     @Transactional

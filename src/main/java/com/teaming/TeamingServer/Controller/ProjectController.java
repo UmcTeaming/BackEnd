@@ -208,13 +208,14 @@ public class ProjectController {
         }
     }
 
-
+    // 멤버 초대하기
     @PostMapping("/{memberId}/{projectId}/invitations")
     public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
             , @PathVariable("projectId") Long projectId) {
         return projectService.inviteMember(projectInviteRequestDto, projectId);
     }
 
+    // 프로젝트 상태 바꾸기
     @PatchMapping("/{memberId}/{projectId}/status")
     public ResponseEntity projectChangeStatus(@RequestBody ProjectStatusRequestDto projectStatusRequestDto
             , @PathVariable("projectId") Long projectId) {
@@ -241,25 +242,24 @@ public class ProjectController {
 
     }
 
-
-
     //프로젝트 생성
     @PostMapping("/{memberId}/create")
-    public ResponseEntity<?> createProject(@RequestBody ProjectCreateRequestDto requestDto) {
+    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> createProject(@PathVariable("memberId") Long memberId, @RequestBody ProjectCreateRequestDto projectCreateRequestDto) {
         try {
-            Project project = projectService.createProject(requestDto);
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new BaseResponse(HttpStatus.OK.value(), "프로젝트가 생성되었습니다."));
-        } catch (Exception e) {
-            // 예외 발생 시 실패 메시지 반환
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new BaseResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "프로젝트 생성에 실패했습니다: " + e.getMessage()));
+            ProjectCreateResponseDto projectCreateResponseDto = projectService.createProject(memberId,projectCreateRequestDto);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트를 생성하였습니다", projectCreateResponseDto));
+        }   catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
-
-
-
 
     // 프로젝트 조회
     @GetMapping("/{memberId}/{projectId}")

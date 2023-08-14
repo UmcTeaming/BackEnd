@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
@@ -34,23 +35,22 @@ public class ProjectService {
     private final FileRepository fileRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final ScheduleRepository scheduleRepository;
-    private Long memberId;
 
-    public Project createProject(ProjectCreateRequestDto projectCreateRequestDto) {
+    public ProjectCreateResponseDto createProject(Long memberId, ProjectCreateRequestDto projectCreateRequestDto) {
         // memberId를 통해 Member 엔터티 조회
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("멤버를 찾을 수 없습니다: " + memberId));
-        
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
 
         // DTO 정보를 사용하여 Project 객체 생성
         Project project = Project.builder()
                 .project_name(projectCreateRequestDto.getProject_name())
+                .project_image(projectCreateRequestDto.getProject_image())
                 .start_date(projectCreateRequestDto.getStart_date())
                 .end_date(projectCreateRequestDto.getEnd_date())
                 .project_status(Status.ING)
                 .project_color(projectCreateRequestDto.getProject_color())
-                .project_image(projectCreateRequestDto.getProject_image())
                 .build();
 
         // 프로젝트 객체를 데이터베이스에 저장하고, 반환된 객체를 가져옵니다.
@@ -60,15 +60,12 @@ public class ProjectService {
         MemberProject memberProject = new MemberProject();
         memberProject.setMember(member);
         memberProject.setProject(savedProject);
-
         memberProjectRepository.save(memberProject);
 
-        return savedProject;
+        return ProjectCreateResponseDto.builder()
+                .project_id(savedProject.getProject_id())
+                .build();
     }
-
-
-
-
 
 
     public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {

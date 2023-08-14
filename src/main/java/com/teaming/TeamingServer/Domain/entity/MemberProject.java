@@ -23,8 +23,10 @@ public class MemberProject {
     private Project project;
 
     public void setMember(Member member) {
+        this.member = member;
     }
 
-    public void setProject(Project savedProject) {
+    public void setProject(Project project) {
+        this.project = project;
     }
 }
