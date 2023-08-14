@@ -7,7 +7,6 @@ import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.InviteMember;
 import com.teaming.TeamingServer.Domain.entity.*;
-import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.*;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
@@ -20,9 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.function.Function;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,8 +34,16 @@ public class ProjectService {
     private final FileRepository fileRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final ScheduleRepository scheduleRepository;
+    private Long memberId;
 
     public Project createProject(ProjectCreateRequestDto projectCreateRequestDto) {
+        // memberId를 통해 Member 엔터티 조회
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("멤버를 찾을 수 없습니다: " + memberId));
+        
+
+        // DTO 정보를 사용하여 Project 객체 생성
         Project project = Project.builder()
                 .project_name(projectCreateRequestDto.getProject_name())
                 .start_date(projectCreateRequestDto.getStart_date())
@@ -49,8 +53,19 @@ public class ProjectService {
                 .project_image(projectCreateRequestDto.getProject_image())
                 .build();
 
-        return projectRepository.save(project);
+        // 프로젝트 객체를 데이터베이스에 저장하고, 반환된 객체를 가져옵니다.
+        Project savedProject = projectRepository.save(project);
+
+        // Member와 Project로 MemberProject 객체 생성 및 저장
+        MemberProject memberProject = new MemberProject();
+        memberProject.setMember(member);
+        memberProject.setProject(savedProject);
+
+        memberProjectRepository.save(memberProject);
+
+        return savedProject;
     }
+
 
 
 
