@@ -243,18 +243,22 @@ public class ProjectController {
 
 
 
-
     //프로젝트 생성
     @PostMapping("/{memberId}/create")
-    public ResponseEntity createProject(@RequestBody ProjectCreateRequestDto requestDto) {
-//         requestDto로부터 필요한 정보를 추출하여 ProjectService createProject 메서드를 호출
-        Project project = projectService.createProject(
-                requestDto
-        );
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse(HttpStatus.OK.value(), "프로젝트가 생성되었습니다."));
+    public ResponseEntity<?> createProject(@RequestBody ProjectCreateRequestDto requestDto) {
+        try {
+            Project project = projectService.createProject(requestDto);
 
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new BaseResponse(HttpStatus.OK.value(), "프로젝트가 생성되었습니다."));
+        } catch (Exception e) {
+            // 예외 발생 시 실패 메시지 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new BaseResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "프로젝트 생성에 실패했습니다: " + e.getMessage()));
+        }
     }
+
+
 
 
     // 프로젝트 조회
