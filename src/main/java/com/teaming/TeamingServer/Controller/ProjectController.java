@@ -110,15 +110,15 @@ public class ProjectController {
 
     // 프로젝트의 각 스케줄 확인
     @GetMapping("/{memberId}/{projectId}/{scheduleId}")
-    public ResponseEntity<BaseResponse<List<ScheduleConfirmResponseDto>>> readSchedule(
+    public ResponseEntity<BaseResponse<ScheduleConfirmResponseDto>> readSchedule(
             @PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId,
             @PathVariable("scheduleId") Long scheduleId) {
         try {
-            List<ScheduleConfirmResponseDto> list = projectService.readSchedule(memberId, projectId, scheduleId);
+            ScheduleConfirmResponseDto scheduleRead = projectService.readSchedule(memberId, projectId, scheduleId);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트의 스케줄", list));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트의 스케줄", scheduleRead));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
@@ -127,6 +127,7 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
 
     // 파일 삭제
     @DeleteMapping("/{memberId}/{projectId}/files/{fileId}")
