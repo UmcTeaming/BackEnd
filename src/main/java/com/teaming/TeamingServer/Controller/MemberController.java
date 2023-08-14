@@ -34,24 +34,8 @@ public class MemberController {
     }
 
     @GetMapping("/member/{memberId}/mypage")
-    public ResponseEntity myPage(@PathVariable("memberId") Long memberId, @RequestHeader("Authorization") String accessToken) {
-
-        ResponseEntity response = null;
-
-        log.info("accessToken : " + accessToken);
-
-        try {
-            if(StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer")) {
-                accessToken = accessToken.substring(7);
-            }
-
-            response = memberService.MemberMyPage(memberId, accessToken);
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), illegalArgumentException.getMessage()));
-        }
-
-        return response;
+    public ResponseEntity myPage(@PathVariable("memberId") Long memberId) {
+        return memberService.MemberMyPage(memberId);
     }
 
     @PatchMapping("/member/{memberId}/mypage/change-nickname")

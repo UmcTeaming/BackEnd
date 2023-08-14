@@ -1,6 +1,5 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Config.Jwt.JwtService;
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
 import com.teaming.TeamingServer.Domain.Dto.*;
@@ -37,8 +36,6 @@ public class MemberServiceImpl implements MemberService {
 
     private final ProjectRepository projectRepository;
     private final MemberProjectRepository memberProjectRepository;
-
-    private final JwtService jwtService;
 
     // 상수값들 - 메인 페이지에 반환할 프로젝들 개수들
     private final static int RECENTLY_PROJECT_NUM = 3;
@@ -115,15 +112,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public ResponseEntity MemberMyPage(Long memberId, String accessToken) {
+    public ResponseEntity MemberMyPage(Long memberId) {
 
         // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
         Optional<Member> findMember = memberRepository.findById(memberId);
-
-        // 0. 인증 정보 확인
-        if(!jwtService.VerifyAccess(accessToken, findMember.stream().findFirst().get())) {
-            throw new IllegalArgumentException("인증 정보가 유효하지 않습니다.");
-        }
 
         if(findMember.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
