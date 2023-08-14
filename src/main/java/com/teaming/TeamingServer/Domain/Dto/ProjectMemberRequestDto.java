@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileUploadResponseDto {
-
-    private Long file_Id;
+public class ProjectMemberRequestDto {
+    private String name;
+    private String profile_image;
 }

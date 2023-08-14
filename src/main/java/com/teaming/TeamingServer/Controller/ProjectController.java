@@ -2,6 +2,7 @@ package com.teaming.TeamingServer.Controller;
 
 
 import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.*;
 import com.teaming.TeamingServer.common.BaseResponse;
@@ -23,7 +24,6 @@ public class ProjectController {
     private final ScheduleService scheduleService;
     private final ProjectService projectService;
     private final FileService fileService;
-
 
     // 스케줄 추가
     @PostMapping("/{memberId}/{projectId}/schedule")
@@ -84,6 +84,7 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
 
     // 파일 업로드
     @PostMapping("/{memberId}/{projectId}/files-upload")
@@ -229,6 +230,43 @@ public class ProjectController {
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+
+    }
+
+
+
+    //프로젝트 생성
+    @PostMapping("/{memberId}/create")
+    public ResponseEntity<?> createProject(@RequestBody ProjectCreateRequestDto requestDto) {
+        try {
+            Project project = projectService.createProject(requestDto);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new BaseResponse(HttpStatus.OK.value(), "프로젝트가 생성되었습니다."));
+        } catch (Exception e) {
+            // 예외 발생 시 실패 메시지 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new BaseResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "프로젝트 생성에 실패했습니다: " + e.getMessage()));
+        }
+    }
+
+
+
+
+    // 프로젝트 조회
+    @GetMapping("/{memberId}/{projectId}")
+    public ResponseEntity<BaseResponse<ProjectResponseDto>> getProject(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId) {
+        try {
+            ProjectResponseDto projectDetail = projectService.getProject(projectId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 정보를 불러왔습니다", projectDetail));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
