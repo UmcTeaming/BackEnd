@@ -73,6 +73,7 @@ public class JwtTokenProvider {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
+//        // Member 의 권한 별로 접근 가능 페이지가 다를 때 ex) 관리자, 이용자 등
 //        Collection<? extends GrantedAuthority> authorities =
 //                Arrays.stream(claims.get("auth").toString().split(","))
 //                        .map(SimpleGrantedAuthority::new)
@@ -129,8 +130,4 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
-
-
-
-
 }

@@ -47,19 +47,13 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public ResponseEntity changePassword(Long memberId, MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
-        // 1. memberId 를 가진 멤버가 존재하는지 확인
-        Optional<Member> findMember = memberRepository.findById(memberId);
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
-        }
+
+        Member member = memberRepository.findById(memberId).get();
 
         // 2. 존재한다면, 비밀번호 변경 후 로그인과 똑같이 인증정보 재발급
         Authentication authentication = null;
 
         // (1) 비밀번호 변경
-        Member member = findMember.get();
-
         member.updatePassword(memberChangePasswordRequestDto.getChange_password());
 
         try {
@@ -90,16 +84,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public ResponseEntity checkCurrentPassword(Long memberId, CheckCurrentPasswordRequestDto checkCurrentPasswordRequestDto) {
-        // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
-        Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
-        }
+        Member member = memberRepository.findById(memberId).get();
 
         // 2. 사용자가 입력한 비밀번호와 DB 에 있는 비밀번호가 일치하는지 확인
-        String currentPassword = findMember.stream().findFirst().stream().toList().stream().findFirst().get().getPassword();
+        String currentPassword = member.getPassword();
 
         if (!currentPassword.equals(checkCurrentPasswordRequestDto.getCurrentPassword())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -114,15 +103,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public ResponseEntity MemberMyPage(Long memberId) {
 
-        // 1. DB 에서 ID 로 회원 객체 조회 후 존재하는 회원인지 체크
-        Optional<Member> findMember = memberRepository.findById(memberId);
-
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
-        }
-
-        Member member = findMember.stream().findFirst().get();
+        Member member = memberRepository.findById(memberId).get();
 
         MemberMyPageResponseDto memberMyPageResponseDto = MemberMyPageResponseDto.builder()
                 .memberId(memberId)
@@ -137,13 +118,8 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public ResponseEntity changeNickName(Long memberId, MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
-        // 1. 존재하는 회원인지 조회
-        Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
-        }
+        Member member = memberRepository.findById(memberId).get();
 
         // 2. 바꾸려는 닉네임이 이미 존재하는지 확인
         Optional<Member> equalNickname = memberRepository.findByName(memberNicknameChangeRequestDto.getChange_nickname());
@@ -154,7 +130,6 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 3. 사용 가능한 닉네임이라면, 변경 후 변경 완료
-        Member member = findMember.stream().findFirst().get();
         member.updateNickName(memberNicknameChangeRequestDto.getChange_nickname());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -164,16 +139,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public ResponseEntity changeProfileImage(Long memberId, MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
-        // 1. 존재하는 회원인지 조회
-        Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
-        }
+        Member member = memberRepository.findById(memberId).get();
 
         // 2. member 프로필 이미지 변경
-        Member member = findMember.stream().findFirst().get();
         member.updateProfileImage(memberChangeProfileImageRequestDto.getChange_image_link());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -182,15 +151,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public ResponseEntity mainPage(Long memberId) {
-        // 1. 존재하는 회원인지 조회
-        Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
-        }
+        Member member = memberRepository.findById(memberId).get();
+
         // 2. memberId 로 프로젝트 조회
-        Member member = findMember.stream().findFirst().get();
         List<MemberProject> memberProject = findMemberProject(member);
 
         // (1) 찾은 아예 프로젝트가 없다면 null 반환
@@ -230,16 +194,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public ResponseEntity portfolioPage(Long memberId) {
-        // 1. 존재하는 회원인지 조회
-        Optional<Member> findMember = memberRepository.findById(memberId);
 
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 회원입니다."));
-        }
+        Member member = memberRepository.findById(memberId).get();
 
         // 2. memberId 로 프로젝트 조회
-        Member member = findMember.stream().findFirst().get();
         List<MemberProject> memberProject = findMemberProject(member);
 
         // (1) 찾은 아예 프로젝트가 없다면 null 반환

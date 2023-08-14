@@ -3,12 +3,9 @@ package com.teaming.TeamingServer.Controller;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.TestDto;
 import com.teaming.TeamingServer.Service.MemberService;
-import com.teaming.TeamingServer.common.BaseErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -29,7 +26,6 @@ public class MemberController {
     @PostMapping("/member/{memberId}/change-password")
     public ResponseEntity changePassword(@PathVariable("memberId") Long memberId
                                         , @RequestBody MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
-
         return memberService.changePassword(memberId, memberChangePasswordRequestDto);
     }
 
