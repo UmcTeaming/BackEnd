@@ -36,11 +36,12 @@ public class ProjectService {
     private final MemberProjectRepository memberProjectRepository;
     private final ScheduleRepository scheduleRepository;
 
+    // 프로젝트 생성
     public ProjectCreateResponseDto createProject(Long memberId, ProjectCreateRequestDto projectCreateRequestDto) {
         // memberId를 통해 Member 엔터티 조회
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
 
         // DTO 정보를 사용하여 Project 객체 생성
@@ -191,7 +192,34 @@ public class ProjectService {
 
     }
 
-    public ProjectResponseDto getProject(Long projectId) {
-        return null;
+    public ProjectResponseDto getProject(Long memberId,Long projectId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
+
+        List<MemberListDto> memberListDtos = project.getMemberProjects().stream()
+                .map(memberProject -> {
+                    Member memberInProject = memberProject.getMember();
+                    return MemberListDto.builder()
+                            .member_name(memberInProject.getName())
+                            .member_image(memberInProject.getProfile_image())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+
+        ProjectResponseDto projectResponseDto = ProjectResponseDto.builder()
+                .name(project.getProject_name())
+                .image(project.getProject_image())
+                .startDate(project.getStart_date())
+                .endDate(project.getEnd_date())
+                .color(project.getProject_color())
+                .memberListDtos(memberListDtos)
+                .build();
+
+        return projectResponseDto;
     }
 }
