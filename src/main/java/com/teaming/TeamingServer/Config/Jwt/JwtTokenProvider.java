@@ -113,6 +113,12 @@ public class JwtTokenProvider {
         // '/projects/{memberId}/{projectId}/files-upload'
         String requestURI = ((HttpServletRequest) request).getRequestURI();
         String[] parts = requestURI.split("/");
+
+        // /auth ~ 기능들인지 확인
+        if(parts[1].equals("auth")) {
+            throw new BaseException(HttpStatus.FORBIDDEN.value(), "auth 에 속한 기능들은 authorization 이 필요하지 않습니다.");
+        }
+
         Long memberId = Long.parseLong(parts[2]);
 
         Member member = memberRepository.findById(memberId)
