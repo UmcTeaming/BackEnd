@@ -192,6 +192,7 @@ public class ProjectService {
 
     }
 
+    //프로젝트 정보 조회
     public ProjectResponseDto getProject(Long memberId,Long projectId) {
 
         Member member = memberRepository.findById(memberId)
@@ -206,6 +207,7 @@ public class ProjectService {
                     return MemberListDto.builder()
                             .member_name(memberInProject.getName())
                             .member_image(memberInProject.getProfile_image())
+                            .email(memberInProject.getEmail())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -216,7 +218,7 @@ public class ProjectService {
                 .image(project.getProject_image())
                 .startDate(project.getStart_date())
                 .endDate(project.getEnd_date())
-                .color(project.getProject_color())
+                .projectStatus(project.getProject_status())
                 .memberListDtos(memberListDtos)
                 .build();
 

@@ -1,5 +1,6 @@
 package com.teaming.TeamingServer.Domain.Dto;
 
+import com.teaming.TeamingServer.Domain.entity.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class ProjectResponseDto {
     private String image;
     private LocalDate startDate;
     private LocalDate endDate;
-    private String color;
+    private Status projectStatus;
     private List<MemberListDto> memberListDtos;
    // private List<PeojectScheduleResponsetDto> schedules;
 }
