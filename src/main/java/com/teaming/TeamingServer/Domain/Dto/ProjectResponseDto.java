@@ -20,6 +20,7 @@ public class ProjectResponseDto {
     private String image;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Status projectStatus;
     private List<MemberListDto> memberListDtos;
    // private List<PeojectScheduleResponsetDto> schedules;
 }

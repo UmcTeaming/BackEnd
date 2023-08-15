@@ -218,6 +218,7 @@ public class ProjectService {
                 .image(project.getProject_image())
                 .startDate(project.getStart_date())
                 .endDate(project.getEnd_date())
+                .projectStatus(project.getProject_status())
                 .memberListDtos(memberListDtos)
                 .build();
 
