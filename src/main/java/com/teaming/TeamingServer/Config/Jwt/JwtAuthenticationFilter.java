@@ -1,8 +1,6 @@
 package com.teaming.TeamingServer.Config.Jwt;
 
-import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Exception.BaseException;
-import com.teaming.TeamingServer.Repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
