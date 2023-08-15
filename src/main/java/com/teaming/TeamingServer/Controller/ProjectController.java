@@ -65,6 +65,7 @@ public class ProjectController {
         }
     }
 
+
     // 프로젝트의 스케줄 삭제
     @DeleteMapping("/{memberId}/{projectId}/{scheduleId}")
     public ResponseEntity<BaseResponse> deleteSchedule(@PathVariable("memberId") Long memberId,
