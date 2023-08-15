@@ -14,4 +14,6 @@ public class MemberListDto {
 
     private String member_name;
     private String member_image;
+    private String email;
+
 }
