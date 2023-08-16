@@ -54,6 +54,7 @@ public class MemberController {
         return awsS3Service.profileImageUpload(multipartFile, "image/", memberId);
     }
 
+    // 닉네임 변경
     @PatchMapping("/member/{memberId}/mypage/change-nickname")
     public ResponseEntity changeNickName(@PathVariable("memberId") Long memberId
                                          , @RequestBody MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
@@ -68,6 +69,11 @@ public class MemberController {
     @GetMapping("/member/{memberId}/portfolio")
     public ResponseEntity portfolioPage(@PathVariable("memberId") Long memberId) {
         return memberService.portfolioPage(memberId);
+    }
+
+    @GetMapping("/member/{memberId}/progressProjects")
+    public ResponseEntity progressProjectsPage(@PathVariable("memberId") Long memberId) {
+        return memberService.progressProjectsPage(memberId);
     }
 
     @PostMapping("/member/saveData")

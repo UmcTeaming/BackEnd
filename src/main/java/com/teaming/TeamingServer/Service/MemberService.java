@@ -15,11 +15,11 @@ public interface MemberService {
 
     ResponseEntity changeNickName(Long memberId, MemberNicknameChangeRequestDto memberNicknameChangeRequestDto); // 닉네임 바꾸기
 
-    ResponseEntity changeProfileImage(Long memberId, MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto);
-
     ResponseEntity mainPage(Long memberId);
 
     ResponseEntity portfolioPage(Long MemberId);
+
+    ResponseEntity progressProjectsPage(Long memberId);
 
     void saveMemberProject(Long member_id, Long project_id, Long schedule_id); // 테스트용
 
