@@ -46,7 +46,7 @@ public class AwsS3Service {
             }
 
             // 파일 이름 받기
-            String fileName = multipartFile.getOriginalFilename();
+            String fileName = "memberId-" + memberId + multipartFile.getOriginalFilename();
 
             // 파일 메타데이터 빼서, S3 에 저장할 수 있도록 세팅하기
             ObjectMetadata metadata= new ObjectMetadata();
