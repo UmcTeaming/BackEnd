@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Project;
+import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
@@ -39,10 +40,7 @@ public class AwsS3Service {
             // 원래 있던 프로필 파일 S3 에서 삭제
             // (1) https: | empty | teamingbucket.s3.ap-northeast-2.amazonaws.com | image | 파일 이름
             if(member.getProfile_image() != null) {
-                String[] fileLink = member.getProfile_image().split("/");
-                String beforeFileKey = fileLink[3] + "/" + fileLink[4];
-
-                deleteFile(bucket, beforeFileKey);
+                deleteFile(member.getProfile_image());
             }
 
             // 파일 이름 받기
@@ -98,14 +96,17 @@ public class AwsS3Service {
         }
     }
 
+    @Transactional
     // 원래 있던 파일 삭제
-    private void deleteFile(String bucket, String fileKey) throws Exception {
+    public void deleteFile(String imageLink) {
 
         try {
-            amazonS3Client.deleteObject(bucket, fileKey);
+            String[] fileLink = imageLink.split("/");
+            String beforeFileKey = fileLink[3] + "/" + fileLink[4];
+            amazonS3Client.deleteObject(bucket, beforeFileKey);
         } catch (Exception e) {
             log.debug("Delete File failed", e);
-            throw new Exception("Delete File failed");
+            throw new BaseException(HttpStatus.NO_CONTENT.value(), "Delete File failed");
         }
     }
 

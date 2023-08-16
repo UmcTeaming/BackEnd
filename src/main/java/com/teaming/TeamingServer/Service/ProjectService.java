@@ -72,6 +72,30 @@ public class ProjectService {
                 .build();
     }
 
+    // 프로젝트 생성
+    public ProjectCreateResponseDto modifyProject(Long projectId, ProjectCreateRequestDto projectCreateRequestDto) {
+        // projectId 를 통해 Project 엔터티 조회
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "존재하지 않는 프로젝트입니다."));
+
+        if(project.getProject_image() != null) {
+            awsS3Service.deleteFile(project.getProject_image());
+        }
+
+        // projectImage 저장 링크 받아오기
+        String projectImage = awsS3Service.projectImageUpload(projectCreateRequestDto.getProject_image(), "projectImage/", projectCreateRequestDto.getProject_name());
+
+        // DTO 정보를 사용하여 Project 객체 수정
+        project.modifyProject(projectCreateRequestDto.getProject_name(), projectCreateRequestDto.getStart_date(), projectCreateRequestDto.getEnd_date()
+                                ,projectCreateRequestDto.getProject_color(), projectImage);
+
+
+        return ProjectCreateResponseDto.builder()
+                .project_id(project.getProject_id())
+                .build();
+    }
+
 
     public List<ScheduleResponseDto> searchSchedule(Long memberId, Long projectId) {
 
