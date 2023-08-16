@@ -14,6 +14,7 @@ import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -242,10 +243,22 @@ public class ProjectController {
 
     //프로젝트 생성
     @PostMapping("/{memberId}/create")
-    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> createProject(@PathVariable("memberId") Long memberId, @RequestBody ProjectCreateRequestDto projectCreateRequestDto) {
+    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> createProject(@PathVariable("memberId") Long memberId,
+                                                                                @RequestParam("project_name") String projectName,
+                                                                                @RequestParam("project_image") MultipartFile projectImage,
+                                                                                @RequestParam("start_date") LocalDate startDate,
+                                                                                @RequestParam("end_date") LocalDate endDate,
+                                                                                @RequestParam("project_color") String projectColor) {
         try {
 
-            ProjectCreateResponseDto projectCreateResponseDto = projectService.createProject(memberId,projectCreateRequestDto);
+            ProjectCreateRequestDto projectCreateRequestDto = ProjectCreateRequestDto.builder()
+                    .project_name(projectName)
+                    .project_image(projectImage)
+                    .start_date(startDate)
+                    .end_date(endDate)
+                    .project_color(projectColor).build();
+
+            ProjectCreateResponseDto projectCreateResponseDto = projectService.createProject(memberId, projectCreateRequestDto);
 
             return ResponseEntity
                     .status(HttpStatus.OK)

@@ -74,11 +74,11 @@ public class AwsS3Service {
     }
 
     @Transactional
-    public String upload(MultipartFile multipartFile, String key) {
+    public String projectImageUpload(MultipartFile multipartFile, String key, String projectName) {
         try {
 
             // 파일 이름 받기
-            String fileName = multipartFile.getOriginalFilename();
+            String fileName = "projectName-" + projectName + multipartFile.getOriginalFilename();
 
             // 파일 메타데이터 빼서, S3 에 저장할 수 있도록 세팅하기
             ObjectMetadata metadata= new ObjectMetadata();

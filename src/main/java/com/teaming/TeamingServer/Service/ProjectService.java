@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class ProjectService {
     private final FileRepository fileRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final ScheduleRepository scheduleRepository;
+    private final AwsS3Service awsS3Service;
 
     // 프로젝트 생성
     public ProjectCreateResponseDto createProject(Long memberId, ProjectCreateRequestDto projectCreateRequestDto) {
@@ -43,11 +45,13 @@ public class ProjectService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
+        // projectImage 저장 링크 받아오기
+        String projectImage =awsS3Service.projectImageUpload(projectCreateRequestDto.getProject_image(), "projectImage/", projectCreateRequestDto.getProject_name());
 
         // DTO 정보를 사용하여 Project 객체 생성
         Project project = Project.builder()
                 .project_name(projectCreateRequestDto.getProject_name())
-                .project_image(projectCreateRequestDto.getProject_image())
+                .project_image(projectImage)
                 .start_date(projectCreateRequestDto.getStart_date())
                 .end_date(projectCreateRequestDto.getEnd_date())
                 .project_status(Status.ING)
