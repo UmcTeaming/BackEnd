@@ -41,8 +41,6 @@ public class MemberServiceImpl implements MemberService {
     private final ScheduleRepository scheduleRepository;
     private final MemberScheduleRepository memberScheduleRepository;
 
-    private final JwtService jwtService;
-
     // 상수값들 - 메인 페이지에 반환할 프로젝들 개수들
     private final static int RECENTLY_PROJECT_NUM = 3;
     private final static int PROGRESS_PROJECT_NUM = 8;
