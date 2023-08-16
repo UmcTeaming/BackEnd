@@ -90,7 +90,7 @@ public class ProjectService {
         return result;
     }
 
-    public List<ScheduleConfirmDto> readSchedule(Long memberId, Long projectId, Long scheduleId) {
+    public ScheduleConfirmResponseDto readSchedule(Long memberId, Long projectId, Long scheduleId) {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 Id"));
@@ -99,15 +99,35 @@ public class ProjectService {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
                 -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 스케줄 Id"));
 
-        List <ScheduleConfirmDto> result = project.getSchedules().stream()
-                .map(scheduleConfirm -> new ScheduleConfirmDto(schedule.getSchedule_name(), schedule.getSchedule_start(),
-                        schedule.getSchedule_end(), schedule.getSchedule_start_time(),
-                        schedule.getSchedule_end_time())).collect(Collectors.toList());
-        if(result.isEmpty()) {
-            return null;
-        }
-        return result;
+        ScheduleConfirmResponseDto scheduleRead = new ScheduleConfirmResponseDto(
+                schedule.getSchedule_name(), schedule.getSchedule_start(),
+                schedule.getSchedule_start_time(), schedule.getSchedule_end(),
+                schedule.getSchedule_end_time()
+        );
+
+        return scheduleRead;
     }
+
+//        public SingleFileResponseDto searchOneFile(Long memberId, Long projectId, Long fileId) {
+//
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new BaseException(404, "Member not found"));
+//        Project project = projectRepository.findById(projectId)
+//                .orElseThrow(() -> new BaseException(404, "Project not found"));
+//
+//        File file = fileRepository.findById(fileId)
+//                .orElseThrow(() -> new BaseException(404, "File not found"));
+//
+//        SingleFileResponseDto information = new SingleFileResponseDto(
+//                file.getFile_type(),
+//                file.getFileName(),
+//                file.getMember().getName(),
+//                file.getCreatedAt().toLocalDate()
+//        );
+//
+//        return information;
+//
+//    }
 
     // 프로젝트 마감 (상태 변경)
     public ResponseEntity projectChangeStatus(ProjectStatusRequestDto projectStatusRequestDto, Long projectId) {
@@ -192,6 +212,7 @@ public class ProjectService {
 
     }
 
+    //프로젝트 정보 조회
     public ProjectResponseDto getProject(Long memberId,Long projectId) {
 
         Member member = memberRepository.findById(memberId)
@@ -206,6 +227,7 @@ public class ProjectService {
                     return MemberListDto.builder()
                             .member_name(memberInProject.getName())
                             .member_image(memberInProject.getProfile_image())
+                            .email(memberInProject.getEmail())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -216,7 +238,7 @@ public class ProjectService {
                 .image(project.getProject_image())
                 .startDate(project.getStart_date())
                 .endDate(project.getEnd_date())
-                .color(project.getProject_color())
+                .projectStatus(project.getProject_status())
                 .memberListDtos(memberListDtos)
                 .build();
 

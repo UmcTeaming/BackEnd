@@ -4,12 +4,13 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-public class ScheduleResponseDto {
+public class ScheduleConfirmResponseDto {
     private String schedule_name;
     private LocalDate schedule_start;
     private LocalTime schedule_start_time;
