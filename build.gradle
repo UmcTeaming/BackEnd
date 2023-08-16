@@ -11,12 +11,6 @@ java {
 	sourceCompatibility = '17'
 }
 
-jar { // jar 파일 하나만 잘 만들어달라는 의미
-	enabled = false
-}
-
-//ext["hibernate.version"] = "5.6.5.Final"
-
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
