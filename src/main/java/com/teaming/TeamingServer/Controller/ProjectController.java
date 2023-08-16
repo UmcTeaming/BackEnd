@@ -251,6 +251,10 @@ public class ProjectController {
                                                                                 @RequestParam("project_color") String projectColor) {
         try {
 
+            if(projectImage.isEmpty()) {
+                projectImage = null;
+            }
+
             ProjectCreateRequestDto projectCreateRequestDto = ProjectCreateRequestDto.builder()
                     .project_name(projectName)
                     .project_image(projectImage)
@@ -281,6 +285,11 @@ public class ProjectController {
                                                                                 @RequestParam("end_date") LocalDate endDate,
                                                                                 @RequestParam("project_color") String projectColor) {
         try {
+
+            if(projectImage.isEmpty()) {
+                projectImage = null;
+            }
+
             ProjectCreateRequestDto projectCreateRequestDto = ProjectCreateRequestDto.builder()
                     .project_name(projectName)
                     .project_image(projectImage)
