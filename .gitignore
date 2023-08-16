@@ -46,3 +46,6 @@ application-jwt.properties
 
 ### mysql 관련 정보 ###
 application-db.properties
+
+### s3 관련 정보 ###
+application-s3.properties
