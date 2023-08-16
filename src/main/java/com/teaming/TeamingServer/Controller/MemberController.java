@@ -2,11 +2,19 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.TestDto;
+import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.MemberService;
+import com.teaming.TeamingServer.Service.ScheduleService;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
+import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함 - ResponseBody 어노테이션도 포함하고 있음
@@ -14,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final ScheduleService scheduleService;
 
     @PostMapping("/member/{memberId}/change-password/check-password")
     public ResponseEntity checkCurrentPassword(@PathVariable("memberId") Long memberId
@@ -61,4 +70,28 @@ public class MemberController {
         memberService.saveMemberProject(testDto.getMember_id(), testDto.getProject_id(), testDto.getSchedule_id());
         return ResponseEntity.ok("성공");
     }
+
+    // RequestBody와 PathVariable의 차이???????/
+
+    // 프로젝트의 날짜별 스케줄 확인
+    @PostMapping ("/member/{memberId}/schedules?={schedule_start}")
+    public ResponseEntity scheduleByDate(
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("schedule_start") LocalDate schedule_start,
+            @RequestBody Long scheduleId) {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자의 일정", memberService.scheduleByDate(schedule_start, memberId, scheduleId)));
+        }
+        catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+
 }
