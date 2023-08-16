@@ -25,6 +25,6 @@ public interface MemberService {
 
 //    ResponseEntity confirmDateSchedule(LocalDate schedule_start, ScheduleConfirmRequestDto scheduleConfirmRequestDto);
 
-    ResponseEntity scheduleByDate(LocalDate schedule_start, Long memberId, Long scheduleId);
+  //  ResponseEntity scheduleByDate(LocalDate schedule_start, Long memberId, Long scheduleId);
 
 }
