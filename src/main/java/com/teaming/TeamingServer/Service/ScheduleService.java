@@ -3,6 +3,7 @@ package com.teaming.TeamingServer.Service;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Exception.BaseException;
+import com.teaming.TeamingServer.Repository.MemberScheduleRepository;
 import com.teaming.TeamingServer.Repository.ScheduleRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.Repository.MemberRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,8 +26,10 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private final MemberScheduleRepository memberScheduleRepository;
 
-    public void generateSchedule(Long memberId, Long projectId, ScheduleEnrollRequestDto scheduleEnrollRequestDto) {
+    // 스케쥴 생성
+    public ScheduleCreateResponseDto generateSchedule(Long memberId, Long projectId, ScheduleEnrollRequestDto scheduleEnrollRequestDto) {
 
         Project project = projectRepository.findById(projectId).orElseThrow(()
                 -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
@@ -42,12 +46,21 @@ public class ScheduleService {
                 .project(project)  // 프로젝트와 스케줄 연결
                 .build();
 
-        // 스케줄을 데이터베이스에 저장한다.
         scheduleRepository.save(schedule);
 
+        // Member 와 Schedule로 MemberSchedule 객체 생성 및 저장
+        MemberSchedule memberSchedule = new MemberSchedule();
+        memberSchedule.setMember(member);
+        memberSchedule.setSchedule(schedule);
+        memberScheduleRepository.save(memberSchedule);
+
+        return ScheduleCreateResponseDto.builder()
+                .ScheduleId(schedule.getSchedule_id())
+                .build();
 
     }
 
+    //스케쥴 삭제
     @Transactional
     public void deleteSchedule(Long memberId, Long projectId, Long scheduleId) {
         // 스케줄을 삭제하기 전에 해당 스케줄이 속한 프로젝트와 프로젝트에 해당하는 스케줄인지, 어떤 멤버가 연관되어있는지 확인해야 한다.
@@ -66,23 +79,32 @@ public class ScheduleService {
         scheduleRepository.deleteById(scheduleId);
     }
 
+    // 날짜별 스케쥴
 
-    public void readSchedule(Long memberId, Long projectId, Long scheduleId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
-                -> new BaseException(HttpStatus.NOT_FOUND.value(), "Schedule not found"));
-        Member member = memberRepository.findById(memberId).orElseThrow(()
-                -> new EntityNotFoundException("Member not found"));
+    public List<FilteredSchedules> findSchedules(Long memberId, LocalDate schedule_start) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_MODIFIED.value(), "Member not found"));
 
-        if(!schedule.getProject().equals(project)) {
-            throw new IllegalArgumentException("Schedule does not belong to the specified project.");
-        }
-        if(!schedule.getMembersSchedules().equals(member)) {
-            throw new IllegalArgumentException("Schedule does not belong to the specified member.");
-        }
+        List<Schedule> schedules = member.getMemberSchedules().stream()
+                .map(MemberSchedule::getSchedule)
+                .filter(schedule -> schedule.getSchedule_start().equals(schedule_start))
+                .collect(Collectors.toList());
 
+        return schedules.stream()
+                .map(this::mapToFilteredSchedules)
+                .collect(Collectors.toList());
     }
 
-
+    // Schedule을 FilteredSchedules로 매핑
+    private FilteredSchedules mapToFilteredSchedules(Schedule schedule) {
+        return FilteredSchedules.builder()
+                .schedule_name(schedule.getSchedule_name())
+                .schedule_start(schedule.getSchedule_start())
+                .schedule_start_time(schedule.getSchedule_start_time())
+                .schedule_end(schedule.getSchedule_end())
+                .schedule_end_time(schedule.getSchedule_end_time())
+                .project_color(schedule.getProject().getProject_color())
+                .build();
+    }
 }
+
