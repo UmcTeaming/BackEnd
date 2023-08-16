@@ -141,19 +141,6 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    @Transactional
-    public ResponseEntity changeProfileImage(Long memberId, MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
-
-        Member member = memberRepository.findById(memberId).get();
-
-        // 2. member 프로필 이미지 변경
-        member.updateProfileImage(memberChangeProfileImageRequestDto.getChange_image_link());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse(HttpStatus.OK.value(), "프로필 변경이 완료되었습니다."));
-    }
-
-    @Override
     public ResponseEntity mainPage(Long memberId) {
 
         Member member = memberRepository.findById(memberId).get();
@@ -174,15 +161,14 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // (2) 찾은 프로젝트들이 있다면, 프로젝트 최근 시작 기준으로 정렬 - 최근 프로젝트
-        List<Project> projects = new ArrayList<>();
 
-        List<RecentlyProject> recentlyProject = searchRecentlyProject(memberProject, projects, RECENTLY_PROJECT_NUM);
+        List<RecentlyProject> recentlyProject = searchRecentlyProject(memberProject, RECENTLY_PROJECT_NUM);
 
         // (3) 진행중인 프로젝트 - 오름차순 정렬
-        List<ProgressProject> progressProjects = searchProgressProject(memberProject, projects, PROGRESS_PROJECT_NUM);
+        List<ProgressProject> progressProjects = searchProgressProject(memberProject, PROGRESS_PROJECT_NUM);
 
         // (4) 끝난 프로젝트 - 내림차순 정렬 - 포트폴리오
-        List<Portfolio> portfolios = searchPortPolio(memberProject, projects, PORTFOLIO_PROJECT_NUM);
+        List<Portfolio> portfolios = searchPortPolio(memberProject, PORTFOLIO_PROJECT_NUM);
 
         // 최종 반환 MainPageResponse 생성
         MainPageResponseDto mainPageResponseDto = MainPageResponseDto.builder()
@@ -214,8 +200,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // (2) 있다면, 끝난 순으로 project 정렬
-        List<Project> projects = new ArrayList<>();
-        List<Portfolio> portfolios = searchPortPolio(memberProject, projects, memberProject.size());
+        List<Portfolio> portfolios = searchPortPolio(memberProject, memberProject.size());
 
         // 최종 포트폴리오 페이지 넘기기
         PortfolioPageResponseDto portfolioPageResponseDto = PortfolioPageResponseDto.builder()
@@ -228,8 +213,39 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 최근 프로젝트
-    private List<RecentlyProject> searchRecentlyProject(List<MemberProject> memberProject, List<Project> projects, int projectNum) {
-        projects = new ArrayList<>();
+    @Override
+    public ResponseEntity progressProjectsPage(Long memberId) {
+
+        Member member = memberRepository.findById(memberId).get();
+
+        // 2. memberId 로 프로젝트 조회
+        List<MemberProject> memberProject = findMemberProject(member);
+
+        // (1) 찾은 아예 프로젝트가 없다면 null 반환
+        if(memberProject.isEmpty()) {
+            ProgressProjectsPageResponseDto progressProjectsPageResponseDto = ProgressProjectsPageResponseDto.builder()
+                    .member_id(memberId)
+                    .progressProjects(null).build();
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new BaseResponse<ProgressProjectsPageResponseDto>(HttpStatus.OK.value(), progressProjectsPageResponseDto));
+        }
+
+        // (2) 있다면, 끝난 순으로 project 정렬
+        List<ProgressProject> progressProjects = searchProgressProject(memberProject, memberProject.size());
+
+        // 최종 포트폴리오 페이지 넘기기
+        ProgressProjectsPageResponseDto progressProjectsPageResponseDto = ProgressProjectsPageResponseDto.builder()
+                .member_id(memberId)
+                .progressProjects(progressProjects).build();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<ProgressProjectsPageResponseDto>(HttpStatus.OK.value(), progressProjectsPageResponseDto));
+    }
+
+
+    // 최근 프로젝트
+    private List<RecentlyProject> searchRecentlyProject(List<MemberProject> memberProject, int projectNum) {
+        List<Project> projects = new ArrayList<>();
 
         for(int i = 0; i<memberProject.size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
@@ -264,9 +280,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 진행 중인 프로젝트
-    private List<ProgressProject> searchProgressProject(List<MemberProject> memberProject, List<Project> projects, int projectNum) {
+    private List<ProgressProject> searchProgressProject(List<MemberProject> memberProject, int projectNum) {
 
-        projects = new ArrayList<>();
+        List<Project> projects = new ArrayList<>();
 
 
         for(int i = 0; i<memberProject.size(); i++) {
@@ -280,6 +296,7 @@ public class MemberServiceImpl implements MemberService {
         // 마감날짜 순으로 - 마감 날짜를 기준으로 오름차순
         Collections.sort(projects, new SortByEndDate());
 
+        // 반환하려는 projectNum 보다 실제 조회된 프로젝트의 개수가 적으면 적은 걸로 기준
         if(projectNum > projects.size()) {
             projectNum = projects.size();
         }
@@ -290,7 +307,9 @@ public class MemberServiceImpl implements MemberService {
             ProgressProject project = ProgressProject.builder()
                     .projectId(projects.get(i).getProject_id())
                     .projectName(projects.get(i).getProject_name())
-                    .projectStartedDate(projects.get(i).getStart_date())
+                    .projectStartDate(projects.get(i).getStart_date())
+                    .projectEndDate(projects.get(i).getEnd_date())
+                    .projectImage(projects.get(i).getProject_image())
                     .projectStatus(projects.get(i).getProject_status()).build();
 
             progressProjects.add(project);
@@ -300,8 +319,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 포트폴리오
-    private List<Portfolio> searchPortPolio(List<MemberProject> memberProject, List<Project> projects, int projectNum) {
-        projects = new ArrayList<>();
+    private List<Portfolio> searchPortPolio(List<MemberProject> memberProject, int projectNum) {
+        List<Project> projects = new ArrayList<>();
 
         for(int i = 0; i<memberProject.size(); i++) {
             Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();

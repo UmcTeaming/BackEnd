@@ -15,6 +15,8 @@ import java.time.LocalDate;
 public class ProgressProject {
     private Long projectId;
     private String projectName;
-    private LocalDate projectStartedDate;
+    private LocalDate projectStartDate;
+    private LocalDate projectEndDate;
+    private String projectImage;
     private Status projectStatus;
 }
