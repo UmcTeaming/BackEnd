@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -36,29 +35,12 @@ public class MemberController {
     @PostMapping("/member/{memberId}/change-password")
     public ResponseEntity changePassword(@PathVariable("memberId") Long memberId
                                         , @RequestBody MemberChangePasswordRequestDto memberChangePasswordRequestDto) {
-
         return memberService.changePassword(memberId, memberChangePasswordRequestDto);
     }
 
     @GetMapping("/member/{memberId}/mypage")
-    public ResponseEntity myPage(@PathVariable("memberId") Long memberId, @RequestHeader("Authorization") String accessToken) {
-
-        ResponseEntity response = null;
-
-        log.info("accessToken : " + accessToken);
-
-        try {
-            if(StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer")) {
-                accessToken = accessToken.substring(7);
-            }
-
-            response = memberService.MemberMyPage(memberId, accessToken);
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), illegalArgumentException.getMessage()));
-        }
-
-        return response;
+    public ResponseEntity myPage(@PathVariable("memberId") Long memberId) {
+        return memberService.MemberMyPage(memberId);
     }
 
     @PatchMapping("/member/{memberId}/mypage/change-nickname")
