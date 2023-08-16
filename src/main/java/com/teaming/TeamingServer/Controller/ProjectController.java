@@ -14,6 +14,7 @@ import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -242,14 +243,57 @@ public class ProjectController {
 
     //프로젝트 생성
     @PostMapping("/{memberId}/create")
-    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> createProject(@PathVariable("memberId") Long memberId, @RequestBody ProjectCreateRequestDto projectCreateRequestDto) {
+    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> createProject(@PathVariable("memberId") Long memberId,
+                                                                                @RequestParam("project_name") String projectName,
+                                                                                @RequestParam("project_image") MultipartFile projectImage,
+                                                                                @RequestParam("start_date") LocalDate startDate,
+                                                                                @RequestParam("end_date") LocalDate endDate,
+                                                                                @RequestParam("project_color") String projectColor) {
         try {
 
-            ProjectCreateResponseDto projectCreateResponseDto = projectService.createProject(memberId,projectCreateRequestDto);
+            ProjectCreateRequestDto projectCreateRequestDto = ProjectCreateRequestDto.builder()
+                    .project_name(projectName)
+                    .project_image(projectImage)
+                    .start_date(startDate)
+                    .end_date(endDate)
+                    .project_color(projectColor).build();
+
+            ProjectCreateResponseDto projectCreateResponseDto = projectService.createProject(memberId, projectCreateRequestDto);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트를 생성하였습니다", projectCreateResponseDto));
+        }   catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+    //프로젝트 생성
+    @PatchMapping("/{memberId}/{projectId}/modifyProject")
+    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> modifyProject(@PathVariable("projectId") Long projectId,
+                                                                                @RequestParam("project_name") String projectName,
+                                                                                @RequestParam("project_image") MultipartFile projectImage,
+                                                                                @RequestParam("start_date") LocalDate startDate,
+                                                                                @RequestParam("end_date") LocalDate endDate,
+                                                                                @RequestParam("project_color") String projectColor) {
+        try {
+            ProjectCreateRequestDto projectCreateRequestDto = ProjectCreateRequestDto.builder()
+                    .project_name(projectName)
+                    .project_image(projectImage)
+                    .start_date(startDate)
+                    .end_date(endDate)
+                    .project_color(projectColor).build();
+
+            ProjectCreateResponseDto projectCreateResponseDto = projectService.modifyProject(projectId, projectCreateRequestDto);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트를 수정하였습니다", projectCreateResponseDto));
+
         }   catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 

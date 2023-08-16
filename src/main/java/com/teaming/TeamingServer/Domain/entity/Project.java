@@ -64,6 +64,16 @@ public class Project extends Time {
         this.project_image = project_image;
     }
 
+    public Project modifyProject(String project_name, LocalDate start_date, LocalDate end_date, String project_color, String project_image) {
+        this.project_name = project_name;
+        this.start_date = start_date;
+        this.end_date = end_date;
+        this.project_color = project_color;
+        this.project_image = project_image;
+
+        return this;
+    }
+
     public Project updateProfile(String profile_image) {
         this.project_image = profile_image;
 
