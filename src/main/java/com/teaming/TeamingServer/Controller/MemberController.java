@@ -2,6 +2,7 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.TestDto;
+import com.teaming.TeamingServer.Service.AwsS3Service;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.MemberService;
 import com.teaming.TeamingServer.Service.ScheduleService;
@@ -12,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +26,7 @@ import java.util.List;
 public class MemberController {
 
     private final MemberService memberService;
+    private final AwsS3Service awsS3Service;
     private final ScheduleService scheduleService;
 
     @PostMapping("/member/{memberId}/change-password/check-password")
@@ -43,16 +48,16 @@ public class MemberController {
         return memberService.MemberMyPage(memberId);
     }
 
+    // 프로필 이미지 변경
+    @PatchMapping("/member/{memberId}/mypage/change-image")
+    public ResponseEntity changeProfileImage(@RequestPart("change_image_file") MultipartFile multipartFile, @PathVariable Long memberId) throws IOException {
+        return awsS3Service.profileImageUpload(multipartFile, "image/", memberId);
+    }
+
     @PatchMapping("/member/{memberId}/mypage/change-nickname")
     public ResponseEntity changeNickName(@PathVariable("memberId") Long memberId
                                          , @RequestBody MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
         return memberService.changeNickName(memberId, memberNicknameChangeRequestDto);
-    }
-
-    @PatchMapping("/member/{memberId}/mypage/change-image")
-    public ResponseEntity changeProfileImage(@PathVariable("memberId") Long memberId
-                                             , @RequestBody MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
-        return memberService.changeProfileImage(memberId, memberChangeProfileImageRequestDto);
     }
 
     @GetMapping("/member/{memberId}/home")
