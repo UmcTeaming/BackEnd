@@ -2,7 +2,6 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.TestDto;
-import com.teaming.TeamingServer.Domain.entity.AwsS3;
 import com.teaming.TeamingServer.Service.AwsS3Service;
 import com.teaming.TeamingServer.Service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -42,13 +41,9 @@ public class MemberController {
 
     // 프로필 이미지 변경
     @PatchMapping("/member/{memberId}/mypage/change-image")
-    public ResponseEntity upload(@RequestPart("file") MultipartFile multipartFile, @PathVariable Long memberId) throws IOException {
-        return awsS3Service.upload(multipartFile, "image/", memberId);
+    public ResponseEntity changeProfileImage(@RequestPart("change_image_file") MultipartFile multipartFile, @PathVariable Long memberId) throws IOException {
+        return awsS3Service.profileImageUpload(multipartFile, "image/", memberId);
     }
-//    @PatchMapping("/member/{memberId}/mypage/change-image")
-//    public ResponseEntity upload(@RequestPart("file") MultipartFile multipartFile, @PathVariable Long memberId) throws IOException {
-//        return memberService.changeProfileImage(memberId, mem)
-//    }
 
     @PatchMapping("/member/{memberId}/mypage/change-nickname")
     public ResponseEntity changeNickName(@PathVariable("memberId") Long memberId

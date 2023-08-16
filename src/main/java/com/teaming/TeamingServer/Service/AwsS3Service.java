@@ -3,7 +3,9 @@ package com.teaming.TeamingServer.Service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.teaming.TeamingServer.Domain.entity.Member;
+import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Repository.MemberRepository;
+import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -30,7 +31,7 @@ public class AwsS3Service {
     private String bucket;
 
     @Transactional
-    public ResponseEntity upload(MultipartFile multipartFile, String key, Long memberId) throws IOException {
+    public ResponseEntity profileImageUpload(MultipartFile multipartFile, String key, Long memberId) throws IOException {
         try {
             Member member = memberRepository.findById(memberId).get();
 
@@ -72,6 +73,31 @@ public class AwsS3Service {
         }
     }
 
+    @Transactional
+    public String upload(MultipartFile multipartFile, String key) {
+        try {
+
+            // 파일 이름 받기
+            String fileName = multipartFile.getOriginalFilename();
+
+            // 파일 메타데이터 빼서, S3 에 저장할 수 있도록 세팅하기
+            ObjectMetadata metadata= new ObjectMetadata();
+            metadata.setContentType(multipartFile.getContentType());
+            metadata.setContentLength(multipartFile.getSize());
+
+            // S3 에 업로드
+            amazonS3Client.putObject(bucket,key + fileName , multipartFile.getInputStream(), metadata);
+
+            // S3 에 업로드한 파일 링크 생성하기
+            String fileUrl = generateS3Link(bucket, key + fileName);
+
+            return fileUrl;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     // 원래 있던 파일 삭제
     private void deleteFile(String bucket, String fileKey) throws Exception {
 
@@ -81,12 +107,6 @@ public class AwsS3Service {
             log.debug("Delete File failed", e);
             throw new Exception("Delete File failed");
         }
-    }
-
-    // UUID 파일명 반환
-    public String getUuidFileName(String fileName) {
-        String ext = fileName.substring(fileName.indexOf(".") + 1);
-        return UUID.randomUUID().toString() + "." + ext;
     }
 
     private String generateS3Link(String bucket, String key) {
