@@ -1,85 +1,96 @@
 package com.teaming.TeamingServer.Service;
 
-import com.amazonaws.services.s3.AmazonS3;
-//import com.teaming.TeamingServer.Domain.entity.File;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.teaming.TeamingServer.Domain.entity.Member;
+import com.teaming.TeamingServer.Repository.MemberRepository;
+import com.teaming.TeamingServer.common.BaseErrorResponse;
+import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AwsS3Service {
 
-    private final AmazonS3 amazonS3;
+    private final AmazonS3Client amazonS3Client;
+    private final MemberRepository memberRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public AwsS3 upload(MultipartFile multipartFile, String dirName) throws IOException {
-        File file = convertMultipartFileToFile(multipartFile)
-                .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File convert fail"));
+    @Transactional
+    public ResponseEntity upload(MultipartFile multipartFile, String key, Long memberId) throws IOException {
+        try {
+            Member member = memberRepository.findById(memberId).get();
 
-        return upload(file, dirName);
-    }
+            // https://teamingbucket.s3.ap-northeast-2.amazonaws.com/image/문상훈짤.jpeg
+            // 원래 있던 프로필 파일 S3 에서 삭제
+            // (1) https: | empty | teamingbucket.s3.ap-northeast-2.amazonaws.com | image | 파일 이름
+            if(member.getProfile_image() != null) {
+                String[] fileLink = member.getProfile_image().split("/");
+                String beforeFileKey = fileLink[3] + "/" + fileLink[4];
 
-    private AwsS3 upload(File file, String dirName) {
-        String key = randomFileName(file, dirName);
-        String path = putS3(file, key);
-        removeFile(file);
-
-        return AwsS3
-                .builder()
-                .key(key)
-                .path(path)
-                .build();
-    }
-
-    private String randomFileName(File file, String dirName) {
-        return dirName + "/" + UUID.randomUUID() + file.getName();
-    }
-
-    private String putS3(File uploadFile, String fileName) {
-        amazonS3.putObject(new PutObjectRequest(bucket, fileName, uploadFile)
-                .withCannedAcl(CannedAccessControlList.PublicRead));
-        return getS3(bucket, fileName);
-    }
-
-    private String getS3(String bucket, String fileName) {
-        return amazonS3.getUrl(bucket, fileName).toString();
-    }
-
-    private void removeFile(File file) {
-        file.delete();
-    }
-
-    public Optional<File> convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {
-        File file = new File(System.getProperty("user.dir") + "/"
-                            + multipartFile.getOriginalFilename());
-
-        if(file.createNewFile()) {
-            try(FileOutputStream fos = new FileOutputStream(file)) {
-                fos.write(multipartFile.getBytes());
+                deleteFile(bucket, beforeFileKey);
             }
-            return Optional.of(file);
+
+            // 파일 이름 받기
+            String fileName = multipartFile.getOriginalFilename();
+
+            // 파일 메타데이터 빼서, S3 에 저장할 수 있도록 세팅하기
+            ObjectMetadata metadata= new ObjectMetadata();
+            metadata.setContentType(multipartFile.getContentType());
+            metadata.setContentLength(multipartFile.getSize());
+
+            // S3 에 업로드
+            amazonS3Client.putObject(bucket,key + fileName , multipartFile.getInputStream(), metadata);
+
+            // S3 에 업로드한 파일 링크 생성하기
+            String fileUrl = generateS3Link(bucket, key + fileName);
+
+            // 업로드 된 프로필 이미지 Member DB 에 반영하기
+            // member 프로필 이미지 변경
+            member.updateProfileImage(fileUrl);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new BaseResponse<String>(HttpStatus.OK.value()
+                                                , "프로필 변경이 완료되었습니다.", fileUrl));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         }
-        return Optional.empty();
     }
 
-    public void remove(AwsS3 awsS3) {
-        if(!amazonS3.doesObjectExist(bucket, awsS3.getKey())) {
-            throw new AmazonS3Exception("Object " + awsS3.getKey() + " does not exist!");
-        }
+    // 원래 있던 파일 삭제
+    private void deleteFile(String bucket, String fileKey) throws Exception {
 
-        amazonS3.deleteObject(bucket, awsS3.getKey());
+        try {
+            amazonS3Client.deleteObject(bucket, fileKey);
+        } catch (Exception e) {
+            log.debug("Delete File failed", e);
+            throw new Exception("Delete File failed");
+        }
+    }
+
+    // UUID 파일명 반환
+    public String getUuidFileName(String fileName) {
+        String ext = fileName.substring(fileName.indexOf(".") + 1);
+        return UUID.randomUUID().toString() + "." + ext;
+    }
+
+    private String generateS3Link(String bucket, String key) {
+        //https://teamingbucket.s3.ap-northeast-2.amazonaws.com
+        return "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + key;
     }
 }

@@ -2,11 +2,16 @@ package com.teaming.TeamingServer.Controller;
 
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.TestDto;
+import com.teaming.TeamingServer.Domain.entity.AwsS3;
+import com.teaming.TeamingServer.Service.AwsS3Service;
 import com.teaming.TeamingServer.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Slf4j
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함 - ResponseBody 어노테이션도 포함하고 있음
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final AwsS3Service awsS3Service;
 
     @PostMapping("/member/{memberId}/change-password/check-password")
     public ResponseEntity checkCurrentPassword(@PathVariable("memberId") Long memberId
@@ -34,16 +40,20 @@ public class MemberController {
         return memberService.MemberMyPage(memberId);
     }
 
+    // 프로필 이미지 변경
+    @PatchMapping("/member/{memberId}/mypage/change-image")
+    public ResponseEntity upload(@RequestPart("file") MultipartFile multipartFile, @PathVariable Long memberId) throws IOException {
+        return awsS3Service.upload(multipartFile, "image/", memberId);
+    }
+//    @PatchMapping("/member/{memberId}/mypage/change-image")
+//    public ResponseEntity upload(@RequestPart("file") MultipartFile multipartFile, @PathVariable Long memberId) throws IOException {
+//        return memberService.changeProfileImage(memberId, mem)
+//    }
+
     @PatchMapping("/member/{memberId}/mypage/change-nickname")
     public ResponseEntity changeNickName(@PathVariable("memberId") Long memberId
                                          , @RequestBody MemberNicknameChangeRequestDto memberNicknameChangeRequestDto) {
         return memberService.changeNickName(memberId, memberNicknameChangeRequestDto);
-    }
-
-    @PatchMapping("/member/{memberId}/mypage/change-image")
-    public ResponseEntity changeProfileImage(@PathVariable("memberId") Long memberId
-                                             , @RequestBody MemberChangeProfileImageRequestDto memberChangeProfileImageRequestDto) {
-        return memberService.changeProfileImage(memberId, memberChangeProfileImageRequestDto);
     }
 
     @GetMapping("/member/{memberId}/home")
