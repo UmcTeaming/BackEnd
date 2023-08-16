@@ -76,27 +76,24 @@ public class MemberController {
         return ResponseEntity.ok("성공");
     }
 
-    // RequestBody와 PathVariable의 차이???????/
 
     // 프로젝트의 날짜별 스케줄 확인
-    @PostMapping ("/member/{memberId}/schedules?={schedule_start}")
-    public ResponseEntity scheduleByDate(
+    @PostMapping ("/member/{memberId}/schedules/{schedule_start}")
+    public ResponseEntity<BaseResponse<List<FilteredSchedules>>> scheduleByDate(
             @PathVariable("memberId") Long memberId,
-            @PathVariable("schedule_start") LocalDate schedule_start,
-            @RequestBody Long scheduleId) {
+            @PathVariable("schedule_start") LocalDate schedule_start) {
         try {
+
+            List<FilteredSchedules> filteredSchedules = scheduleService.findSchedules(memberId,schedule_start);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자의 일정", memberService.scheduleByDate(schedule_start, memberId, scheduleId)));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자의 일정", filteredSchedules));
         }
         catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
-
             return ResponseEntity
                     .status(e.getCode())
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
-
-
 }

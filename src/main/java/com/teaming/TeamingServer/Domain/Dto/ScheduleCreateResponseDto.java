@@ -2,16 +2,14 @@ package com.teaming.TeamingServer.Domain.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-@Data
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ScheduleList {
+public class ScheduleCreateResponseDto {
 
-    private List<FilteredSchedules> schedules;
+    private Long ScheduleId;
 }

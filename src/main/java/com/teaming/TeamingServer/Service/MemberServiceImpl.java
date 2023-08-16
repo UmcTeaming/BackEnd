@@ -13,7 +13,6 @@ import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -370,141 +369,89 @@ public class MemberServiceImpl implements MemberService {
             return a.getEnd_date().compareTo(b.getEnd_date());
         }
     }
-
-// 원래코드
-    @Override
-    @Transactional
-    public ResponseEntity<BaseResponse<ScheduleList>> scheduleByDate(LocalDate schedule_start, Long memberId, Long scheduleId) {
-        // 1. 멤버 아이디로 MemberSchedule 조회
-        Member member = memberRepository.findById(memberId).get();
-
-        // 2. 이 멤버가 가지고 있는 스케줄 정보를 얻는다.
-        List<MemberSchedule> memberSchedules = memberScheduleRepository.findByMember(member);
-
-        // 2. 멤버 아이디로 찾은 스케줄이 있는지 : 멤버가 가진 스케줄이 잇는지 확인
-        // 멤버랑 스케줄 연결해서 멤버한테 스케줄 있는지 확인해야하는데-멤버스케줄일까 스케줄일까
-
-
-//        Optional<MemberSchedule> haveSchedules = memberScheduleRepository.findBySchedule(schedule);
-
-        // 만약 멤버 아이디로 찾은 스케줄이 없다면 null 반환
-        if (memberSchedules.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "찾은 스케줄이 없습니다.", null));
-        }
-
-        // 시간 순 정렬도 해야하는거 아닐까....
-        // 3. 멤버 아이디로 가진 스케줄이 있다면, 스케줄 중에 start_date 에 해당하는 날짜가 있는지 확인
-        // (1) 스케줄을 찾아서 저장하는 과정이 필요
-        List<Schedule> schedules = new ArrayList<>();
-        for (int i = 0; i < memberSchedules.size(); i++) {
-            Schedule schedule = scheduleRepository.findById(memberSchedules.get(i).getSchedule().getSchedule_id()).get();
-            schedules.add(schedule);
-        }
-
-
-//        List<Schedule> schedules = new ArrayList<>();
-//        for (int i = 0; i < memberSchedules.size(); i++) {
-//            Schedule schedule = scheduleRepository.findById(scheduleId).get();
-//            Optional<MemberSchedule> haveSchedules = memberScheduleRepository.findBySchedule(schedule);
-//            schedules.add(schedule);
-//        }
-
-
-
-        //        for (int i = 0; i < memberProject.size(); i++) {
-//            Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
-//            // Status 가 END 인 것만
-//            if (project.getProject_status().equals(Status.END)) {
-//                projects.add(project);
-//            }
-//        }
-
-        List<Schedule> finalSchedules = new ArrayList<>();
-        for (int i = 0; i < memberSchedules.size(); i++) {
-            if (schedules.get(i).getSchedule_start().isEqual(schedule_start)) {
-                finalSchedules.add(schedules.get(i));
-            }
-        }
-
-//        scheduleRepository.save(finalSchedules);
-
-        List<SchedulesDate> schedulesDates = new ArrayList<>();
-        // (2) 저장했으니 보여준다
-        for (int i = 0; i < finalSchedules.size(); i++) {
-            Schedule schedule = finalSchedules.get(i);
-
-            SchedulesDate schedulesDate = SchedulesDate.builder()
-                    .schedule_name(schedules.get(i).getSchedule_name())
-                    .schedule_start(schedules.get(i).getSchedule_start())
-                    .schedule_start_time(schedules.get(i).getSchedule_start_time())
-                    .schedule_end(schedules.get(i).getSchedule_end())
-                    .schedule_end_time(schedules.get(i).getSchedule_end_time())
-                    .build();
-
-            schedulesDates.add(schedulesDate);
-        }
-
-        ScheduleList scheduleList = ScheduleList.builder()
-                .schedules(schedulesDates).build();
-        // 해당하는 날짜 리스트 만들어서 저장한다음에 보여줘야할듯?
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new BaseResponse<ScheduleList>(HttpStatus.OK.value(), "사용자의 당일 일정", scheduleList));
-    }
-
-
-//    // GPT가 봐준 코드
+//
+//// 원래코드
 //    @Override
 //    @Transactional
 //    public ResponseEntity<BaseResponse<ScheduleList>> scheduleByDate(LocalDate schedule_start, Long memberId, Long scheduleId) {
-//        Optional<Member> memberOptional = memberRepository.findById(memberId);
+//        // 1. 멤버 아이디로 MemberSchedule 조회
+//        Member member = memberRepository.findById(memberId).get();
 //
-//        if (memberOptional.isEmpty()) {
-//            return ResponseEntity
-//                    .status(HttpStatus.OK)
-//                    .body(new BaseResponse<>(HttpStatus.OK.value(), "멤버를 찾을 수 없습니다.", null));
-//        }
-//
-//        Member member = memberOptional.get();
+//        // 2. 이 멤버가 가지고 있는 스케줄 정보를 얻는다.
 //        List<MemberSchedule> memberSchedules = memberScheduleRepository.findByMember(member);
 //
+//        // 2. 멤버 아이디로 찾은 스케줄이 있는지 : 멤버가 가진 스케줄이 잇는지 확인
+//        // 멤버랑 스케줄 연결해서 멤버한테 스케줄 있는지 확인해야하는데-멤버스케줄일까 스케줄일까
+//
+//
+////        Optional<MemberSchedule> haveSchedules = memberScheduleRepository.findBySchedule(schedule);
+//
+//        // 만약 멤버 아이디로 찾은 스케줄이 없다면 null 반환
 //        if (memberSchedules.isEmpty()) {
 //            return ResponseEntity
 //                    .status(HttpStatus.OK)
 //                    .body(new BaseResponse<>(HttpStatus.OK.value(), "찾은 스케줄이 없습니다.", null));
 //        }
 //
-//        List<SchedulesDate> schedulesDates = new ArrayList<>();
-//        for (MemberSchedule memberSchedule : memberSchedules) {
-//            Schedule schedule = memberSchedule.getSchedule();
-//            if (schedule.getSchedule_start().isEqual(schedule_start)) {
-//                SchedulesDate schedulesDate = SchedulesDate.builder()
-//                        .schedule_name(schedule.getSchedule_name())
-//                        .schedule_start(schedule.getSchedule_start())
-//                        .schedule_start_time(schedule.getSchedule_start_time())
-//                        .schedule_end(schedule.getSchedule_end())
-//                        .schedule_end_time(schedule.getSchedule_end_time())
-//                        .build();
+//        // 시간 순 정렬도 해야하는거 아닐까....
+//        // 3. 멤버 아이디로 가진 스케줄이 있다면, 스케줄 중에 start_date 에 해당하는 날짜가 있는지 확인
+//        // (1) 스케줄을 찾아서 저장하는 과정이 필요
+//        List<Schedule> schedules = new ArrayList<>();
+//        for (int i = 0; i < memberSchedules.size(); i++) {
+//            Schedule schedule = scheduleRepository.findById(memberSchedules.get(i).getSchedule().getSchedule_id()).get();
+//            schedules.add(schedule);
+//        }
 //
-//                schedulesDates.add(schedulesDate);
+//
+////        List<Schedule> schedules = new ArrayList<>();
+////        for (int i = 0; i < memberSchedules.size(); i++) {
+////            Schedule schedule = scheduleRepository.findById(scheduleId).get();
+////            Optional<MemberSchedule> haveSchedules = memberScheduleRepository.findBySchedule(schedule);
+////            schedules.add(schedule);
+////        }
+//
+//
+//
+//        //        for (int i = 0; i < memberProject.size(); i++) {
+////            Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
+////            // Status 가 END 인 것만
+////            if (project.getProject_status().equals(Status.END)) {
+////                projects.add(project);
+////            }
+////        }
+//
+//        List<Schedule> finalSchedules = new ArrayList<>();
+//        for (int i = 0; i < memberSchedules.size(); i++) {
+//            if (schedules.get(i).getSchedule_start().isEqual(schedule_start)) {
+//                finalSchedules.add(schedules.get(i));
 //            }
 //        }
 //
-//        if (schedulesDates.isEmpty()) {
-//            return ResponseEntity
-//                    .status(HttpStatus.OK)
-//                    .body(new BaseResponse<>(HttpStatus.OK.value(), "해당 날짜의 스케줄이 없습니다.", null));
+////        scheduleRepository.save(finalSchedules);
+//
+//        List<FilteredSchedules> schedulesDates = new ArrayList<>();
+//        // (2) 저장했으니 보여준다
+//        for (int i = 0; i < finalSchedules.size(); i++) {
+//            Schedule schedule = finalSchedules.get(i);
+//
+//            FilteredSchedules schedulesDate = FilteredSchedules.builder()
+//                    .schedule_name(schedules.get(i).getSchedule_name())
+//                    .schedule_start(schedules.get(i).getSchedule_start())
+//                    .schedule_start_time(schedules.get(i).getSchedule_start_time())
+//                    .schedule_end(schedules.get(i).getSchedule_end())
+//                    .schedule_end_time(schedules.get(i).getSchedule_end_time())
+//                    .build();
+//
+//            schedulesDates.add(schedulesDate);
 //        }
 //
 //        ScheduleList scheduleList = ScheduleList.builder()
-//                .schedules(schedulesDates)
-//                .build();
-//
+//                .schedules(schedulesDates).build();
+//        // 해당하는 날짜 리스트 만들어서 저장한다음에 보여줘야할듯?
 //        return ResponseEntity
 //                .status(HttpStatus.OK)
-//                .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자의 당일 일정", scheduleList));
+//                .body(new BaseResponse<ScheduleList>(HttpStatus.OK.value(), "사용자의 당일 일정", scheduleList));
 //    }
+
 
 }

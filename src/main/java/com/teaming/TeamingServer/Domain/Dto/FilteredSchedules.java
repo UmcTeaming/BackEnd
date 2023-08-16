@@ -12,10 +12,13 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SchedulesDate {
+public class FilteredSchedules {
+
     private String schedule_name;
     private LocalDate schedule_start;
     private LocalTime schedule_start_time;
     private LocalDate schedule_end;
     private LocalTime schedule_end_time;
+    private String project_color;
+
 }

@@ -27,16 +27,16 @@ public class ProjectController {
 
     // 스케줄 추가
     @PostMapping("/{memberId}/{projectId}/schedule")
-    public ResponseEntity<BaseResponse> makeSchedule(
+    public ResponseEntity<BaseResponse<ScheduleCreateResponseDto>> makeSchedule(
             @RequestBody ScheduleEnrollRequestDto scheduleEnrollRequestDto,
             @PathVariable("memberId") Long memberId,
             @PathVariable("projectId") Long projectId) {
         try {
-            scheduleService.generateSchedule(memberId, projectId, scheduleEnrollRequestDto);
+          ScheduleCreateResponseDto scheduleCreateResponseDto =   scheduleService.generateSchedule(memberId, projectId, scheduleEnrollRequestDto);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "일정이 추가되었습니다.:)", null));
+                    .body(new BaseResponse<>(HttpStatus.OK.value(), "일정이 추가되었습니다.:)", scheduleCreateResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
@@ -46,7 +46,7 @@ public class ProjectController {
         }
     }
 
-    // 프로젝트의 스케줄 확인
+    // 프로젝트의 전체 스케쥴 확인
     @GetMapping("/{memberId}/{projectId}/schedule")
     public ResponseEntity<BaseResponse<List<ScheduleResponseDto>>> searchSchedules(
             @PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId) {
