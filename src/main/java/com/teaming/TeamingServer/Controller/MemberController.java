@@ -78,13 +78,13 @@ public class MemberController {
 
 
     // 프로젝트의 날짜별 스케줄 확인
-    @PostMapping ("/member/{memberId}/schedules/{schedule_start}")
+    @PostMapping ("/member/{memberId}/schedule_start")
     public ResponseEntity<BaseResponse<List<FilteredSchedules>>> scheduleByDate(
             @PathVariable("memberId") Long memberId,
-            @PathVariable("schedule_start") LocalDate schedule_start) {
+            @RequestBody FilteringScheduleRequestDto filteringScheduleRequestDto) {
         try {
 
-            List<FilteredSchedules> filteredSchedules = scheduleService.findSchedules(memberId,schedule_start);
+            List<FilteredSchedules> filteredSchedules = scheduleService.findSchedules(memberId,filteringScheduleRequestDto);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자의 일정", filteredSchedules));
