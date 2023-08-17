@@ -61,7 +61,7 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 );
         http
-                .headers((header) -> header.addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "Content-Disposition")));
+                .headers((header) -> header.addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "ContentDisposition")));
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
