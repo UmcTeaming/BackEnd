@@ -51,7 +51,7 @@ public class FileService {
 
         // 파일에 해당하는 코멘트들을 조회합니다.
         List<CommentResponseDto> result = file.getComments().stream()
-                .map(comment -> new CommentResponseDto(comment.getWriter(), comment.getContent(), comment.getCreatedAt(), comment.getMember().getProfile_image()))
+                .map(comment -> new CommentResponseDto(comment.getComment_id(),comment.getWriter(), comment.getContent(), comment.getCreatedAt(), comment.getMember().getProfile_image()))
                 .collect(Collectors.toList());
 
         if (result.isEmpty()) {
