@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MemberLoginResponse {
     private String name;
-    private Long memberId;
     private JwtToken jwtToken;
 }
