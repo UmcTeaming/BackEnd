@@ -48,18 +48,17 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
 
-        JwtToken token;
+        ResponseEntity response;
 
         try {
-            token = authService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
+            response = authService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
         }
         catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new BaseErrorResponse(HttpStatus.FORBIDDEN.value(), "잘못된 email 혹은 password 입니다."));
         }
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "로그인 성공", token));
+        return response;
     }
 
     // 비밀번호 재설정

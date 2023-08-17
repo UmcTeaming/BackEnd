@@ -14,7 +14,7 @@ public interface AuthService {
 
     ResponseEntity verificationEmail(MemberVerificationEmailRequestDto memberVerificationEmailRequestDto);
 
-    JwtToken login(String email, String password);
+    ResponseEntity login(String email, String password);
 
     ResponseEntity resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception;
 }
