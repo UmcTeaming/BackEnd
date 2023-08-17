@@ -2,10 +2,7 @@ package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
-import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberResetPasswordRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberSignUpEmailDuplicationRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.MemberVerificationEmailRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
@@ -101,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional(readOnly = true)
     @Override
-    public JwtToken login(String email, String password) {
+    public ResponseEntity login(String email, String password) {
 
         // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
         Member findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
@@ -116,12 +113,15 @@ public class AuthServiceImpl implements AuthService {
 
         // 검증된 인증 정보로 JWT 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
+        token.setMemberId(memberId);
 
-        return JwtToken.builder()
-                .grantType(token.getGrantType())
-                .accessToken(token.getAccessToken())
-                .memberId(memberId)
-                .build();
+        // Login Response 생성
+        MemberLoginResponse memberLoginResponse = MemberLoginResponse.builder()
+                .name(findMember.getName())
+                .jwtToken(token).build();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<MemberLoginResponse>(HttpStatus.OK.value(), "로그인 성공", memberLoginResponse));
     }
 
     @Transactional

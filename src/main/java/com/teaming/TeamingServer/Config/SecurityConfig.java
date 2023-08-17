@@ -60,8 +60,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.PATCH, possibleAccess).permitAll()
                                 .anyRequest().authenticated()
                 );
-        http
-                .headers((header) -> header.addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "Content-Disposition")));
+//        http
+//                .headers((header) -> header.addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "ContentDisposition")));
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
