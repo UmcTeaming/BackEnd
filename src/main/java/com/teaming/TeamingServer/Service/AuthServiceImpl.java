@@ -117,6 +117,7 @@ public class AuthServiceImpl implements AuthService {
         // Login Response 생성
         MemberLoginResponse memberLoginResponse = MemberLoginResponse.builder()
                 .name(findMember.getName())
+                .memberId(memberId)
                 .jwtToken(token).build();
 
         return ResponseEntity.status(HttpStatus.OK)
