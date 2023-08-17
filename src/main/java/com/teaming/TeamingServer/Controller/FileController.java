@@ -107,8 +107,7 @@ public class FileController {
         );
 
         String storeFileName = file.getFileName();
-        org.springframework.http.HttpHeaders headers =
-                new org.springframework.http.HttpHeaders();
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
 
         try {
             headers.add("Content-Disposition",
@@ -116,6 +115,7 @@ public class FileController {
                             new String(storeFileName.getBytes("UTF-8"), "ISO-8859-1"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            throw new BaseException(HttpStatus.NO_CONTENT.value(), e.getMessage());
         }
 
         UrlResource resource = new UrlResource("file:" +

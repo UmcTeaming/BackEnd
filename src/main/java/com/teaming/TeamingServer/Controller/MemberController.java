@@ -51,6 +51,9 @@ public class MemberController {
     // 프로필 이미지 변경
     @PatchMapping("/member/{memberId}/mypage/change-image")
     public ResponseEntity changeProfileImage(@RequestPart("change_image_file") MultipartFile multipartFile, @PathVariable Long memberId) throws IOException {
+        if(multipartFile.isEmpty()) {
+            multipartFile = null;
+        }
         return awsS3Service.profileImageUpload(multipartFile, "image/", memberId);
     }
 
