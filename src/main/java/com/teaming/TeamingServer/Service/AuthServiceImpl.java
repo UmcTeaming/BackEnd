@@ -113,11 +113,11 @@ public class AuthServiceImpl implements AuthService {
 
         // 검증된 인증 정보로 JWT 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
+        token.setMemberId(memberId);
 
         // Login Response 생성
         MemberLoginResponse memberLoginResponse = MemberLoginResponse.builder()
                 .name(findMember.getName())
-                .memberId(memberId)
                 .jwtToken(token).build();
 
         return ResponseEntity.status(HttpStatus.OK)
