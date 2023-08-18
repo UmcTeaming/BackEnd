@@ -14,7 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -119,13 +121,14 @@ public class ScheduleService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
-        List<LocalDate> datesInRequestedMonth = member.getMemberSchedules().stream()
+        Set<LocalDate> uniqueDatesInRequestedMonth = member.getMemberSchedules().stream()
                 .map(MemberSchedule::getSchedule)
                 .flatMap(schedule -> getDateRange(schedule.getSchedule_start(), schedule.getSchedule_end()))
                 .filter(date -> isDateInRequestMonth(date, monthlyRequestDto.getDate_request()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet()); // 중복을 제거하기 위해 Set으로 수집
 
-        List<MonthlyResponseDto> monthlyResponseDtos = datesInRequestedMonth.stream()
+        List<MonthlyResponseDto> monthlyResponseDtos = uniqueDatesInRequestedMonth.stream()
+                .sorted()
                 .map(date -> MonthlyResponseDto.builder().date_list(date).build())
                 .collect(Collectors.toList());
 
