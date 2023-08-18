@@ -85,14 +85,29 @@ public class ScheduleService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_MODIFIED.value(), "Member not found"));
 
+//        List<Schedule> schedules = member.getMemberSchedules().stream()
+//                .map(MemberSchedule::getSchedule)
+//                .filter(schedule -> schedule.getSchedule_start().equals(filteringScheduleRequestDto.getSchedule_start()))
+//                .collect(Collectors.toList());
+//
+//        return schedules.stream()
+//                .map(this::mapToFilteredSchedules)
+//                .collect(Collectors.toList());
+
+        LocalDate targetDate = filteringScheduleRequestDto.getSchedule_start();
+
         List<Schedule> schedules = member.getMemberSchedules().stream()
                 .map(MemberSchedule::getSchedule)
-                .filter(schedule -> schedule.getSchedule_start().equals(filteringScheduleRequestDto.getSchedule_start()))
+                .filter(schedule -> isDateWithinRange(targetDate, schedule.getSchedule_start(), schedule.getSchedule_end()))
                 .collect(Collectors.toList());
 
         return schedules.stream()
                 .map(this::mapToFilteredSchedules)
                 .collect(Collectors.toList());
+    }
+
+    private boolean isDateWithinRange(LocalDate targetDate, LocalDate startDate, LocalDate endDate) {
+        return !targetDate.isBefore(startDate) && !targetDate.isAfter(endDate);
     }
 
     // Schedule을 FilteredSchedules로 매핑
