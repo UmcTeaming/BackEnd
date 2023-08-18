@@ -182,40 +182,41 @@ public class ProjectService {
         List<Member> findMember = memberRepository.findByEmail(email);
 
         if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "회원이 아닌 초대자 입니다."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new BaseErrorResponse(HttpStatus.NOT_FOUND.value(), "회원이 아닌 초대자 입니다."));
         }
 
         // 프로젝트가 존재하는지 조회
         Optional<Project> project = projectRepository.findById(projectId);
 
         if(project.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 프로젝트 입니다."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new BaseErrorResponse(HttpStatus.NOT_FOUND.value(), "존재하지 않는 프로젝트 입니다."));
         }
 
 
         // 프로젝트로 저장 전에 이미 이 프로젝트에 참여 중인지 확인
         List<MemberProject> resultMemberProject = memberProjectRepository.findByProject(project.stream().findFirst().get());
 
-        if(resultMemberProject.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "프로젝트 참여자가 없습니다."));
-        }
-
-        for(int i = 0; i<resultMemberProject.size(); i++) {
-            if(resultMemberProject.get(i).getMember().equals(findMember.stream().findFirst().get())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "이미 참여 중인 초대자입니다."));
+        //  프로젝트에 참여 중인 멤버가 없지 않다면, 프로젝트에 이미 속한 초대자가 아닌지 확인
+        if(!resultMemberProject.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "프로젝트 참여자가 없습니다."));
+            for(int i = 0; i<resultMemberProject.size(); i++) {
+                if(resultMemberProject.get(i).getMember().equals(findMember.stream().findFirst().get())) {
+                    return ResponseEntity.status(HttpStatus.ALREADY_REPORTED)
+                            .body(new BaseErrorResponse(HttpStatus.ALREADY_REPORTED.value(), "이미 참여 중인 초대자입니다."));
+                }
             }
         }
 
+        // Member 초대 - MemberProject 에 찾은 멤버 추가하기
         MemberProject memberProject = MemberProject.builder()
                 .member(findMember.stream().findFirst().get())
                 .project(project.stream().findFirst().get())
                 .build();
 
-        memberProjectRepository.save(memberProject); // 프로젝트에 참여하는 member 로 저장
+        memberProjectRepository.save(memberProject); // 프로젝트에 참여하는 member 로 매핑 후 저장
 
         List<InviteMember> inviteMembers = new ArrayList<>();
         resultMemberProject = memberProjectRepository.findByProject(project.stream().findFirst().get());
