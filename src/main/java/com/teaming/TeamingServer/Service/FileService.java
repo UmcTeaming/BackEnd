@@ -176,6 +176,7 @@ public class FileService {
                 .orElseThrow(() -> new BaseException(404, "File not found"));
 
         SingleFileResponseDto information = new SingleFileResponseDto(
+                file.getProject().getProject_name(),
                 file.getFile_type(),
                 file.getFileName(),
                 file.getMember().getName(),
