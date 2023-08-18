@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -127,6 +128,7 @@ public class ScheduleService {
                 .collect(Collectors.toSet()); // 중복을 제거하기 위해 Set으로 수집
 
         List<MonthlyResponseDto> monthlyResponseDtos = uniqueDatesInRequestedMonth.stream()
+                .sorted()
                 .map(date -> MonthlyResponseDto.builder().date_list(date).build())
                 .collect(Collectors.toList());
 
