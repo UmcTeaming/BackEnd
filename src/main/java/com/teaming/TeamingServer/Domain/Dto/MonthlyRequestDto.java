@@ -1,9 +1,6 @@
 package com.teaming.TeamingServer.Domain.Dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -11,6 +8,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Getter
+@Data
 public class MonthlyRequestDto {
 
     private LocalDate date_request;
