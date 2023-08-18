@@ -110,11 +110,11 @@ public class MemberController {
     @PostMapping("/member/{memberId}/date_list")
     public ResponseEntity<BaseResponse<List<MonthlyResponseDto>>> searchDateList(@PathVariable("memberId") Long memberId, @RequestBody MonthlyRequestDto monthlyRequestDto) {
 
-        List<MonthlyResponseDto> monthlyRequestDtos = scheduleService.getDateList(memberId, monthlyRequestDto);
+        List<MonthlyResponseDto> monthlyResponseDtos = scheduleService.getDateList(memberId, monthlyRequestDto);
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse(HttpStatus.OK.value(), "날짜 리스트를 가져왔습니다", monthlyRequestDtos));
+                    .body(new BaseResponse(HttpStatus.OK.value(), "날짜 리스트를 가져왔습니다", monthlyResponseDtos));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
