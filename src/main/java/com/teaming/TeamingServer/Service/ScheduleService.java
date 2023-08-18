@@ -85,15 +85,6 @@ public class ScheduleService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_MODIFIED.value(), "Member not found"));
 
-//        List<Schedule> schedules = member.getMemberSchedules().stream()
-//                .map(MemberSchedule::getSchedule)
-//                .filter(schedule -> schedule.getSchedule_start().equals(filteringScheduleRequestDto.getSchedule_start()))
-//                .collect(Collectors.toList());
-//
-//        return schedules.stream()
-//                .map(this::mapToFilteredSchedules)
-//                .collect(Collectors.toList());
-
         LocalDate targetDate = filteringScheduleRequestDto.getSchedule_start();
 
         List<Schedule> schedules = member.getMemberSchedules().stream()
@@ -120,6 +111,30 @@ public class ScheduleService {
                 .schedule_end_time(schedule.getSchedule_end_time())
                 .project_color(schedule.getProject().getProject_color())
                 .build();
+    }
+
+    // 월별 날짜 리스트 조회
+
+    public List<MonthlyResponseDto> getDateList(Long memberId, MonthlyRequestDto monthlyRequestDto){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_MODIFIED.value(), "Member not found"));
+
+       List<LocalDate> datesInRequestedMonth = member.getMemberSchedules().stream()
+               .map(MemberSchedule::getSchedule)
+               .filter(schedule -> isDateInRequestMonth(schedule.getSchedule_start(),monthlyRequestDto.getDate_request()))
+               .map(Schedule::getSchedule_start)
+               .collect(Collectors.toList());
+
+       List<MonthlyResponseDto> monthlyResponseDtos = datesInRequestedMonth.stream()
+               .map(date -> MonthlyResponseDto.builder().date_list(date).build())
+               .collect(Collectors.toList());
+
+       return monthlyResponseDtos;
+    }
+
+    private boolean isDateInRequestMonth(LocalDate dateToCheck, LocalDate requestedMonth){
+        return dateToCheck.getMonthValue() == requestedMonth.getMonthValue()
+                && dateToCheck.getYear() == requestedMonth.getYear();
     }
 }
 

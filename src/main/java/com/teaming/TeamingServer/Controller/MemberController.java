@@ -105,4 +105,21 @@ public class MemberController {
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
+    // 프로젝트의 월별 날짜 리스트 반환
+    @PostMapping("/member/{memberId}/date_list")
+    public ResponseEntity<BaseResponse<List<MonthlyResponseDto>>> searchDateList(@PathVariable("memberId") Long memberId, @RequestBody MonthlyRequestDto monthlyRequestDto) {
+
+        List<MonthlyResponseDto> monthlyRequestDtos = scheduleService.getDateList(memberId, monthlyRequestDto);
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse(HttpStatus.OK.value(), "날짜 리스트를 가져왔습니다", monthlyRequestDtos));
+        } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
 }
