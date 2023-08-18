@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.logging.Filter;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -115,26 +115,30 @@ public class ScheduleService {
 
     // 월별 날짜 리스트 조회
 
-    public List<MonthlyResponseDto> getDateList(Long memberId, MonthlyRequestDto monthlyRequestDto){
+    public List<MonthlyResponseDto> getDateList(Long memberId, MonthlyRequestDto monthlyRequestDto) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(HttpStatus.NOT_MODIFIED.value(), "Member not found"));
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
-       List<LocalDate> datesInRequestedMonth = member.getMemberSchedules().stream()
-               .map(MemberSchedule::getSchedule)
-               .filter(schedule -> isDateInRequestMonth(schedule.getSchedule_start(),monthlyRequestDto.getDate_request()))
-               .map(Schedule::getSchedule_start)
-               .collect(Collectors.toList());
+        List<LocalDate> datesInRequestedMonth = member.getMemberSchedules().stream()
+                .map(MemberSchedule::getSchedule)
+                .flatMap(schedule -> getDateRange(schedule.getSchedule_start(), schedule.getSchedule_end()))
+                .filter(date -> isDateInRequestMonth(date, monthlyRequestDto.getDate_request()))
+                .collect(Collectors.toList());
 
-       List<MonthlyResponseDto> monthlyResponseDtos = datesInRequestedMonth.stream()
-               .map(date -> MonthlyResponseDto.builder().date_list(date).build())
-               .collect(Collectors.toList());
+        List<MonthlyResponseDto> monthlyResponseDtos = datesInRequestedMonth.stream()
+                .map(date -> MonthlyResponseDto.builder().date_list(date).build())
+                .collect(Collectors.toList());
 
-       return monthlyResponseDtos;
+        return monthlyResponseDtos;
     }
 
-    private boolean isDateInRequestMonth(LocalDate dateToCheck, LocalDate requestedMonth){
+    private boolean isDateInRequestMonth(LocalDate dateToCheck, LocalDate requestedMonth) {
         return dateToCheck.getMonthValue() == requestedMonth.getMonthValue()
                 && dateToCheck.getYear() == requestedMonth.getYear();
+    }
+
+    private Stream<LocalDate> getDateRange(LocalDate startDate, LocalDate endDate) {
+        return startDate.datesUntil(endDate.plusDays(1)); // 끝 날짜도 포함시키기 위해 plusDays(1) 사용
     }
 }
 
