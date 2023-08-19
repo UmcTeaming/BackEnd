@@ -21,6 +21,7 @@ public class ProjectResponseDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private Status projectStatus;
+    private String projectColor;
     private List<MemberListDto> memberListDtos;
    // private List<PeojectScheduleResponsetDto> schedules;
 }

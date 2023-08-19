@@ -268,6 +268,7 @@ public class ProjectService {
                 .startDate(project.getStart_date())
                 .endDate(project.getEnd_date())
                 .projectStatus(project.getProject_status())
+                .projectColor(project.getProject_color())
                 .memberListDtos(memberListDtos)
                 .build();
 
