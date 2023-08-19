@@ -35,6 +35,7 @@ public class FileController {
     private final FileRepository fileRepository;
     private final ProjectService projectService;
 
+
     //코멘트 생성
     @PostMapping("/{memberId}/{fileId}/comments")
     public ResponseEntity<BaseResponse<CommentEnrollResponseDto>> makeComment(
@@ -99,7 +100,9 @@ public class FileController {
 
     // 파일 다운로드
     @GetMapping(value = "/{memberId}/{projectId}/files/{fileId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @CrossOrigin(origins = "http://localhost:3000", exposedHeaders = "Content-Disposition")
+    @CrossOrigin(origins = {"http://localhost:3000", "https://localhost:3000"
+                , "https://teaming-roan.vercel.app", "http://teaming-roan.vercel.app"}
+                , exposedHeaders = "Content-Disposition")
     public ResponseEntity<Resource> downloadAttach(@PathVariable("fileId") Long fileId)
             throws MalformedURLException {
 
