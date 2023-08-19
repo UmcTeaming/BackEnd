@@ -86,8 +86,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public ResponseEntity verificationEmail(MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
-        if(checkCode(memberVerificationEmailRequestDto.getAuthentication(), emailCode)) {
+    public ResponseEntity verificationEmail(String inputCode) {
+        if(checkCode(inputCode, emailCode)) {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자 이메일 인증 성공"));
         }
