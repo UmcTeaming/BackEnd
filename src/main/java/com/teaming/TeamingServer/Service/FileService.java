@@ -71,7 +71,8 @@ public class FileService {
 
 
         // 파일 정보 저장
-        String sourceFileName = file.getOriginalFilename();
+       // String sourceFileName = "projectId" + projectId + "-" +file.getOriginalFilename();
+        String sourceFileName = "projectId" + projectId + "-" + file.getOriginalFilename();
         if (StringUtils.isEmpty(sourceFileName)) {
             throw new BaseException(400, "File name is not valid");
         }
@@ -94,7 +95,8 @@ public class FileService {
 
         // 파일 저장
         try {
-            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            //String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            String fileName = StringUtils.cleanPath(sourceFileName);
             Path filePath = Paths.get(fileDir, fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
@@ -136,9 +138,16 @@ public class FileService {
                 .filter(file -> !file.getFile_status()) // file_status가 false인 파일들만 고려
                 .forEach(file -> {
                     int commentCount = file.getComments().size();
+
+                    String fileName = file.getFileName();
+                    int hyphenIndex = fileName.indexOf("-");
+                    if (hyphenIndex != -1) {
+                        fileName = fileName.substring(hyphenIndex + 1);
+                    }
+
                     FileDetailResponseDto fileDetailResponseDto = new FileDetailResponseDto(
                             file.getFile_type(),
-                            file.getFileName(),
+                            fileName,
                             file.getFileUrl(),
                             commentCount,
                             file.getFile_id()
