@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class SingleFileResponseDto {
 
+    private String project_name;
     private String file_type;
     private String file_name;
     private String uploader;

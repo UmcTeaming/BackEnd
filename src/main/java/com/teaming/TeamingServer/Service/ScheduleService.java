@@ -14,9 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Filter;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -85,14 +87,20 @@ public class ScheduleService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_MODIFIED.value(), "Member not found"));
 
+        LocalDate targetDate = filteringScheduleRequestDto.getSchedule_start();
+
         List<Schedule> schedules = member.getMemberSchedules().stream()
                 .map(MemberSchedule::getSchedule)
-                .filter(schedule -> schedule.getSchedule_start().equals(filteringScheduleRequestDto.getSchedule_start()))
+                .filter(schedule -> isDateWithinRange(targetDate, schedule.getSchedule_start(), schedule.getSchedule_end()))
                 .collect(Collectors.toList());
 
         return schedules.stream()
                 .map(this::mapToFilteredSchedules)
                 .collect(Collectors.toList());
+    }
+
+    private boolean isDateWithinRange(LocalDate targetDate, LocalDate startDate, LocalDate endDate) {
+        return !targetDate.isBefore(startDate) && !targetDate.isAfter(endDate);
     }
 
     // Schedule을 FilteredSchedules로 매핑
@@ -105,6 +113,35 @@ public class ScheduleService {
                 .schedule_end_time(schedule.getSchedule_end_time())
                 .project_color(schedule.getProject().getProject_color())
                 .build();
+    }
+
+    // 월별 날짜 리스트 조회
+
+    public List<MonthlyResponseDto> getDateList(Long memberId, MonthlyRequestDto monthlyRequestDto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
+
+        Set<LocalDate> uniqueDatesInRequestedMonth = member.getMemberSchedules().stream()
+                .map(MemberSchedule::getSchedule)
+                .flatMap(schedule -> getDateRange(schedule.getSchedule_start(), schedule.getSchedule_end()))
+                .filter(date -> isDateInRequestMonth(date, monthlyRequestDto.getDate_request()))
+                .collect(Collectors.toSet()); // 중복을 제거하기 위해 Set으로 수집
+
+        List<MonthlyResponseDto> monthlyResponseDtos = uniqueDatesInRequestedMonth.stream()
+                .sorted()
+                .map(date -> MonthlyResponseDto.builder().date_list(date).build())
+                .collect(Collectors.toList());
+
+        return monthlyResponseDtos;
+    }
+
+    private boolean isDateInRequestMonth(LocalDate dateToCheck, LocalDate requestedMonth) {
+        return dateToCheck.getMonthValue() == requestedMonth.getMonthValue()
+                && dateToCheck.getYear() == requestedMonth.getYear();
+    }
+
+    private Stream<LocalDate> getDateRange(LocalDate startDate, LocalDate endDate) {
+        return startDate.datesUntil(endDate.plusDays(1)); // 끝 날짜도 포함시키기 위해 plusDays(1) 사용
     }
 }
 
