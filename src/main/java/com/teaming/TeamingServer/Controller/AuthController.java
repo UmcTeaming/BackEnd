@@ -41,7 +41,7 @@ public class AuthController {
     // 이메일 인증
     @PostMapping("/auth/email-verification")
     public ResponseEntity verificationEmail(@RequestBody MemberVerificationEmailRequestDto memberVerificationEmailRequestDto) {
-        return authService.verificationEmail(memberVerificationEmailRequestDto);
+        return authService.verificationEmail(memberVerificationEmailRequestDto.getAuthentication());
     }
 
     // 로그인

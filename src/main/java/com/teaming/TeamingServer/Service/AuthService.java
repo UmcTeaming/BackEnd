@@ -12,7 +12,7 @@ public interface AuthService {
 
     ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception;
 
-    ResponseEntity verificationEmail(MemberVerificationEmailRequestDto memberVerificationEmailRequestDto);
+    ResponseEntity verificationEmail(String inputCode);
 
     ResponseEntity login(String email, String password);
 
