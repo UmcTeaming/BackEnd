@@ -101,7 +101,7 @@ public class FileController {
     // 파일 다운로드
     @GetMapping(value = "/{memberId}/{projectId}/files/{fileId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @CrossOrigin(origins = {"http://localhost:3000", "https://localhost:3000"
-                , "https://teaming-roan.vercel.app", "http://teaming-roan.vercel.app"}
+                , "https://teaming-six.vercel.app/", "http://teaming-six.vercel.app/"}
                 , exposedHeaders = "Content-Disposition")
     public ResponseEntity<Resource> downloadAttach(@PathVariable("fileId") Long fileId)
             throws MalformedURLException {
