@@ -74,6 +74,11 @@ public class Project extends Time {
         return this;
     }
 
+    public Project updateEndDate(LocalDate endDate) {
+        this.end_date = endDate;
+        return this;
+    }
+
     public Project updateProfile(String profile_image) {
         this.project_image = profile_image;
 
