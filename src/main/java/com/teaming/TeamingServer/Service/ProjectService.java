@@ -169,8 +169,17 @@ public class ProjectService {
 
         Project result = project.updateStatus(projectStatusRequestDto.getProject_status());
 
+        // 마감 버튼 누른 당일로 endDate 변경
+        LocalDate endDate = LocalDate.now();
+
+        result = result.updateEndDate(endDate);
+
+        ProjectStatusResponse projectStatusResponse = ProjectStatusResponse
+                .builder().startDate(result.getStart_date())
+                .endDate(result.getEnd_date()).build();
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse(HttpStatus.OK.value(), "프로젝트가 종료되었습니다."));
+                .body(new BaseResponse<ProjectStatusResponse>(HttpStatus.OK.value(), "프로젝트가 종료되었습니다.", projectStatusResponse));
 
     }
 
