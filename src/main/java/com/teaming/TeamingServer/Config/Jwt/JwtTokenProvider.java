@@ -115,12 +115,12 @@ public class JwtTokenProvider {
         String[] parts = requestURI.split("/");
 
         // /auth ~ 기능들인지 확인
-        if(parts[1].equals("auth")) {
+        if(checkApiURL(parts)) {
             return;
 //            throw new BaseException(HttpStatus.FORBIDDEN.value(), "auth 에 속한 기능들은 authorization 이 필요하지 않습니다.");
         }
 
-        Long memberId = Long.parseLong(parts[2]);
+        Long memberId = getMemberId(parts);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.FORBIDDEN.value(), "유효하지 않은 회원 ID"));
@@ -128,6 +128,23 @@ public class JwtTokenProvider {
         if(!tokenEmail.equals(member.getEmail())) {
             throw new BaseException(HttpStatus.FORBIDDEN.value(), "유효하지 않은 AccessToken");
         }
+    }
+
+    // api/~ 이렇게 요청이 들어오면 parts[2] 를 검사
+    // auth/~ 이렇게 요청이 들어오면 parts[1] 을 검사
+    private boolean checkApiURL(String[] parts) {
+        if(parts[1].equals("api")) {
+            return parts[2].equals("auth");
+        }
+        return parts[1].equals("auth");
+    }
+
+    private Long getMemberId(String[] parts) {
+        if(parts[1].equals("api")) {
+            return Long.parseLong(parts[3]);
+        }
+
+        return Long.parseLong(parts[2]);
     }
 
     private Claims parseClaims(String accessToken) {
