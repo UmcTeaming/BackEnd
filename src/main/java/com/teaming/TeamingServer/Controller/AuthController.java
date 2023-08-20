@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController // 해당 클래스가 컨트롤러임을 알리고 bean으로 등록하기 위함 - ResponseBody 어노테이션도 포함하고 있음
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class AuthController {
 
     private final AuthService authService;
