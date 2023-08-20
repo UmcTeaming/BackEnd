@@ -19,7 +19,7 @@ public class AuthController {
     private final AuthService authService;
 
     // 회원가입
-    @PostMapping("/api/auth/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity signup(@RequestBody MemberRequestDto memberRequestDto) {
         ResponseEntity response = null;
         try {
