@@ -32,7 +32,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class FileService {
+public class
+FileService {
 
 
     private final FileRepository fileRepository;
@@ -71,7 +72,7 @@ public class FileService {
 
 
         // 파일 정보 저장
-        String sourceFileName = file.getOriginalFilename();
+        String sourceFileName = "projectId-" + projectId + file.getOriginalFilename();
         if (StringUtils.isEmpty(sourceFileName)) {
             throw new BaseException(400, "File name is not valid");
         }
