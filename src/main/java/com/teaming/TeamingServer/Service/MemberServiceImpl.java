@@ -193,6 +193,7 @@ public class MemberServiceImpl implements MemberService {
         if(memberProject.isEmpty()) {
             PortfolioPageResponseDto portfolioPageResponseDto = PortfolioPageResponseDto.builder()
                     .member_id(memberId)
+                    .member_name(member.getName())
                     .portfolio(null).build();
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new BaseResponse<PortfolioPageResponseDto>(HttpStatus.OK.value(), portfolioPageResponseDto));
@@ -225,6 +226,7 @@ public class MemberServiceImpl implements MemberService {
         if(memberProject.isEmpty()) {
             ProgressProjectsPageResponseDto progressProjectsPageResponseDto = ProgressProjectsPageResponseDto.builder()
                     .member_id(memberId)
+                    .member_name(member.getName())
                     .progressProjects(null).build();
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new BaseResponse<ProgressProjectsPageResponseDto>(HttpStatus.OK.value(), progressProjectsPageResponseDto));
