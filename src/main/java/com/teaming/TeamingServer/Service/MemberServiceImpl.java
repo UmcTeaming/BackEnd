@@ -204,6 +204,7 @@ public class MemberServiceImpl implements MemberService {
         // 최종 포트폴리오 페이지 넘기기
         PortfolioPageResponseDto portfolioPageResponseDto = PortfolioPageResponseDto.builder()
                 .member_id(memberId)
+                .member_name(member.getName())
                 .portfolio(portfolios).build();
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -235,6 +236,7 @@ public class MemberServiceImpl implements MemberService {
         // 최종 포트폴리오 페이지 넘기기
         ProgressProjectsPageResponseDto progressProjectsPageResponseDto = ProgressProjectsPageResponseDto.builder()
                 .member_id(memberId)
+                .member_name(member.getName())
                 .progressProjects(progressProjects).build();
 
         return ResponseEntity.status(HttpStatus.OK)

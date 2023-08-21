@@ -14,5 +14,6 @@ import java.util.List;
 @Getter
 public class ProgressProjectsPageResponseDto {
     private Long member_id;
+    private String member_name;
     private List<ProgressProject> progressProjects;
 }
