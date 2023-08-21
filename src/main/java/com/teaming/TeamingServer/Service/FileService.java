@@ -184,10 +184,16 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new BaseException(404, "File not found"));
 
+        String fileName = file.getFileName();
+        int hyphenIndex = fileName.indexOf("-");
+        if (hyphenIndex != -1) {
+            fileName = fileName.substring(hyphenIndex + 1);
+        }
+
         SingleFileResponseDto information = new SingleFileResponseDto(
                 file.getProject().getProject_name(),
                 file.getFile_type(),
-                file.getFileName(),
+                fileName,
                 file.getMember().getName(),
                 file.getCreatedAt().toLocalDate()
         );
@@ -210,9 +216,14 @@ public class FileService {
                 .filter(file -> file.getFile_status()) // file_status가 true인 파일들만 고려
                 .forEach(file -> {
                     int commentCount = file.getComments().size();
+                    String fileName = file.getFileName();
+                    int hyphenIndex = fileName.indexOf("-");
+                    if (hyphenIndex != -1) {
+                        fileName = fileName.substring(hyphenIndex + 1);
+                    }
                     FileDetailResponseDto fileDetailResponseDto = new FileDetailResponseDto(
                             file.getFile_type(),
-                            file.getFileName(),
+                            fileName,
                             file.getFileUrl(),
                             commentCount,
                             file.getFile_id()
