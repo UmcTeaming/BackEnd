@@ -14,5 +14,6 @@ import java.util.List;
 @Builder
 public class PortfolioPageResponseDto {
     private Long member_id;
+    private String member_name;
     private List<Portfolio> portfolio;
 }
