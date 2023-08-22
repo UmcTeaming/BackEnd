@@ -39,14 +39,14 @@ public class ProjectService {
     private final AwsS3Service awsS3Service;
 
     // 프로젝트 생성
+    @Transactional
     public ProjectCreateResponseDto createProject(Long memberId, ProjectCreateRequestDto projectCreateRequestDto) {
         // memberId를 통해 Member 엔터티 조회
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
         // projectImage 저장 링크 받아오기
-        String projectImage =awsS3Service.projectImageUpload(projectCreateRequestDto.getProject_image(), "projectImage/", projectCreateRequestDto.getProject_name());
+        String projectImage = awsS3Service.projectImageUpload(projectCreateRequestDto.getProject_image(), "projectImage/", projectCreateRequestDto.getProject_name());
 
         // DTO 정보를 사용하여 Project 객체 생성
         Project project = Project.builder()
@@ -62,9 +62,9 @@ public class ProjectService {
         Project savedProject = projectRepository.save(project);
 
         // Member와 Project로 MemberProject 객체 생성 및 저장
-        MemberProject memberProject = new MemberProject();
-        memberProject.setMember(member);
-        memberProject.setProject(savedProject);
+        MemberProject memberProject = MemberProject.builder()
+                .member(member)
+                .project(project).build();
         memberProjectRepository.save(memberProject);
 
         return ProjectCreateResponseDto.builder()
@@ -72,10 +72,10 @@ public class ProjectService {
                 .build();
     }
 
-    // 프로젝트 생성
+    // 프로젝트 수정
+    @Transactional
     public ProjectCreateResponseDto modifyProject(Long projectId, ProjectCreateRequestDto projectCreateRequestDto) {
         // projectId 를 통해 Project 엔터티 조회
-
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "존재하지 않는 프로젝트입니다."));
 
@@ -164,6 +164,7 @@ public class ProjectService {
 //    }
 
     // 프로젝트 마감 (상태 변경)
+    @Transactional
     public ResponseEntity projectChangeStatus(ProjectStatusRequestDto projectStatusRequestDto, Long projectId) {
         Optional<Project> projects = projectRepository.findById(projectId);
         if(projects.isEmpty()) {
@@ -190,6 +191,7 @@ public class ProjectService {
     }
 
     // 프로젝트 초대 기능
+    @Transactional
     public ResponseEntity inviteMember(ProjectInviteRequestDto projectInviteRequestDto, Long projectId) {
         String email = projectInviteRequestDto.getEmail();
 
