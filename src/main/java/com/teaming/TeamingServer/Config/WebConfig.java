@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    String[] accessURL = {"http://localhost:3000", "https://localhost:3000", "https://teaming-six.vercel.app/", "http://teaming-six.vercel.app/"};
+    String[] accessURL = {"http://localhost:3000", "https://localhost:3000", "https://teaming-six.vercel.app", "http://teaming-six.vercel.app"};
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
