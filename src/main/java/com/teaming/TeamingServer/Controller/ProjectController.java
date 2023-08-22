@@ -251,9 +251,9 @@ public class ProjectController {
                                                                                 @RequestParam("project_color") String projectColor) {
         try {
 
-            if(projectImage.isEmpty()) {
-                projectImage = null;
-            }
+//            if(projectImage.isEmpty()) {
+//                projectImage = null;
+//            }
 
             ProjectCreateRequestDto projectCreateRequestDto = ProjectCreateRequestDto.builder()
                     .project_name(projectName)
@@ -285,9 +285,9 @@ public class ProjectController {
                                                                                 @RequestParam("project_color") String projectColor) {
         try {
 
-            if(projectImage.isEmpty()) {
-                projectImage = null;
-            }
+//            if(projectImage.isEmpty()) {
+//                projectImage = null;
+//            }
 
             ProjectCreateRequestDto projectCreateRequestDto = ProjectCreateRequestDto.builder()
                     .project_name(projectName)
