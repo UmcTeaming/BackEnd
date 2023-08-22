@@ -245,7 +245,7 @@ public class ProjectController {
     @PostMapping("/{memberId}/create")
     public ResponseEntity createProject(@PathVariable("memberId") Long memberId,
                                                                                 @RequestParam("project_name") String projectName,
-                                                                                @RequestParam("project_image") MultipartFile projectImage,
+                                                                                @RequestParam(value = "project_image", required = false) MultipartFile projectImage,
                                                                                 @RequestParam("start_date") LocalDate startDate,
                                                                                 @RequestParam("end_date") LocalDate endDate,
                                                                                 @RequestParam("project_color") String projectColor) {
@@ -279,7 +279,7 @@ public class ProjectController {
     @PatchMapping("/{memberId}/{projectId}/modifyProject")
     public ResponseEntity modifyProject(@PathVariable("projectId") Long projectId,
                                                                                 @RequestParam("project_name") String projectName,
-                                                                                @RequestParam("project_image") MultipartFile projectImage,
+                                                                                @RequestParam(value = "project_image", required = false) MultipartFile projectImage,
                                                                                 @RequestParam("start_date") LocalDate startDate,
                                                                                 @RequestParam("end_date") LocalDate endDate,
                                                                                 @RequestParam("project_color") String projectColor) {
