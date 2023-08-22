@@ -243,7 +243,7 @@ public class ProjectController {
 
     //프로젝트 생성
     @PostMapping("/{memberId}/create")
-    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> createProject(@PathVariable("memberId") Long memberId,
+    public ResponseEntity createProject(@PathVariable("memberId") Long memberId,
                                                                                 @RequestParam("project_name") String projectName,
                                                                                 @RequestParam("project_image") MultipartFile projectImage,
                                                                                 @RequestParam("start_date") LocalDate startDate,
@@ -268,17 +268,16 @@ public class ProjectController {
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트를 생성하였습니다", projectCreateResponseDto));
         }   catch (BaseException e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseErrorResponse(e.getCode(), e.getMessage()));
         }
     }
 
-    //프로젝트 생성
+    //프로젝트 수정
     @PatchMapping("/{memberId}/{projectId}/modifyProject")
-    public ResponseEntity<BaseResponse<ProjectCreateResponseDto>> modifyProject(@PathVariable("projectId") Long projectId,
+    public ResponseEntity modifyProject(@PathVariable("projectId") Long projectId,
                                                                                 @RequestParam("project_name") String projectName,
                                                                                 @RequestParam("project_image") MultipartFile projectImage,
                                                                                 @RequestParam("start_date") LocalDate startDate,
@@ -304,11 +303,10 @@ public class ProjectController {
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트를 수정하였습니다", projectCreateResponseDto));
 
         }   catch (BaseException e) {
-            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseErrorResponse(e.getCode(), e.getMessage()));
         }
     }
 
