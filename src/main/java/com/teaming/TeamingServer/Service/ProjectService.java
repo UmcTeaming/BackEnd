@@ -79,12 +79,18 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "존재하지 않는 프로젝트입니다."));
 
+        String projectImage = null;
+        // 프로젝트 이미지를 수정할 파일이 있는 경우 - S3 저장소에서 파일을 지움
         if(project.getProject_image() != null) {
+            // 1. S3 에서 이미지 삭제
             awsS3Service.deleteFile(project.getProject_image());
+            // 2. 이미지 저장 후, 이미지 파일 경로 받아오기
+            projectImage = awsS3Service.projectImageUpload(projectCreateRequestDto.getProject_image(), "projectImage/", projectCreateRequestDto.getProject_name());
         }
 
-        // projectImage 저장 링크 받아오기
-        String projectImage = awsS3Service.projectImageUpload(projectCreateRequestDto.getProject_image(), "projectImage/", projectCreateRequestDto.getProject_name());
+        if(projectImage == null) {
+            projectImage = project.getProject_image();
+        }
 
         // DTO 정보를 사용하여 Project 객체 수정
         project.modifyProject(projectCreateRequestDto.getProject_name(), projectCreateRequestDto.getStart_date(), projectCreateRequestDto.getEnd_date()
