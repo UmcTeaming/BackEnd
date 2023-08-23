@@ -1,11 +1,10 @@
 package com.teaming.TeamingServer.Controller;
 
 
-import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Exception.BadRequestException;
 import com.teaming.TeamingServer.Service.AuthService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
-import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +34,7 @@ public class AuthController {
     // 이메일 중복체크
     @PostMapping("/auth/email-duplication")
     public ResponseEntity duplicateEmail(@RequestBody MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
-        return authService.validateDuplicateMember(memberSignUpEmailDuplicationRequestDto);
+        return authService.validateEmailRequest(memberSignUpEmailDuplicationRequestDto.getEmail());
     }
 
     // 이메일 인증
@@ -52,8 +51,7 @@ public class AuthController {
 
         try {
             response = authService.login(memberLoginRequestDto.getEmail(), memberLoginRequestDto.getPassword());
-        }
-        catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
+        } catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new BaseErrorResponse(HttpStatus.FORBIDDEN.value(), "잘못된 email 혹은 password 입니다."));
         }
@@ -67,5 +65,9 @@ public class AuthController {
         return authService.resetPassword(memberResetPasswordRequestDto);
     }
 
-
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    BaseErrorResponse handleBadRequestException(Exception ex) {
+        return new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    }
 }

@@ -1,22 +1,21 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
-import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.Dto.MemberLoginResponse;
+import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.MemberResetPasswordRequestDto;
 import com.teaming.TeamingServer.Domain.entity.Member;
+import com.teaming.TeamingServer.Exception.BadRequestException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
-import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Random;
 
 @Service
 @Transactional
@@ -30,7 +29,6 @@ public class AuthServiceImpl implements AuthService {
     private String emailCode;
 
     // jwt
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
 
@@ -40,166 +38,117 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public ResponseEntity join(MemberRequestDto memberRequestDto) {
-
-        // 회원가입 정보 모두 입력 체크
-        if(!checkBlank(memberRequestDto)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "회원가입에 필요한 모든 데이터를 입력해주세요."));
-        }
-
-        Member member = Member.builder()
-                .name(memberRequestDto.getName())
-                .email(memberRequestDto.getEmail())
-                .password(memberRequestDto.getPassword())
-                .agreement(true).build();
-
-        // 중복 회원 검증
-        if(!checkDuplicateEmail(member.getEmail())) {
-            throw new IllegalArgumentException("이미 회원가입된 이메일입니다.");
-        };
-
-        // 이메일 인증
-
-        // 회원 DB 에 저장
-        memberRepository.save(member);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<>(HttpStatus.OK.value(), "회원가입이 완료되었습니다."));
-    }
-
-    @Transactional
-    @Override
-    public ResponseEntity validateDuplicateMember(MemberSignUpEmailDuplicationRequestDto memberSignUpEmailDuplicationRequestDto) throws Exception {
-        // 이메일 중복 체크
-        if(!checkDuplicateEmail(memberSignUpEmailDuplicationRequestDto.getEmail())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "이미 회원가입된 이메일입니다."));
-        }
-
-        // 이메일 인증 번호 발급
-        emailCode = mailConfirm(memberSignUpEmailDuplicationRequestDto.getEmail());
-
-        // 이메일 검증 및 전송 정상 통과
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<>(HttpStatus.OK.value(), "사용 가능한 이메일입니다."));
+        validateMemberRequest(memberRequestDto);
+        validateDuplicateEmail(memberRequestDto.getEmail());
+        memberRepository.save(mapToMember(memberRequestDto));
+        return getSuccessResponse("회원가입이 완료되었습니다.", null);
     }
 
     @Transactional
     @Override
     public ResponseEntity verificationEmail(String inputCode) {
-        if(checkCode(inputCode, emailCode)) {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자 이메일 인증 성공"));
-        }
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "인증번호가 일치하지 않습니다."));
+        verifyEmail(inputCode);
+        return getSuccessResponse("사용자 이메일 인증 성공", null);
     }
 
     @Transactional(readOnly = true)
     @Override
     public ResponseEntity login(String email, String password) {
-
-        // DB 에 계정이 있는지와 그 계정과 이메일, 비밀번호가 일치한지
-        Member findMember = memberRepository.findByEmail(email).stream().filter(it -> password.equals(it.getPassword()))	// 암호화된 비밀번호와 비교하도록 수정
-                    .findFirst().orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
-
-        Long memberId = findMember.getMember_id();
-
-        // Authentication 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        // 검증된 인증 정보로 JWT 토큰 생성
-        JwtToken token = jwtTokenProvider.generateToken(authentication);
-        token.setMemberId(memberId);
-
-        // Login Response 생성
-        MemberLoginResponse memberLoginResponse = MemberLoginResponse.builder()
-                .name(findMember.getName())
-                .jwtToken(token).build();
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<MemberLoginResponse>(HttpStatus.OK.value(), "로그인 성공", memberLoginResponse));
+        return getSuccessResponse("로그인 성공", getMemberLoginResponse(email, password));
     }
 
     @Transactional
     @Override
     public ResponseEntity resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception {
-
-        // 1. 이메일이 회원 DB 에 있는지 체크 한다.
-        List<Member> findMember = memberRepository.findByEmail(memberResetPasswordRequestDto.getEmail());
-
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "회원가입되지 않은 이메일입니다."));
-        }
-
-        try {
-            // 2. 회원가입된 이메일이라면, 랜덤 비밀번호를 이메일로 보낸 뒤 DB 에 반영한다.
-            String resetPassword = passwordResetMailConfirm(memberResetPasswordRequestDto.getEmail());
-            findMember.stream().findFirst().get().setPassword(resetPassword);
-        } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage()));
-        }
-
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse(HttpStatus.OK.value(), "비밀번호가 재설정되었습니다."));
-
+        Member member = getMember(memberResetPasswordRequestDto.getEmail());
+        member.updatePassword(createRandomPassword());
+        emailService.sendResetPasswordMessage(member);
+        return getSuccessResponse("비밀번호 재설정 메일이 발송되었습니다.", null);
     }
 
-
-
-    private boolean checkCode(String authentication, String emailCode) {
-        return authentication.equals(emailCode);
-    }
-
-    private String mailConfirm(String email) throws Exception {
-        String code = emailService.sendSimpleMessage(email);
-        // log.info("인증코드 : " + code);
-        return code;
-    }
-
-    private String passwordResetMailConfirm(String email) throws Exception {
-        String resetPassword = emailService.sendResetPasswordMessage(email);
-        // log.info("인증코드 : " + code);
-        return resetPassword;
-    }
-
-    private boolean checkDuplicateEmail(String email) {
-        List<Member> findMember = memberRepository.findByEmail(email);
-
-        return findMember.isEmpty();
-    }
-
-    private boolean checkBlank(MemberRequestDto memberRequestDto) {
-        if((memberRequestDto.getName() == null)
-                || (memberRequestDto.getEmail() == null)
-                || (memberRequestDto.getPassword() == null)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    //회원 전체 조회
-    public List<Member> findMembers() {
-        return memberRepository.findAll();
-    }
-
-    public Member findOne(Long id) {
-        return memberRepository.findById(id).get();
-    }
-
-    /**
-     * 회원 수정 : 프로필 사진 업데이트 + 비밀번호
-     */
     @Transactional
-    public void updateProfileImage(Long id, String profile_image) {
-        Member member = (memberRepository.findById(id)).get();
-        member.updateProfileImage(profile_image);
+    @Override
+    public ResponseEntity validateEmailRequest(String email) throws Exception {
+        validateDuplicateEmail(email);
+
+        emailCode = createKey();
+        // 이메일 인증 번호 발급
+        emailService.sendValidateEmailRequestMessage(email, emailCode);
+
+        // 이메일 검증 및 전송 정상 통과
+        return getSuccessResponse("사용 가능한 이메일입니다.", null);
+    }
+
+    // 인증코드 만들기
+    public static String createKey() {
+        StringBuffer key = new StringBuffer();
+        Random rnd = new Random();
+
+        for (int i = 0; i < 6; i++) { // 인증코드 6자리
+            key.append((rnd.nextInt(10)));
+        }
+        return key.toString();
+    }
+
+    private static Member mapToMember(MemberRequestDto memberRequestDto) {
+        return Member.builder()
+                .name(memberRequestDto.getName())
+                .email(memberRequestDto.getEmail())
+                .password(memberRequestDto.getPassword())
+                .agreement(true).build();
+    }
+
+    private void validateDuplicateEmail(String email) {
+        if (memberRepository.findByEmail(email).size() > 0) {
+            throw new BadRequestException("이미 회원가입된 이메일입니다.");
+        }
+    }
+
+    private void validateMemberRequest(MemberRequestDto memberRequestDto) {
+        if ((memberRequestDto.getName() != null)
+                && (memberRequestDto.getEmail() != null)
+                && (memberRequestDto.getPassword() != null))
+            return;
+
+        throw new BadRequestException("회원가입 정보를 모두 입력해주세요.");
+
+    }
+
+
+    private static ResponseEntity<BaseResponse<Object>> getSuccessResponse(String message, Object object) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse<>(HttpStatus.OK.value(), message));
+    }
+
+    private void verifyEmail(String inputCode) {
+        if (!inputCode.equals(emailCode))
+            throw new BadRequestException("인증번호가 일치하지 않습니다.");
+    }
+
+    private MemberLoginResponse getMemberLoginResponse(String email, String password) {
+        Member member = getMatchedMember(email, password);
+        return MemberLoginResponse.builder()
+                .name(member.getName())
+                .jwtToken(jwtTokenProvider.generateToken(member))
+                .build();
+    }
+
+    private Member getMatchedMember(String email, String password) {
+        return memberRepository.findByEmail(email).stream()
+                .filter(member -> member.isPasswordMatched(password))    // 암호화된 비밀번호와 비교하도록 수정
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+    }
+
+
+    // 랜덤 비밀번호 만들기
+    private static String createRandomPassword() {
+        return RandomStringUtils.randomAlphanumeric(10);
+    }
+
+    private Member getMember(String email) {
+        return memberRepository.findByEmail(email).stream()
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("회원가입되지 않은 이메일입니다."));
     }
 }
