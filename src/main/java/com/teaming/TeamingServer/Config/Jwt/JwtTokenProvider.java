@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,9 +31,11 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final Long expiration = System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30; // 유효 기간 한달!
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, MemberRepository memberRepository) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, AuthenticationManagerBuilder authenticationManagerBuilder, MemberRepository memberRepository) {
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.memberRepository = memberRepository;
         byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);
         this.key = Keys.hmacShaKeyFor(secretByteKey);
@@ -65,12 +68,42 @@ public class JwtTokenProvider {
                 .build();
     }
 
+    public JwtToken generateToken(Member member) {
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(member.getAuthenticationToken());
+
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        // Access token 생성
+        String accessToken = Jwts.builder()
+                .setSubject(authentication.getName())
+                .claim("auth", authorities)
+                .setExpiration(new Date(expiration))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        log.info("expiration = " + new Date(expiration));
+
+//        // Refresh token 생성
+//        String refreshToken = Jwts.builder()
+//                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 36))
+//                .signWith(key, SignatureAlgorithm.HS256)
+//                .compact();
+
+        return JwtToken.builder()
+                .grantType("Bearer")
+                .accessToken(accessToken)
+                .memberId(member.getMemberId())
+                .build();
+    }
+
 
     public Authentication getAuthentication(String accessToken) {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
-        if(claims.get("auth") == null) {
+        if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
@@ -115,7 +148,7 @@ public class JwtTokenProvider {
         String[] parts = requestURI.split("/");
 
         // /auth ~ 기능들인지 확인
-        if(checkApiURL(parts)) {
+        if (checkApiURL(parts)) {
             return;
 //            throw new BaseException(HttpStatus.FORBIDDEN.value(), "auth 에 속한 기능들은 authorization 이 필요하지 않습니다.");
         }
@@ -125,7 +158,7 @@ public class JwtTokenProvider {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.FORBIDDEN.value(), "유효하지 않은 회원 ID"));
 
-        if(!tokenEmail.equals(member.getEmail())) {
+        if (!tokenEmail.equals(member.getEmail())) {
             throw new BaseException(HttpStatus.FORBIDDEN.value(), "유효하지 않은 AccessToken");
         }
     }
@@ -133,14 +166,14 @@ public class JwtTokenProvider {
     // api/~ 이렇게 요청이 들어오면 parts[2] 를 검사
     // auth/~ 이렇게 요청이 들어오면 parts[1] 을 검사
     private boolean checkApiURL(String[] parts) {
-        if(parts[1].equals("api")) {
+        if (parts[1].equals("api")) {
             return parts[2].equals("auth");
         }
         return parts[1].equals("auth");
     }
 
     private Long getMemberId(String[] parts) {
-        if(parts[1].equals("api")) {
+        if (parts[1].equals("api")) {
             return Long.parseLong(parts[3]);
         }
 

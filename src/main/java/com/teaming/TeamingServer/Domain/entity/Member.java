@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,5 +78,17 @@ public class Member extends Time {
     public Member updateMemberProject(MemberProject memberProject) {
         this.memberProjects.add(memberProject);
         return this;
+    }
+
+    public boolean isPasswordMatched(String password) {
+        return this.password.equals(password);
+    }
+
+    public UsernamePasswordAuthenticationToken getAuthenticationToken() {
+        return new UsernamePasswordAuthenticationToken(email, password);
+    }
+
+    public long getMemberId() {
+        return member_id;
     }
 }
