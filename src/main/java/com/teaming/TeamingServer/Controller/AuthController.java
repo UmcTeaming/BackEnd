@@ -5,6 +5,7 @@ import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Exception.BadRequestException;
 import com.teaming.TeamingServer.Service.AuthService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
+import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +20,8 @@ public class AuthController {
 
     // 회원가입
     @PostMapping("/auth/signup")
-    public ResponseEntity signup(@RequestBody MemberRequestDto memberRequestDto) {
-        ResponseEntity response = null;
-        try {
-            response = authService.join(memberRequestDto);
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), illegalArgumentException.getMessage()));
-        }
-
-        return response;
+    public BaseResponse signup(@RequestBody MemberRequestDto memberRequestDto) {
+        return authService.join(memberRequestDto);
     }
 
     // 이메일 중복체크

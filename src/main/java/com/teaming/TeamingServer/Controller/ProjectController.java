@@ -2,7 +2,6 @@ package com.teaming.TeamingServer.Controller;
 
 
 import com.teaming.TeamingServer.Domain.Dto.*;
-import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.*;
 import com.teaming.TeamingServer.common.BaseResponse;
@@ -37,13 +36,13 @@ public class ProjectController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "일정이 추가되었습니다.:)", scheduleCreateResponseDto));
+                    .body(new BaseResponse<>("일정이 추가되었습니다.:)", scheduleCreateResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -56,13 +55,13 @@ public class ProjectController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트의 스케줄", list));
+                    .body(new BaseResponse<>("프로젝트의 스케줄", list));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -77,13 +76,13 @@ public class ProjectController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse(HttpStatus.OK.value(), "스케줄 삭제 성공", null));
+                    .body(new BaseResponse("스케줄 삭제 성공", null));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -99,13 +98,13 @@ public class ProjectController {
            FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, false);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 업로드하였습니다", fileUploadResponseDto));
+                    .body(new BaseResponse<>("파일을 업로드하였습니다", fileUploadResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -120,13 +119,13 @@ public class ProjectController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트의 스케줄", scheduleRead));
+                    .body(new BaseResponse<>("프로젝트의 스케줄", scheduleRead));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -139,13 +138,13 @@ public class ProjectController {
             fileService.deleteFile(projectId, memberId, fileId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일을 삭제하였습니다", null));
+                    .body(new BaseResponse<>("파일을 삭제하였습니다", null));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -159,13 +158,13 @@ public class ProjectController {
            FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, true);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "최종 파일을 업로드하였습니다", fileUploadResponseDto));
+                    .body(new BaseResponse<>("최종 파일을 업로드하였습니다", fileUploadResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -178,13 +177,13 @@ public class ProjectController {
             List<FileListResponseDto> fileInfoList = fileService.searchFile(memberId, projectId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 파일들을 불러왔습니다", fileInfoList));
+                    .body(new BaseResponse<>("프로젝트 파일들을 불러왔습니다", fileInfoList));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -196,14 +195,14 @@ public class ProjectController {
             List<FileListResponseDto> finalInfoList = fileService.searchFinalFile(memberId, projectId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 최종 파일들을 불러왔습니다", finalInfoList));
+                    .body(new BaseResponse<>("프로젝트 최종 파일들을 불러왔습니다", finalInfoList));
 
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -230,13 +229,13 @@ public class ProjectController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "파일 상세 정보를 불러왔습니다", information));
+                    .body(new BaseResponse<>("파일 상세 정보를 불러왔습니다", information));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
 
     }
@@ -266,7 +265,7 @@ public class ProjectController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트를 생성하였습니다", projectCreateResponseDto));
+                    .body(new BaseResponse<>("프로젝트를 생성하였습니다", projectCreateResponseDto));
         }   catch (BaseException e) {
 
             return ResponseEntity
@@ -300,7 +299,7 @@ public class ProjectController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트를 수정하였습니다", projectCreateResponseDto));
+                    .body(new BaseResponse<>("프로젝트를 수정하였습니다", projectCreateResponseDto));
 
         }   catch (BaseException e) {
 
@@ -317,12 +316,12 @@ public class ProjectController {
             ProjectResponseDto projectDetail = projectService.getProject(memberId,projectId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 정보를 불러왔습니다", projectDetail));
+                    .body(new BaseResponse<>("프로젝트 정보를 불러왔습니다", projectDetail));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 }

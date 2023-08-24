@@ -1,11 +1,13 @@
 package com.teaming.TeamingServer.Domain.entity;
 
 
+import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.util.ArrayList;
@@ -60,6 +62,12 @@ public class Member extends Time {
         this.agreement = agreement;
     }
 
+    public Member(MemberRequestDto dto) {
+        this.name = dto.getName();
+        this.email = dto.getEmail();
+        this.password = dto.getPassword();
+    }
+
     public Member updateProfileImage(String profile_image) {
         this.profile_image = profile_image;
         return this;
@@ -77,6 +85,11 @@ public class Member extends Time {
 
     public Member updateMemberProject(MemberProject memberProject) {
         this.memberProjects.add(memberProject);
+        return this;
+    }
+
+    public Member setRandomPassword() {
+        this.password = RandomStringUtils.randomAlphanumeric(10);
         return this;
     }
 

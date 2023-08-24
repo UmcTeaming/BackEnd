@@ -9,7 +9,6 @@ import com.teaming.TeamingServer.Exception.BadRequestException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,33 +36,36 @@ public class AuthServiceImpl implements AuthService {
      */
     @Transactional
     @Override
-    public ResponseEntity join(MemberRequestDto memberRequestDto) {
+    public BaseResponse join(MemberRequestDto memberRequestDto) {
         validateMemberRequest(memberRequestDto);
         validateDuplicateEmail(memberRequestDto.getEmail());
-        memberRepository.save(mapToMember(memberRequestDto));
-        return getSuccessResponse("회원가입이 완료되었습니다.", null);
+        memberRepository.save(new Member(memberRequestDto));
+        return new BaseResponse("회원가입이 완료되었습니다.");
     }
 
     @Transactional
     @Override
     public ResponseEntity verificationEmail(String inputCode) {
         verifyEmail(inputCode);
-        return getSuccessResponse("사용자 이메일 인증 성공", null);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse("사용자 이메일 인증 성공"));
     }
 
     @Transactional(readOnly = true)
     @Override
     public ResponseEntity login(String email, String password) {
-        return getSuccessResponse("로그인 성공", getMemberLoginResponse(email, password));
+        getMemberLoginResponse(email, password);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse("로그인 성공"));
     }
 
     @Transactional
     @Override
     public ResponseEntity resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception {
-        Member member = getMember(memberResetPasswordRequestDto.getEmail());
-        member.updatePassword(createRandomPassword());
+        Member member = getMember(memberResetPasswordRequestDto.getEmail()).setRandomPassword();
         emailService.sendResetPasswordMessage(member);
-        return getSuccessResponse("비밀번호 재설정 메일이 발송되었습니다.", null);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse("비밀번호 재설정 메일이 발송되었습니다."));
     }
 
     @Transactional
@@ -76,7 +78,8 @@ public class AuthServiceImpl implements AuthService {
         emailService.sendValidateEmailRequestMessage(email, emailCode);
 
         // 이메일 검증 및 전송 정상 통과
-        return getSuccessResponse("사용 가능한 이메일입니다.", null);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse("사용 가능한 이메일입니다."));
     }
 
     // 인증코드 만들기
@@ -88,14 +91,6 @@ public class AuthServiceImpl implements AuthService {
             key.append((rnd.nextInt(10)));
         }
         return key.toString();
-    }
-
-    private static Member mapToMember(MemberRequestDto memberRequestDto) {
-        return Member.builder()
-                .name(memberRequestDto.getName())
-                .email(memberRequestDto.getEmail())
-                .password(memberRequestDto.getPassword())
-                .agreement(true).build();
     }
 
     private void validateDuplicateEmail(String email) {
@@ -115,11 +110,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-    private static ResponseEntity<BaseResponse<Object>> getSuccessResponse(String message, Object object) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<>(HttpStatus.OK.value(), message));
-    }
-
     private void verifyEmail(String inputCode) {
         if (!inputCode.equals(emailCode))
             throw new BadRequestException("인증번호가 일치하지 않습니다.");
@@ -138,12 +128,6 @@ public class AuthServiceImpl implements AuthService {
                 .filter(member -> member.isPasswordMatched(password))    // 암호화된 비밀번호와 비교하도록 수정
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
-    }
-
-
-    // 랜덤 비밀번호 만들기
-    private static String createRandomPassword() {
-        return RandomStringUtils.randomAlphanumeric(10);
     }
 
     private Member getMember(String email) {
