@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -96,13 +95,13 @@ public class MemberController {
             List<FilteredSchedules> filteredSchedules = scheduleService.findSchedules(memberId,filteringScheduleRequestDto);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "사용자의 일정", filteredSchedules));
+                    .body(new BaseResponse<>("사용자의 일정", filteredSchedules));
         }
         catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -114,12 +113,12 @@ public class MemberController {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse(HttpStatus.OK.value(), "날짜 리스트를 가져왔습니다", monthlyResponseDtos));
+                    .body(new BaseResponse("날짜 리스트를 가져왔습니다", monthlyResponseDtos));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 }

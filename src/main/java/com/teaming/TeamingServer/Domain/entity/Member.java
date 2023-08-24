@@ -1,18 +1,17 @@
 package com.teaming.TeamingServer.Domain.entity;
 
 
+import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
+import com.teaming.TeamingServer.Exception.BadRequestException;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Entity
 public class Member extends Time {
@@ -60,6 +59,12 @@ public class Member extends Time {
         this.agreement = agreement;
     }
 
+    public Member(MemberRequestDto dto) {
+        this.name = dto.getName();
+        this.email = dto.getEmail();
+        this.password = dto.getPassword();
+    }
+
     public Member updateProfileImage(String profile_image) {
         this.profile_image = profile_image;
         return this;
@@ -80,6 +85,11 @@ public class Member extends Time {
         return this;
     }
 
+    public Member setRandomPassword() {
+        this.password = RandomStringUtils.randomAlphanumeric(10);
+        return this;
+    }
+
     public boolean isPasswordMatched(String password) {
         return this.password.equals(password);
     }
@@ -90,5 +100,11 @@ public class Member extends Time {
 
     public long getMemberId() {
         return member_id;
+    }
+
+    public void validatePassword(String password) {
+        if (!isPasswordMatched(password)) {
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+        }
     }
 }
