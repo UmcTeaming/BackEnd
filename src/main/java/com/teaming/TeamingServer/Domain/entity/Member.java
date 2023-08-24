@@ -2,6 +2,7 @@ package com.teaming.TeamingServer.Domain.entity;
 
 
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
+import com.teaming.TeamingServer.Exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -103,5 +104,11 @@ public class Member extends Time {
 
     public long getMemberId() {
         return member_id;
+    }
+
+    public void validatePassword(String password) {
+        if (!isPasswordMatched(password)) {
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+        }
     }
 }

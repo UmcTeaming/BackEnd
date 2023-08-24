@@ -1,18 +1,17 @@
 package com.teaming.TeamingServer.Service;
 
+import com.teaming.TeamingServer.Domain.Dto.MemberLoginResponse;
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.MemberResetPasswordRequestDto;
-import com.teaming.TeamingServer.common.BaseResponse;
-import org.springframework.http.ResponseEntity;
 
 public interface AuthService {
-    BaseResponse join(MemberRequestDto memberRequestDto);
+    void join(MemberRequestDto memberRequestDto);
 
-    ResponseEntity validateEmailRequest(String email) throws Exception;
+    void validateEmailRequest(String email) throws Exception;
 
-    ResponseEntity verificationEmail(String inputCode);
+    void verifyEmailCode(String inputCode);
 
-    ResponseEntity login(String email, String password);
+    MemberLoginResponse login(String email, String password);
 
-    ResponseEntity resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception;
+    void resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception;
 }
