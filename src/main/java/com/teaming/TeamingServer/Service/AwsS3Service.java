@@ -3,10 +3,8 @@ package com.teaming.TeamingServer.Service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.teaming.TeamingServer.Domain.entity.Member;
-import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
-import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -62,8 +60,8 @@ public class AwsS3Service {
             member.updateProfileImage(fileUrl);
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(new BaseResponse<String>(HttpStatus.OK.value()
-                                                , "프로필 변경이 완료되었습니다.", fileUrl));
+                    .body(new BaseResponse<String>(
+                            "프로필 변경이 완료되었습니다.", fileUrl));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

@@ -1,7 +1,7 @@
 package com.teaming.TeamingServer.Config;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtAuthenticationFilter;
-import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
+import com.teaming.TeamingServer.Config.Jwt.JwtTokenProviderImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,19 +13,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProviderImpl jwtTokenProvider;
 
     private String[] possibleAccess = {"/api/auth/signup"
             , "/api/auth/email-duplication", "/api/auth/email-verification", "/api/auth/login"
             , "/api/auth/reset-password", "/api/error", "/api", "/error", "/auth/**"};
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
+    public SecurityConfig(JwtTokenProviderImpl jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 

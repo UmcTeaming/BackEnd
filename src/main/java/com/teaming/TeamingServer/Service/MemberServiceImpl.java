@@ -1,7 +1,7 @@
 package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
-import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
+import com.teaming.TeamingServer.Config.Jwt.JwtTokenProviderImpl;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.Portfolio;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.ProgressProject;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -32,7 +31,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProviderImpl jwtTokenProvider;
 
     private final ProjectRepository projectRepository;
     private final MemberProjectRepository memberProjectRepository;
@@ -81,7 +80,7 @@ public class MemberServiceImpl implements MemberService {
 
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "비밀번호 변경이 완료되었습니다.", newToken));
+                .body(new BaseResponse<JwtToken>("비밀번호 변경이 완료되었습니다.", newToken));
     }
 
     @Override
@@ -99,7 +98,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse(HttpStatus.OK.value(), "비밀번호가 일치합니다."));
+                .body(new BaseResponse("비밀번호가 일치합니다."));
     }
 
     @Override
@@ -115,7 +114,7 @@ public class MemberServiceImpl implements MemberService {
                 .profileImage(member.getProfile_image()).build();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<MemberMyPageResponseDto>(HttpStatus.OK.value(), memberMyPageResponseDto));
+                .body(new BaseResponse<MemberMyPageResponseDto>(memberMyPageResponseDto));
     }
 
     @Override
@@ -136,7 +135,7 @@ public class MemberServiceImpl implements MemberService {
         member.updateNickName(memberNicknameChangeRequestDto.getChange_nickname());
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse(HttpStatus.OK.value(), "닉네임 변경이 완료되었습니다."));
+                .body(new BaseResponse("닉네임 변경이 완료되었습니다."));
     }
 
     @Override
@@ -156,7 +155,7 @@ public class MemberServiceImpl implements MemberService {
                     .progressProject(null)
                     .portfolio(null).build();
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(new BaseResponse<MainPageResponseDto>(HttpStatus.OK.value(), mainPageResponseDto));
+                    .body(new BaseResponse<MainPageResponseDto>(mainPageResponseDto));
         }
 
         // (2) 찾은 프로젝트들이 있다면, 프로젝트 최근 시작 기준으로 정렬 - 최근 프로젝트
@@ -178,7 +177,7 @@ public class MemberServiceImpl implements MemberService {
                 .portfolio(portfolios).build();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<MainPageResponseDto>(HttpStatus.OK.value(), mainPageResponseDto));
+                .body(new BaseResponse<MainPageResponseDto>(mainPageResponseDto));
     }
 
     @Override
@@ -196,7 +195,7 @@ public class MemberServiceImpl implements MemberService {
                     .member_name(member.getName())
                     .portfolio(null).build();
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(new BaseResponse<PortfolioPageResponseDto>(HttpStatus.OK.value(), portfolioPageResponseDto));
+                    .body(new BaseResponse<PortfolioPageResponseDto>(portfolioPageResponseDto));
         }
 
         // (2) 있다면, 끝난 순으로 project 정렬
@@ -209,7 +208,7 @@ public class MemberServiceImpl implements MemberService {
                 .portfolio(portfolios).build();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<PortfolioPageResponseDto>(HttpStatus.OK.value(), portfolioPageResponseDto));
+                .body(new BaseResponse<PortfolioPageResponseDto>(portfolioPageResponseDto));
 
     }
 
@@ -229,7 +228,7 @@ public class MemberServiceImpl implements MemberService {
                     .member_name(member.getName())
                     .progressProjects(null).build();
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(new BaseResponse<ProgressProjectsPageResponseDto>(HttpStatus.OK.value(), progressProjectsPageResponseDto));
+                    .body(new BaseResponse<ProgressProjectsPageResponseDto>(progressProjectsPageResponseDto));
         }
 
         // (2) 있다면, 끝난 순으로 project 정렬
@@ -242,7 +241,7 @@ public class MemberServiceImpl implements MemberService {
                 .progressProjects(progressProjects).build();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<ProgressProjectsPageResponseDto>(HttpStatus.OK.value(), progressProjectsPageResponseDto));
+                .body(new BaseResponse<ProgressProjectsPageResponseDto>(progressProjectsPageResponseDto));
     }
 
 

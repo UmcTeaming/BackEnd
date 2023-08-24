@@ -4,7 +4,6 @@ import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
-import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.Service.ProjectService;
@@ -48,13 +47,13 @@ public class FileController {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "댓글을 등록하였습니다", commentEnrollResponseDto));
+                    .body(new BaseResponse<>("댓글을 등록하였습니다", commentEnrollResponseDto));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -68,13 +67,13 @@ public class FileController {
             List<CommentResponseDto> list = fileService.searchComment(memberId, fileId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse<>(HttpStatus.OK.value(), "댓글 정보를 불러왔습니다", list));
+                    .body(new BaseResponse<>("댓글 정보를 불러왔습니다", list));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 
@@ -87,13 +86,13 @@ public class FileController {
             commentService.deleteComment(memberId, fileId, commentId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new BaseResponse(HttpStatus.OK.value(), "댓글을 삭제했습니다", null));
+                    .body(new BaseResponse("댓글을 삭제했습니다", null));
         } catch (BaseException e) {
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
 
             return ResponseEntity
                     .status(e.getCode())
-                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+                    .body(new BaseResponse<>(e.getMessage(), null));
         }
     }
 

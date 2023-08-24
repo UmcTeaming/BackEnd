@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -186,7 +185,7 @@ public class ProjectService {
                 .endDate(result.getEnd_date()).build();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<ProjectStatusResponse>(HttpStatus.OK.value(), "프로젝트가 종료되었습니다.", projectStatusResponse));
+                .body(new BaseResponse<ProjectStatusResponse>("프로젝트가 종료되었습니다.", projectStatusResponse));
 
     }
 
@@ -253,7 +252,7 @@ public class ProjectService {
                 .members(inviteMembers).build();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new BaseResponse<ProjectInviteResponseDto>(HttpStatus.OK.value(), "초대가 완료되었습니다.", projectInviteResponseDto));
+                .body(new BaseResponse<ProjectInviteResponseDto>("초대가 완료되었습니다.", projectInviteResponseDto));
 
 
     }
