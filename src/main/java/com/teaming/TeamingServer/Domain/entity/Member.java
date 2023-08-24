@@ -4,18 +4,14 @@ package com.teaming.TeamingServer.Domain.entity;
 import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
 import com.teaming.TeamingServer.Exception.BadRequestException;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Entity
 public class Member extends Time {

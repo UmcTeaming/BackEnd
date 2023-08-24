@@ -13,5 +13,5 @@ public interface AuthService {
 
     MemberLoginResponse login(String email, String password);
 
-    void resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception;
+    void resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto);
 }

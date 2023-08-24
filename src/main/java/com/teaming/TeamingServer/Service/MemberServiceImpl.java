@@ -1,7 +1,7 @@
 package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
-import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
+import com.teaming.TeamingServer.Config.Jwt.JwtTokenProviderImpl;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.Portfolio;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.ProgressProject;
@@ -31,7 +31,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProviderImpl jwtTokenProvider;
 
     private final ProjectRepository projectRepository;
     private final MemberProjectRepository memberProjectRepository;

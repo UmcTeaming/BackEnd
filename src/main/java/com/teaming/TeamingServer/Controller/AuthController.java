@@ -47,7 +47,7 @@ public class AuthController {
 
     // 비밀번호 재설정
     @PatchMapping("/auth/reset-password")
-    public BaseResponse resetPassword(@RequestBody MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception {
+    public BaseResponse resetPassword(@RequestBody MemberResetPasswordRequestDto memberResetPasswordRequestDto) {
         authService.resetPassword(memberResetPasswordRequestDto);
         return new BaseResponse("비밀번호 재설정 메일이 발송되었습니다.");
     }

@@ -55,9 +55,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public void resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) throws Exception {
+    public void resetPassword(MemberResetPasswordRequestDto memberResetPasswordRequestDto) {
         Member member = getMember(memberResetPasswordRequestDto.getEmail()).setRandomPassword();
-        emailService.sendResetPasswordMessage(member);
+        try {
+            emailService.sendResetPasswordMessage(member.getEmail(), member.getPassword());
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Transactional
