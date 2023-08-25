@@ -1,8 +1,8 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Config.Jwt.JwtToken;
-import com.teaming.TeamingServer.Domain.Dto.*;
-import org.springframework.http.ResponseEntity;
+import com.teaming.TeamingServer.Domain.Dto.request.MemberRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.MemberResetPasswordRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.response.MemberLoginResponse;
 
 public interface AuthService {
     void join(MemberRequestDto memberRequestDto);
