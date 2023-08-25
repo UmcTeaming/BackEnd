@@ -10,6 +10,8 @@ import java.time.LocalTime;
 @Builder
 @Getter
 public class ScheduleResponseDto {
+
+    private Long schedule_id;
     private String schedule_name;
     private LocalDate schedule_start;
     private LocalTime schedule_start_time;
