@@ -1,7 +1,7 @@
 package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtToken;
-import com.teaming.TeamingServer.Config.Jwt.JwtTokenProvider;
+import com.teaming.TeamingServer.Config.Jwt.JwtTokenProviderImpl;
 import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.Portfolio;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.ProgressProject;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -32,7 +31,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProviderImpl jwtTokenProviderImpl;
 
     private final ProjectRepository projectRepository;
     private final MemberProjectRepository memberProjectRepository;
@@ -53,32 +52,17 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = memberRepository.findById(memberId).get();
 
-        // 2. 존재한다면, 비밀번호 변경 후 로그인과 똑같이 인증정보 재발급
-        Authentication authentication = null;
-
         // (1) 비밀번호 변경
         member.updatePassword(memberChangePasswordRequestDto.getChange_password());
 
-        try {
-            // Authentication 객체 생성
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(member.getEmail(), member.getPassword());
-
-            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        }
-        catch (IllegalArgumentException | AuthenticationException illegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), illegalArgumentException.getMessage()));
-        }
-
         // 검증된 인증 정보로 JWT 토큰 생성
-        JwtToken token = jwtTokenProvider.generateToken(authentication);
+        JwtToken token = jwtTokenProviderImpl.generateToken(member);
 
         JwtToken newToken = JwtToken.builder()
                     .grantType(token.getGrantType())
                     .accessToken(token.getAccessToken())
                     .memberId(memberId)
                     .build();
-
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse<JwtToken>(HttpStatus.OK.value(), "비밀번호 변경이 완료되었습니다.", newToken));

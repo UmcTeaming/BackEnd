@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProviderImpl jwtTokenProviderImpl;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException, BaseException {
@@ -25,10 +25,10 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
         try {
             // 토큰 유효성 검사
-            if(token != null && jwtTokenProvider.validateToken(token)) {
+            if(token != null && jwtTokenProviderImpl.validateToken(token)) {
 
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                jwtTokenProvider.checkMemberId(authentication, (HttpServletRequest) request);
+                Authentication authentication = jwtTokenProviderImpl.getAuthentication(token);
+                jwtTokenProviderImpl.checkMemberId(authentication, (HttpServletRequest) request);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (BaseException baseException) {
