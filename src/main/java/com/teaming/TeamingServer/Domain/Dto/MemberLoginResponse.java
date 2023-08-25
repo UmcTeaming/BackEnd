@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class MemberLoginResponse {
     private String name;
     private JwtToken jwtToken;
