@@ -1,8 +1,11 @@
 package com.teaming.TeamingServer.Controller;
 
 
-import com.teaming.TeamingServer.Domain.Dto.*;
-import com.teaming.TeamingServer.Domain.entity.Project;
+import com.teaming.TeamingServer.Domain.Dto.request.ProjectCreateRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.ProjectInviteRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.ProjectStatusRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.ScheduleEnrollRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.response.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.*;
 import com.teaming.TeamingServer.common.BaseResponse;
@@ -91,8 +94,8 @@ public class ProjectController {
     // 파일 업로드
     @PostMapping("/{memberId}/{projectId}/files-upload")
     public ResponseEntity<BaseResponse<FileUploadResponseDto>> uploadFile(@PathVariable Long projectId,
-                                                   @PathVariable Long memberId,
-                                                   @RequestPart MultipartFile file) {
+                                                                          @PathVariable Long memberId,
+                                                                          @RequestPart MultipartFile file) {
         try {
 
 

@@ -1,7 +1,7 @@
 package com.teaming.TeamingServer.Domain.entity;
 
 
-import com.teaming.TeamingServer.Domain.Dto.MemberRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.MemberRequestDto;
 import com.teaming.TeamingServer.Exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.*;
