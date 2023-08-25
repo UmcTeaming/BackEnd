@@ -1,7 +1,9 @@
 package com.teaming.TeamingServer.Service;
 
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProviderImpl;
-import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.Dto.request.MemberRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.MemberResetPasswordRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.response.MemberLoginResponse;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Exception.BadRequestException;
 import com.teaming.TeamingServer.Repository.MemberRepository;

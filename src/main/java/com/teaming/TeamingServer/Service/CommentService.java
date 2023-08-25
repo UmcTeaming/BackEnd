@@ -1,8 +1,8 @@
 package com.teaming.TeamingServer.Service;
 
 
-import com.teaming.TeamingServer.Domain.Dto.CommentEnrollRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.CommentEnrollResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.request.CommentEnrollRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.response.CommentEnrollResponseDto;
 import com.teaming.TeamingServer.Domain.entity.Comment;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
