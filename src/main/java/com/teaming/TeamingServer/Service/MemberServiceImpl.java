@@ -22,9 +22,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -127,12 +131,13 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ResponseEntity mainPage(Long memberId) {
 
         Member member = memberRepository.findById(memberId).get();
 
         // 2. memberId 로 프로젝트 조회
-        List<MemberProject> memberProject = findMemberProject(member);
+        List<MemberProject> memberProject = member.getMemberProjects();
 
         // (1) 찾은 아예 프로젝트가 없다면 null 반환
         if(memberProject.isEmpty()) {
@@ -169,12 +174,13 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ResponseEntity portfolioPage(Long memberId) {
 
         Member member = memberRepository.findById(memberId).get();
 
         // 2. memberId 로 프로젝트 조회
-        List<MemberProject> memberProject = findMemberProject(member);
+        List<MemberProject> memberProject = member.getMemberProjects();
 
         // (1) 찾은 아예 프로젝트가 없다면 null 반환
         if(memberProject.isEmpty()) {
@@ -200,14 +206,15 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
-    // 최근 프로젝트
+    // 진행 중인 프로젝트
     @Override
+    @Transactional(readOnly = true)
     public ResponseEntity progressProjectsPage(Long memberId) {
 
         Member member = memberRepository.findById(memberId).get();
 
         // 2. memberId 로 프로젝트 조회
-        List<MemberProject> memberProject = findMemberProject(member);
+        List<MemberProject> memberProject = member.getMemberProjects();
 
         // (1) 찾은 아예 프로젝트가 없다면 null 반환
         if(memberProject.isEmpty()) {
@@ -232,56 +239,37 @@ public class MemberServiceImpl implements MemberService {
                 .body(new BaseResponse<ProgressProjectsPageResponseDto>(HttpStatus.OK.value(), progressProjectsPageResponseDto));
     }
 
-
-    // 최근 프로젝트
     private List<RecentlyProject> searchRecentlyProject(List<MemberProject> memberProject, int projectNum) {
-        List<Project> projects = new ArrayList<>();
 
-        for(int i = 0; i<memberProject.size(); i++) {
-            Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
-            // Status 가 ING 인 것만
-            if(project.getProject_status().equals(Status.ING)) {
-                projects.add(project);
-            }
-        }
+        List<Project> projects = memberProject.stream()
+                .map(MemberProject::getProject)
+                .filter(project -> isModifyAt(project.getModifyAt()))
+                .collect(Collectors.toList());
 
-        // 시작 날짜를 기준으로 내림차순 정렬 - 가장 최근으로 시작한 날짜
-        Collections.sort(projects, new SortByStartDate().reversed());
+        if(projects.isEmpty()) return null;
+
+        // 수정 날짜를 기준으로 내림차순 정렬 - 가장 최근으로 수정한 날짜
+        Collections.sort(projects, new SortByModifyDate().reversed());
 
         if(projectNum > projects.size()) {
             projectNum = projects.size();
         }
 
         // 내림차순 정렬한 것 RecentlyProject 형식으로 3개만 담기
-        List<RecentlyProject> recentlyProject = new ArrayList<>();
+        List<RecentlyProject> recentlyProject = projects.stream()
+                .map(project -> new RecentlyProject(project.getProject_id(), project.getProject_name(), project.getStart_date()
+                                                    , project.getProject_status(), project.getProject_image()))
+                .collect(Collectors.toList());
 
-        for(int i = 0; i<projectNum; i++) {
-            RecentlyProject project = RecentlyProject.builder()
-                    .projectId(projects.get(i).getProject_id())
-                    .projectName(projects.get(i).getProject_name())
-                    .projectStatus(projects.get(i).getProject_status())
-                    .projectCreatedDate(projects.get(i).getStart_date())
-                    .projectImage(projects.get(i).getProject_image()).build();
-
-            recentlyProject.add(project);
-        }
-
-        return recentlyProject;
+        return recentlyProject.subList(0, projectNum);
     }
 
-    // 진행 중인 프로젝트
     private List<ProgressProject> searchProgressProject(List<MemberProject> memberProject, int projectNum) {
 
-        List<Project> projects = new ArrayList<>();
-
-
-        for(int i = 0; i<memberProject.size(); i++) {
-            Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
-            // Status 가 ING 인 것만
-            if(project.getProject_status().equals(Status.ING)) {
-                projects.add(project);
-            }
-        }
+        List<Project> projects = memberProject.stream()
+                .map(MemberProject::getProject)
+                .filter(project -> isStatusING(project.getProject_status()))
+                .collect(Collectors.toList());
 
         // 마감날짜 순으로 - 마감 날짜를 기준으로 오름차순
         Collections.sort(projects, new SortByEndDate());
@@ -291,34 +279,31 @@ public class MemberServiceImpl implements MemberService {
             projectNum = projects.size();
         }
 
-        List<ProgressProject> progressProjects = new ArrayList<>();
+        List<ProgressProject> progressProjects = projects.stream()
+                .map(project -> new ProgressProject(project.getProject_id(), project.getProject_name(), project.getStart_date()
+                                                    , project.getEnd_date(), project.getProject_image(), project.getProject_status()))
+                .collect(Collectors.toList());
 
-        for(int i = 0; i<projectNum; i++) {
-            ProgressProject project = ProgressProject.builder()
-                    .projectId(projects.get(i).getProject_id())
-                    .projectName(projects.get(i).getProject_name())
-                    .projectStartDate(projects.get(i).getStart_date())
-                    .projectEndDate(projects.get(i).getEnd_date())
-                    .projectImage(projects.get(i).getProject_image())
-                    .projectStatus(projects.get(i).getProject_status()).build();
+        progressProjects.subList(0, projectNum); // 필요한 개수만큼 자르기
 
-            progressProjects.add(project);
-        }
-
-        return progressProjects;
+        return progressProjects.subList(0, projectNum); // 필요한 개수만큼 자르기
     }
 
-    // 포트폴리오
-    private List<Portfolio> searchPortPolio(List<MemberProject> memberProject, int projectNum) {
-        List<Project> projects = new ArrayList<>();
+    private boolean isStatusING(Status status) {
+        return status.equals(Status.ING);
+    }
 
-        for(int i = 0; i<memberProject.size(); i++) {
-            Project project = projectRepository.findById(memberProject.get(i).getProject().getProject_id()).get();
-            // Status 가 END 인 것만
-            if(project.getProject_status().equals(Status.END)) {
-                projects.add(project);
-            }
-        }
+    private boolean isModifyAt(LocalDateTime modifyAt) {
+        return modifyAt != null;
+    }
+
+
+    private List<Portfolio> searchPortPolio(List<MemberProject> memberProject, int projectNum) {
+
+        List<Project> projects = memberProject.stream()
+                .map(MemberProject::getProject)
+                .filter(project -> isStatusEND(project.getProject_status()))
+                .collect(Collectors.toList());
 
         // 가장 최근에 끝낸 순으로 - 마감 날짜 기준 내림차순
         Collections.sort(projects, new SortByEndDate().reversed());
@@ -327,20 +312,17 @@ public class MemberServiceImpl implements MemberService {
             projectNum = projects.size();
         }
 
-        List<Portfolio> portfolios = new ArrayList<>();
-        for(int i = 0; i<projectNum; i++) {
-            Portfolio portfolio = Portfolio.builder()
-                    .projectId(projects.get(i).getProject_id())
-                    .projectName(projects.get(i).getProject_name())
-                    .projectStartDate(projects.get(i).getStart_date())
-                    .projectEndDate(projects.get(i).getEnd_date())
-                    .projectImage(projects.get(i).getProject_image())
-                    .projectStatus(projects.get(i).getProject_status()).build();
 
-            portfolios.add(portfolio);
-        }
+        List<Portfolio> portfolios = projects.stream()
+                .map(project -> new Portfolio(project.getProject_id(), project.getProject_name(), project.getStart_date()
+                                            ,project.getEnd_date(), project.getProject_image(), project.getProject_status()))
+                .collect(Collectors.toList());
 
-        return portfolios;
+        return portfolios.subList(0, projectNum); // 필요한 개수만큼 자르기
+    }
+
+    private boolean isStatusEND(Status status) {
+        return status.equals(Status.END);
     }
 
     // 테스트용 Member_Project 저장 코드
@@ -352,16 +334,7 @@ public class MemberServiceImpl implements MemberService {
                 .member(member)
                 .project(project).build();
 
-
-
         memberProjectRepository.save(memberProject);
-    }
-
-    // Member 로 MemberProject 조회
-    private List<MemberProject> findMemberProject(Member member) {
-        List<MemberProject> memberProject = memberProjectRepository.findByMember(member);
-
-        return memberProject;
     }
 
     // 프로젝트 정렬 : 시작 일자 기준으로 정렬
@@ -372,11 +345,19 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    // 프로젝트 정렬 끝난 일자 기준으로 정렬
+    // 프로젝트 정렬 : 끝난 일자 기준으로 정렬
     static class SortByEndDate implements Comparator<Project> {
         @Override
         public int compare(Project a, Project b) {
             return a.getEnd_date().compareTo(b.getEnd_date());
+        }
+    }
+
+    // 프로젝트 정렬 : 수정 일자 기준으로 정렬
+    static class SortByModifyDate implements Comparator<Project> {
+        @Override
+        public int compare(Project a, Project b) {
+            return a.getModifyAt().compareTo(b.getModifyAt());
         }
     }
 //
