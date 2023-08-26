@@ -64,16 +64,6 @@ public class Project extends Time {
         this.project_image = project_image;
     }
 
-    public Project(Project project) {
-        this.project_id = project.getProject_id();
-        this.start_date = project.getStart_date();
-        this.end_date = project.getEnd_date();
-        this.project_status = project.getProject_status();
-        this.project_color = project.getProject_color();
-        this.project_image = project.getProject_image();
-    }
-
-
     public Project modifyProject(String project_name, LocalDate start_date, LocalDate end_date, String project_color, String project_image) {
         this.project_name = project_name;
         this.start_date = start_date;
@@ -86,18 +76,6 @@ public class Project extends Time {
 
     public Project updateEndDate(LocalDate endDate) {
         this.end_date = endDate;
-        return this;
-    }
-
-    public Project updateProfile(String profile_image) {
-        this.project_image = profile_image;
-
-        return this;
-    }
-
-    public Project updateColor(String project_color) {
-        this.project_color = project_color;
-
         return this;
     }
 
