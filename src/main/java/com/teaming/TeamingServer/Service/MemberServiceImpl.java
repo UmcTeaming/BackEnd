@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import java.util.*;
@@ -242,11 +243,13 @@ public class MemberServiceImpl implements MemberService {
 
         List<Project> projects = memberProject.stream()
                 .map(MemberProject::getProject)
-                .filter(project -> isStatusING(project.getProject_status()))
+                .filter(project -> isModifyAt(project.getModifyAt()))
                 .collect(Collectors.toList());
 
-        // 시작 날짜를 기준으로 내림차순 정렬 - 가장 최근으로 시작한 날짜
-        Collections.sort(projects, new SortByStartDate().reversed());
+        if(projects.isEmpty()) return null;
+
+        // 수정 날짜를 기준으로 내림차순 정렬 - 가장 최근으로 수정한 날짜
+        Collections.sort(projects, new SortByModifyDate().reversed());
 
         if(projectNum > projects.size()) {
             projectNum = projects.size();
@@ -288,6 +291,10 @@ public class MemberServiceImpl implements MemberService {
 
     private boolean isStatusING(Status status) {
         return status.equals(Status.ING);
+    }
+
+    private boolean isModifyAt(LocalDateTime modifyAt) {
+        return modifyAt != null;
     }
 
 
@@ -338,11 +345,19 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    // 프로젝트 정렬 끝난 일자 기준으로 정렬
+    // 프로젝트 정렬 : 끝난 일자 기준으로 정렬
     static class SortByEndDate implements Comparator<Project> {
         @Override
         public int compare(Project a, Project b) {
             return a.getEnd_date().compareTo(b.getEnd_date());
+        }
+    }
+
+    // 프로젝트 정렬 : 수정 일자 기준으로 정렬
+    static class SortByModifyDate implements Comparator<Project> {
+        @Override
+        public int compare(Project a, Project b) {
+            return a.getModifyAt().compareTo(b.getModifyAt());
         }
     }
 //
