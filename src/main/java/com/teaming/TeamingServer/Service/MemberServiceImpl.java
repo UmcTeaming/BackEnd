@@ -130,6 +130,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ResponseEntity mainPage(Long memberId) {
 
         Member member = memberRepository.findById(memberId).get();
@@ -172,6 +173,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ResponseEntity portfolioPage(Long memberId) {
 
         Member member = memberRepository.findById(memberId).get();
@@ -205,6 +207,7 @@ public class MemberServiceImpl implements MemberService {
 
     // 진행 중인 프로젝트
     @Override
+    @Transactional(readOnly = true)
     public ResponseEntity progressProjectsPage(Long memberId) {
 
         Member member = memberRepository.findById(memberId).get();
@@ -255,9 +258,7 @@ public class MemberServiceImpl implements MemberService {
                                                     , project.getProject_status(), project.getProject_image()))
                 .collect(Collectors.toList());
 
-        recentlyProject.subList(0, projectNum);
-
-        return recentlyProject;
+        return recentlyProject.subList(0, projectNum);
     }
 
     private List<ProgressProject> searchProgressProject(List<MemberProject> memberProject, int projectNum) {
@@ -282,7 +283,7 @@ public class MemberServiceImpl implements MemberService {
 
         progressProjects.subList(0, projectNum); // 필요한 개수만큼 자르기
 
-        return progressProjects;
+        return progressProjects.subList(0, projectNum); // 필요한 개수만큼 자르기
     }
 
     private boolean isStatusING(Status status) {
@@ -310,9 +311,7 @@ public class MemberServiceImpl implements MemberService {
                                             ,project.getEnd_date(), project.getProject_image(), project.getProject_status()))
                 .collect(Collectors.toList());
 
-        portfolios.subList(0, projectNum); // 필요한 개수만큼 자르기
-
-        return portfolios;
+        return portfolios.subList(0, projectNum); // 필요한 개수만큼 자르기
     }
 
     private boolean isStatusEND(Status status) {
