@@ -243,7 +243,7 @@ public class MemberServiceImpl implements MemberService {
 
         List<Project> projects = memberProject.stream()
                 .map(MemberProject::getProject)
-                .filter(project -> isModifyAt(project.getModifyAt()))
+                .filter(project -> isModifyAt(project.getModifyAt()) && isStatusING(project.getProject_status()))
                 .collect(Collectors.toList());
 
         if(projects.isEmpty()) return null;
