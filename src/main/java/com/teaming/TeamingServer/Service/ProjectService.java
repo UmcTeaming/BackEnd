@@ -1,10 +1,9 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Domain.Dto.ProjectStatusRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.ProjectCreateRequestDto;
-import com.teaming.TeamingServer.Domain.Dto.ProjectResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.ScheduleResponseDto;
-import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.Dto.request.ProjectInviteRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.ProjectStatusRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.ProjectCreateRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.response.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.InviteMember;
 import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Exception.BaseException;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

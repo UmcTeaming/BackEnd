@@ -1,10 +1,11 @@
 package com.teaming.TeamingServer.Controller;
 
-import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.Dto.request.CommentEnrollRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.response.CommentEnrollResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.response.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
-import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.Service.ProjectService;

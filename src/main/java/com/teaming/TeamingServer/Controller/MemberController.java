@@ -1,7 +1,8 @@
 package com.teaming.TeamingServer.Controller;
 
-import com.teaming.TeamingServer.Domain.Dto.*;
 import com.teaming.TeamingServer.Domain.Dto.mainPageDto.TestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.*;
+import com.teaming.TeamingServer.Domain.Dto.response.FilteredSchedules;
 import com.teaming.TeamingServer.Service.AwsS3Service;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Service.MemberService;
@@ -17,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j

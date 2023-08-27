@@ -1,10 +1,9 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.Dto.request.CheckCurrentPasswordRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.MemberChangePasswordRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.MemberNicknameChangeRequestDto;
 import org.springframework.http.ResponseEntity;
-
-import java.time.LocalDate;
-import java.util.List;
 
 public interface MemberService {
     ResponseEntity changePassword(Long memberId, MemberChangePasswordRequestDto memberChangePasswordRequestDto); // PasswordChange Request 매개변수로 들어갈 예정

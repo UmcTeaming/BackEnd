@@ -1,6 +1,11 @@
 package com.teaming.TeamingServer.Service;
 
-import com.teaming.TeamingServer.Domain.Dto.*;
+import com.teaming.TeamingServer.Domain.Dto.request.FilteringScheduleRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.MonthlyRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.request.MonthlyResponseDto;
+import com.teaming.TeamingServer.Domain.Dto.request.ScheduleEnrollRequestDto;
+import com.teaming.TeamingServer.Domain.Dto.response.FilteredSchedules;
+import com.teaming.TeamingServer.Domain.Dto.response.ScheduleCreateResponseDto;
 import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberScheduleRepository;
@@ -14,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
