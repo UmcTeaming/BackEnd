@@ -9,4 +9,6 @@ public interface JwtTokenProvider {
     Authentication getAuthentication(String accessToken);
     boolean validateToken(String token);
     void checkMemberId(Authentication authentication, HttpServletRequest request);
+    void logoutToken(String accessToken);
+    String resolveToken(HttpServletRequest request);
 }

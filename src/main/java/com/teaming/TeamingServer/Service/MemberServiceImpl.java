@@ -16,7 +16,9 @@ import com.teaming.TeamingServer.Domain.entity.*;
 import com.teaming.TeamingServer.Repository.*;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -46,11 +48,31 @@ public class MemberServiceImpl implements MemberService {
     private final ScheduleRepository scheduleRepository;
     private final MemberScheduleRepository memberScheduleRepository;
 
+    private final RedisTemplate redisTemplate;
+
     // 상수값들 - 메인 페이지에 반환할 프로젝들 개수들
     private final static int RECENTLY_PROJECT_NUM = 3;
     private final static int PROGRESS_PROJECT_NUM = 8;
     private final static int PORTFOLIO_PROJECT_NUM = 8;
 
+
+    @Override
+    @Transactional
+    public ResponseEntity logout(HttpServletRequest request) {
+        String accessToken = jwtTokenProviderImpl.resolveToken(request);
+
+        Object findToken = redisTemplate.opsForValue().get(accessToken);
+
+        if(findToken != null) {
+            ResponseEntity.status(HttpStatus.ALREADY_REPORTED)
+                    .body(new BaseErrorResponse(HttpStatus.ALREADY_REPORTED.value(), "이미 로그아웃 처리된 사용자입니다."));
+        }
+
+        jwtTokenProviderImpl.logoutToken(accessToken);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "로그아웃 되었습니다."));
+    }
 
 
     @Override
@@ -152,7 +174,6 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // (2) 찾은 프로젝트들이 있다면, 프로젝트 최근 시작 기준으로 정렬 - 최근 프로젝트
-
         List<RecentlyProject> recentlyProject = searchRecentlyProject(memberProject, RECENTLY_PROJECT_NUM);
 
         // (3) 진행중인 프로젝트 - 오름차순 정렬
