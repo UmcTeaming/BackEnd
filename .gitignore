@@ -49,3 +49,6 @@ application-db.properties
 
 ### s3 관련 정보 ###
 application-s3.properties
+
+### redis 관련 정보 ###
+application-redis.properties
