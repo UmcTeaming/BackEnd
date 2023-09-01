@@ -168,6 +168,11 @@ public class ProjectService {
 
         project.updateStatus(projectStatusRequestDto.getProject_status());
 
+        // 아직 프로젝트가 시작하지 않았다면, 프로젝트 시작 날짜를 오늘 날짜로 설정
+        if(project.getStart_date().isAfter(LocalDate.now())) {
+            project.updateStartDate(LocalDate.now());
+        }
+
         // 마감 버튼 누른 당일로 endDate 변경
         project.updateEndDate(LocalDate.now());
 
