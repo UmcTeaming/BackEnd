@@ -88,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void validateDuplicateEmail(String email) {
-        if(memberRepository.findByEmail(email).size() > 0) {
+        if(memberRepository.findByEmail(email).stream().toList().size() > 0) {
             throw new BadRequestException("이미 회원가입된 이메일입니다.");
         }
     }

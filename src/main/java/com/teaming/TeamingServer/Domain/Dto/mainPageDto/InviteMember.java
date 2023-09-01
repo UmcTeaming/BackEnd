@@ -1,5 +1,6 @@
 package com.teaming.TeamingServer.Domain.Dto.mainPageDto;
 
+import com.teaming.TeamingServer.Domain.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
