@@ -4,6 +4,7 @@ import com.teaming.TeamingServer.Config.Jwt.JwtAuthenticationFilter;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProviderImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,13 +20,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProviderImpl jwtTokenProviderImpl;
+    private final RedisTemplate redisTemplate;
 
     private String[] possibleAccess = {"/api/auth/signup"
             , "/api/auth/email-duplication", "/api/auth/email-verification", "/api/auth/login"
-            , "/api/auth/reset-password", "/api/error", "/api", "/error", "/auth/**", "/files/{memberId}/{projectId}/files/{fileId}/download"};
+            , "/api/auth/reset-password", "/api/error", "/api", "/error", "/auth/**"};
 
-    public SecurityConfig(JwtTokenProviderImpl jwtTokenProviderImpl) {
+    public SecurityConfig(JwtTokenProviderImpl jwtTokenProviderImpl, RedisTemplate redisTemplate) {
         this.jwtTokenProviderImpl = jwtTokenProviderImpl;
+        this.redisTemplate = redisTemplate;
     }
 
     @Bean
@@ -62,7 +65,7 @@ public class SecurityConfig {
 //        http
 //                .headers((header) -> header.addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "ContentDisposition")));
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProviderImpl), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProviderImpl, redisTemplate), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

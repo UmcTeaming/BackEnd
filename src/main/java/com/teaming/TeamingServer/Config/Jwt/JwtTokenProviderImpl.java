@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -17,12 +18,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,41 +36,15 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     private final Long expiration = System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30; // 유효 기간 한달!
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
+    private final RedisTemplate redisTemplate;
 
-    public JwtTokenProviderImpl(@Value("${jwt.secret}") String secretKey, AuthenticationManagerBuilder authenticationManagerBuilder, MemberRepository memberRepository) {
+    public JwtTokenProviderImpl(@Value("${jwt.secret}") String secretKey, AuthenticationManagerBuilder authenticationManagerBuilder, MemberRepository memberRepository, RedisTemplate redisTemplate) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.memberRepository = memberRepository;
+        this.redisTemplate = redisTemplate;
         byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);
         this.key = Keys.hmacShaKeyFor(secretByteKey);
     }
-
-//    @Override
-//    public JwtToken generateToken(Authentication authentication) {
-//        String authorities = authentication.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(","));
-//
-//        // Access token 생성
-//        String accessToken = Jwts.builder()
-//                .setSubject(authentication.getName())
-//                .claim("auth", authorities)
-//                .setExpiration(new Date(expiration))
-//                .signWith(key, SignatureAlgorithm.HS256)
-//                .compact();
-//
-//        log.info("expiration = " + new Date(expiration));
-//
-////        // Refresh token 생성
-////        String refreshToken = Jwts.builder()
-////                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 36))
-////                .signWith(key, SignatureAlgorithm.HS256)
-////                .compact();
-//
-//        return JwtToken.builder()
-//                .grantType("Bearer")
-//                .accessToken(accessToken)
-//                .build();
-//    }
 
     @Override
     public JwtToken generateToken(Member member) {
@@ -108,6 +85,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
+    @Override
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -147,6 +125,45 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         }
     }
 
+    @Override
+    public void logoutToken(String accessToken) {
+        if(validateToken(accessToken)) {
+            Long expirationDate = getExpiration(accessToken);
+            // redis 에 로그아웃 토큰 저장
+            redisTemplate.opsForValue().set(accessToken, "logout", expirationDate, TimeUnit.MILLISECONDS);
+            log.info("redis value : " + redisTemplate.opsForValue().get(accessToken));
+        }
+    }
+
+    @Override
+    // 헤더에서 토큰 추출
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer") && !bearerToken.equals("Bearer null")) {
+            return bearerToken.substring(7);
+        }
+
+        return null;
+    }
+
+    private Long getExpiration(String accessToken) {
+        // accessToken 남은 유효 시간
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody()
+                .getExpiration();
+
+        // 현재 시간
+        Long now = new Date().getTime();
+
+        return (expiration.getTime() - now);
+    }
+
+    // api/~ 이렇게 요청이 들어오면 parts[2] 를 검사
+    // auth/~ 이렇게 요청이 들어오면 parts[1] 을 검사
     private boolean checkApiURL(String[] parts) {
         return parts[1].equals("auth");
     }

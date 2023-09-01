@@ -9,6 +9,7 @@ import com.teaming.TeamingServer.Service.MemberService;
 import com.teaming.TeamingServer.Service.ScheduleService;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,11 @@ public class MemberController {
     private final MemberService memberService;
     private final AwsS3Service awsS3Service;
     private final ScheduleService scheduleService;
+
+    @DeleteMapping("/member/{memberId}/logout")
+    public ResponseEntity logout(HttpServletRequest request) {
+        return memberService.logout(request);
+    }
 
     @PostMapping("/member/{memberId}/change-password/check-password")
     public ResponseEntity checkCurrentPassword(@PathVariable("memberId") Long memberId
