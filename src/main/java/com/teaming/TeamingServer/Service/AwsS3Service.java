@@ -1,7 +1,12 @@
 package com.teaming.TeamingServer.Service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
+import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Exception.BaseException;
@@ -9,16 +14,20 @@ import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
+import com.teaming.TeamingServer.common.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @Slf4j
 @Service
@@ -97,6 +106,31 @@ public class AwsS3Service {
     }
 
     @Transactional
+    public String projectFileUpload(MultipartFile multipartFile, String key, Long projectID) {
+        try {
+
+            // 파일 이름 받기 : 파일 이름이 중복될 수 있으니, 랜덤 숫자 추가
+            String fileName = projectID + "-" + KeyGenerator.createKey() + multipartFile.getOriginalFilename();
+
+            // 파일 메타데이터 빼서, S3 에 저장할 수 있도록 세팅하기
+            ObjectMetadata metadata= new ObjectMetadata();
+            metadata.setContentType(multipartFile.getContentType());
+            metadata.setContentLength(multipartFile.getSize());
+
+            // S3 에 업로드
+            amazonS3Client.putObject(bucket,key + fileName , multipartFile.getInputStream(), metadata);
+
+            // S3 에 업로드한 파일 링크 생성하기
+            String fileUrl = generateS3Link(bucket, key + fileName);
+
+            return fileUrl;
+
+        } catch (Exception e) {
+            throw new BaseException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+
+    @Transactional
     // 원래 있던 파일 삭제
     public void deleteFile(String imageLink) {
 
@@ -113,5 +147,15 @@ public class AwsS3Service {
     private String generateS3Link(String bucket, String key) {
         //https://teamingbucket.s3.ap-northeast-2.amazonaws.com
         return "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + key;
+    }
+
+    private String getFileName(String fileUrl) {
+        try {
+            String[] fileLink = fileUrl.split("/");
+            String fileName = "/" + fileLink[fileLink.length-2] + "/" + fileLink[fileLink.length - 1];
+            return fileName;
+        } catch (Exception e) {
+            throw new BaseException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 }
