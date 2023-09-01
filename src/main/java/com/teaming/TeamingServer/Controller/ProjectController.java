@@ -212,7 +212,12 @@ public class ProjectController {
     @PostMapping("/{memberId}/{projectId}/invitations")
     public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
             , @PathVariable("projectId") Long projectId) {
-        return projectService.inviteMember(projectInviteRequestDto, projectId);
+
+        try {
+            return projectService.inviteMember(projectInviteRequestDto, projectId);
+        } catch (BaseException baseException) {
+            return ResponseEntity.status(baseException.getCode()).body(baseException);
+        }
     }
 
     // 프로젝트 상태 바꾸기
