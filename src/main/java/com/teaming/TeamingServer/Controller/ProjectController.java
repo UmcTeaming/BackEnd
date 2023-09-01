@@ -97,8 +97,6 @@ public class ProjectController {
                                                                           @PathVariable Long memberId,
                                                                           @RequestPart MultipartFile file) {
         try {
-
-
            FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, false);
             return ResponseEntity
                     .status(HttpStatus.OK)
