@@ -38,6 +38,7 @@ public class FileService {
     private final FileRepository fileRepository;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private final AwsS3Service awsS3Service;
 
     @Value("${file.upload-dir}")
     public String fileDir;
@@ -63,6 +64,7 @@ public class FileService {
 
     //파일 업로드
     public FileUploadResponseDto generateFile(Long projectId, Long memberId, MultipartFile file, Boolean fileStatus) {
+
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(404, "Project not found"));
 
@@ -70,21 +72,12 @@ public class FileService {
                 .orElseThrow(() -> new BaseException(404, "Member not found"));
 
 
-        // 파일 정보 저장
-       // String sourceFileName = "projectId" + projectId + "-" +file.getOriginalFilename();
-        String sourceFileName = "projectId" + projectId + "-" + file.getOriginalFilename();
-        if (StringUtils.isEmpty(sourceFileName)) {
-            throw new BaseException(400, "File name is not valid");
-        }
-
-        String sourceFileNameExtension = FilenameUtils.getExtension(sourceFileName).toLowerCase();
-        FilenameUtils.removeExtension(sourceFileName);
-
-        String fileUrl = fileDir;
+        // 파일 S3 에 저장
+        String fileUrl = awsS3Service.projectFileUpload(file, "file/", projectId);
 
         File newFile = File.builder()
-                .fileName(sourceFileName)
-                .file_type(sourceFileNameExtension)
+                .fileName(file.getOriginalFilename())
+                .file_type(FilenameUtils.getExtension(file.getOriginalFilename()).toLowerCase())
                 .fileUrl(fileUrl)
                 .project(project)
                 .member(member)
@@ -93,24 +86,13 @@ public class FileService {
 
         fileRepository.save(newFile);
 
-        // 파일 저장
-        try {
-            //String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-            String fileName = StringUtils.cleanPath(sourceFileName);
-            Path filePath = Paths.get(fileDir, fileName);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new BaseException(500, "Fail to save file");
-        }
-
         FileUploadResponseDto fileUploadResponseDto = new FileUploadResponseDto(newFile.getFile_id());
 
         return fileUploadResponseDto;
     }
 
 
-    //파일 삭제
+    // 파일 삭제
     public void deleteFile(Long projectId, Long memberId, Long fileId) {
 
         Member member = memberRepository.findById(memberId)
@@ -120,8 +102,8 @@ public class FileService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
 
+        awsS3Service.deleteFile(file.getFileUrl());
         fileRepository.delete(file); // 파일 엔티티를 데이터베이스에서 삭제
-        // 파일 삭제
     }
 
     // 프로젝트 파일 조회

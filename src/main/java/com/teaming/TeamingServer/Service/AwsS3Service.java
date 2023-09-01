@@ -9,6 +9,7 @@ import com.teaming.TeamingServer.Repository.MemberRepository;
 import com.teaming.TeamingServer.Repository.ProjectRepository;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
+import com.teaming.TeamingServer.common.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,6 +94,31 @@ public class AwsS3Service {
 
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    @Transactional
+    public String projectFileUpload(MultipartFile multipartFile, String key, Long projectID) {
+        try {
+
+            // 파일 이름 받기 : 파일 이름이 중복될 수 있으니, 랜덤 숫자 추가
+            String fileName = projectID + "-" + KeyGenerator.createKey() + multipartFile.getOriginalFilename();
+
+            // 파일 메타데이터 빼서, S3 에 저장할 수 있도록 세팅하기
+            ObjectMetadata metadata= new ObjectMetadata();
+            metadata.setContentType(multipartFile.getContentType());
+            metadata.setContentLength(multipartFile.getSize());
+
+            // S3 에 업로드
+            amazonS3Client.putObject(bucket,key + fileName , multipartFile.getInputStream(), metadata);
+
+            // S3 에 업로드한 파일 링크 생성하기
+            String fileUrl = generateS3Link(bucket, key + fileName);
+
+            return fileUrl;
+
+        } catch (Exception e) {
+            throw new BaseException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         }
     }
 
