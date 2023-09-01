@@ -1,5 +1,6 @@
 package com.teaming.TeamingServer.Service;
 
+import com.teaming.TeamingServer.Domain.Dto.request.FilteringScheduleRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.request.ProjectInviteRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.request.ProjectStatusRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.request.ProjectCreateRequestDto;
@@ -110,11 +111,11 @@ public class ProjectService {
                 -> new BaseException(HttpStatus.NOT_FOUND.value(), "유효하지 않은 멤버 ID "));
         // 프로젝트에 해당하는 스케줄들을 조회한다.
 
-        // 조회한 스케줄들을 ScheduleResponseDto 형태로 변환하여 리스트에 담는다.
         List<ScheduleResponseDto> result = project.getSchedules().stream()
                 .map(schedule -> new ScheduleResponseDto(schedule.getSchedule_id(),schedule.getSchedule_name(), schedule.getSchedule_start(),
                  schedule.getSchedule_start_time(), schedule.getSchedule_end(),
-                        schedule.getSchedule_end_time())).collect(Collectors.toList());
+                        schedule.getSchedule_end_time(), schedule.getProject().getProject_color())).collect(Collectors.toList());
+
 
         if (result.isEmpty()) {
             return null;
@@ -139,27 +140,6 @@ public class ProjectService {
 
         return scheduleRead;
     }
-
-//        public SingleFileResponseDto searchOneFile(Long memberId, Long projectId, Long fileId) {
-//
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new BaseException(404, "Member not found"));
-//        Project project = projectRepository.findById(projectId)
-//                .orElseThrow(() -> new BaseException(404, "Project not found"));
-//
-//        File file = fileRepository.findById(fileId)
-//                .orElseThrow(() -> new BaseException(404, "File not found"));
-//
-//        SingleFileResponseDto information = new SingleFileResponseDto(
-//                file.getFile_type(),
-//                file.getFileName(),
-//                file.getMember().getName(),
-//                file.getCreatedAt().toLocalDate()
-//        );
-//
-//        return information;
-//
-//    }
 
     // 프로젝트 마감 (상태 변경)
     @Transactional

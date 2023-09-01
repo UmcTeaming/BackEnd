@@ -1,5 +1,6 @@
 package com.teaming.TeamingServer.Controller;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.teaming.TeamingServer.Domain.Dto.request.CommentEnrollRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.response.CommentEnrollResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.response.CommentResponseDto;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -104,30 +106,29 @@ public class FileController {
     @CrossOrigin(origins = {"http://localhost:3000", "https://localhost:3000"
                 , "https://teaming-six.vercel.app/", "http://teaming-six.vercel.app/"}
                 , exposedHeaders = "Content-Disposition")
-    public ResponseEntity<Resource> downloadAttach(@PathVariable("fileId") Long fileId)
-            throws MalformedURLException {
+    public ResponseEntity download(@PathVariable("fileId") Long fileId) throws MalformedURLException {
 
         File file = fileRepository.findById(fileId).orElseThrow(
                 () -> new BaseException(404, "유효하지 않은 파일 ID")
         );
 
-        String storeFileName = file.getFileName();
-        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        UrlResource urlResource = new UrlResource(file.getFileUrl());
 
-        try {
-            headers.add("Content-Disposition",
-                    "attachment; filename=" +
-                            new String(storeFileName.getBytes("UTF-8"), "ISO-8859-1"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new BaseException(HttpStatus.NO_CONTENT.value(), e.getMessage());
-        }
+        String contentDisposition = "attachment; filename=\"" +  file.getFileName() + "\"";
 
-        UrlResource resource = new UrlResource("file:" +
-                fileService.getFullPath(storeFileName));
-
-        return new ResponseEntity(resource, headers, HttpStatus.OK);
+        // header에 CONTENT_DISPOSITION 설정을 통해 클릭 시 다운로드 진행
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+                .body(urlResource);
     }
 
+    @GetMapping("/{memberId}/{projectId}/files/{fileId}/view")
+    public ResponseEntity fileViewer(@PathVariable("fileId") Long fileId) {
+        File file = fileRepository.findById(fileId).orElseThrow(
+                () -> new BaseException(404, "유효하지 않은 파일 ID")
+        );
 
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(HttpStatus.OK.value(), "파일 링크입니다.", file.getFileUrl()));
+    }
 }

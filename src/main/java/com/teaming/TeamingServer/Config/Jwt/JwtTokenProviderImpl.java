@@ -165,17 +165,10 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     // api/~ 이렇게 요청이 들어오면 parts[2] 를 검사
     // auth/~ 이렇게 요청이 들어오면 parts[1] 을 검사
     private boolean checkApiURL(String[] parts) {
-        if(parts[1].equals("api")) {
-            return parts[2].equals("auth");
-        }
         return parts[1].equals("auth");
     }
 
     private Long getMemberId(String[] parts) {
-        if(parts[1].equals("api")) {
-            return Long.parseLong(parts[3]);
-        }
-
         return Long.parseLong(parts[2]);
     }
 
