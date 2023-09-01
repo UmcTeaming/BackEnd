@@ -80,9 +80,7 @@ public class ProjectService {
         String projectImage = null;
         // 프로젝트 이미지를 수정할 파일이 있는 경우 - S3 저장소에서 파일을 지움
         if(project.getProject_image() != null) {
-            // 1. S3 에서 이미지 삭제
             awsS3Service.deleteFile(project.getProject_image());
-            // 2. 이미지 저장 후, 이미지 파일 경로 받아오기
             projectImage = awsS3Service.projectImageUpload(projectCreateRequestDto.getProject_image(), "projectImage/", projectCreateRequestDto.getProject_name());
         }
 
@@ -164,24 +162,18 @@ public class ProjectService {
     // 프로젝트 마감 (상태 변경)
     @Transactional
     public ResponseEntity projectChangeStatus(ProjectStatusRequestDto projectStatusRequestDto, Long projectId) {
-        Optional<Project> projects = projectRepository.findById(projectId);
-        if(projects.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 프로젝트입니다."));
-        }
 
-        Project project = projects.stream().findFirst().get();
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 Id"));
 
-        Project result = project.updateStatus(projectStatusRequestDto.getProject_status());
+        project.updateStatus(projectStatusRequestDto.getProject_status());
 
         // 마감 버튼 누른 당일로 endDate 변경
-        LocalDate endDate = LocalDate.now();
-
-        result = result.updateEndDate(endDate);
+        project.updateEndDate(LocalDate.now());
 
         ProjectStatusResponse projectStatusResponse = ProjectStatusResponse
-                .builder().startDate(result.getStart_date())
-                .endDate(result.getEnd_date()).build();
+                .builder().startDate(project.getStart_date())
+                .endDate(project.getEnd_date()).build();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse<ProjectStatusResponse>(HttpStatus.OK.value(), "프로젝트가 종료되었습니다.", projectStatusResponse));
