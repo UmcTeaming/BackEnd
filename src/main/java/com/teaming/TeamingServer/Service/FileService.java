@@ -1,6 +1,7 @@
 package com.teaming.TeamingServer.Service;
 
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.teaming.TeamingServer.Domain.Dto.response.*;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
@@ -39,9 +40,6 @@ public class FileService {
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
     private final AwsS3Service awsS3Service;
-
-    @Value("${file.upload-dir}")
-    public String fileDir;
 
     // 코멘트 찾기
     public List<CommentResponseDto> searchComment(Long memberId, Long fileId) {
@@ -229,10 +227,6 @@ public class FileService {
                 .map(entry -> new FileListResponseDto(entry.getKey().atStartOfDay(), entry.getValue()))
                 .collect(Collectors.toList());
 
-    }
-
-    public String getFullPath(String filename) {
-        return fileDir + filename;
     }
 }
 

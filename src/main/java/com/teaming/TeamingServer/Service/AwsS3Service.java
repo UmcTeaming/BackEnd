@@ -1,7 +1,12 @@
 package com.teaming.TeamingServer.Service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
+import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Domain.entity.Project;
 import com.teaming.TeamingServer.Exception.BaseException;
@@ -13,13 +18,16 @@ import com.teaming.TeamingServer.common.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @Slf4j
 @Service
@@ -139,5 +147,15 @@ public class AwsS3Service {
     private String generateS3Link(String bucket, String key) {
         //https://teamingbucket.s3.ap-northeast-2.amazonaws.com
         return "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + key;
+    }
+
+    private String getFileName(String fileUrl) {
+        try {
+            String[] fileLink = fileUrl.split("/");
+            String fileName = "/" + fileLink[fileLink.length-2] + "/" + fileLink[fileLink.length - 1];
+            return fileName;
+        } catch (Exception e) {
+            throw new BaseException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 }

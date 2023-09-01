@@ -22,7 +22,7 @@ public class SecurityConfig {
 
     private String[] possibleAccess = {"/api/auth/signup"
             , "/api/auth/email-duplication", "/api/auth/email-verification", "/api/auth/login"
-            , "/api/auth/reset-password", "/api/error", "/api", "/error", "/auth/**"};
+            , "/api/auth/reset-password", "/api/error", "/api", "/error", "/auth/**", "/files/{memberId}/{projectId}/files/{fileId}/download"};
 
     public SecurityConfig(JwtTokenProviderImpl jwtTokenProviderImpl) {
         this.jwtTokenProviderImpl = jwtTokenProviderImpl;
