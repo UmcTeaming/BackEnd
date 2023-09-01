@@ -79,6 +79,11 @@ public class Project extends Time {
         return this;
     }
 
+    public Project updateStartDate(LocalDate startDate) {
+        this.start_date = startDate;
+        return this;
+    }
+
     public Project updateStatus(Status project_status) {
         this.project_status = project_status;
 

@@ -81,9 +81,7 @@ public class ProjectService {
         String projectImage = null;
         // 프로젝트 이미지를 수정할 파일이 있는 경우 - S3 저장소에서 파일을 지움
         if(project.getProject_image() != null) {
-            // 1. S3 에서 이미지 삭제
             awsS3Service.deleteFile(project.getProject_image());
-            // 2. 이미지 저장 후, 이미지 파일 경로 받아오기
             projectImage = awsS3Service.projectImageUpload(projectCreateRequestDto.getProject_image(), "projectImage/", projectCreateRequestDto.getProject_name());
         }
 
@@ -144,24 +142,23 @@ public class ProjectService {
     // 프로젝트 마감 (상태 변경)
     @Transactional
     public ResponseEntity projectChangeStatus(ProjectStatusRequestDto projectStatusRequestDto, Long projectId) {
-        Optional<Project> projects = projectRepository.findById(projectId);
-        if(projects.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 프로젝트입니다."));
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(404, "유효하지 않은 프로젝트 Id"));
+
+        project.updateStatus(projectStatusRequestDto.getProject_status());
+
+        // 아직 프로젝트가 시작하지 않았다면, 프로젝트 시작 날짜를 오늘 날짜로 설정
+        if(project.getStart_date().isAfter(LocalDate.now())) {
+            project.updateStartDate(LocalDate.now());
         }
 
-        Project project = projects.stream().findFirst().get();
-
-        Project result = project.updateStatus(projectStatusRequestDto.getProject_status());
-
         // 마감 버튼 누른 당일로 endDate 변경
-        LocalDate endDate = LocalDate.now();
-
-        result = result.updateEndDate(endDate);
+        project.updateEndDate(LocalDate.now());
 
         ProjectStatusResponse projectStatusResponse = ProjectStatusResponse
-                .builder().startDate(result.getStart_date())
-                .endDate(result.getEnd_date()).build();
+                .builder().startDate(project.getStart_date())
+                .endDate(project.getEnd_date()).build();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse<ProjectStatusResponse>(HttpStatus.OK.value(), "프로젝트가 종료되었습니다.", projectStatusResponse));
@@ -174,61 +171,41 @@ public class ProjectService {
         String email = projectInviteRequestDto.getEmail();
 
         // 멤버가 존재 하는지 조회
-        List<Member> findMember = memberRepository.findByEmail(email);
-
-        if(findMember.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new BaseErrorResponse(HttpStatus.NOT_FOUND.value(), "회원이 아닌 초대자 입니다."));
-        }
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                () -> new BaseException(HttpStatus.NOT_FOUND.value(), "회원이 아닌 초대자 입니다."));
 
         // 프로젝트가 존재하는지 조회
-        Optional<Project> project = projectRepository.findById(projectId);
-
-        if(project.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new BaseErrorResponse(HttpStatus.NOT_FOUND.value(), "존재하지 않는 프로젝트 입니다."));
-        }
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "존재하지 않는 프로젝트 입니다."));
 
 
         // 프로젝트로 저장 전에 이미 이 프로젝트에 참여 중인지 확인
-        List<MemberProject> resultMemberProject = memberProjectRepository.findByProject(project.stream().findFirst().get());
+        List<MemberProject> memberProjects = project.getMemberProjects();
 
-        //  프로젝트에 참여 중인 멤버가 없지 않다면, 프로젝트에 이미 속한 초대자가 아닌지 확인
-        if(!resultMemberProject.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                    .body(new BaseErrorResponse(HttpStatus.BAD_REQUEST.value(), "프로젝트 참여자가 없습니다."));
-            for(int i = 0; i<resultMemberProject.size(); i++) {
-                if(resultMemberProject.get(i).getMember().equals(findMember.stream().findFirst().get())) {
-                    return ResponseEntity.status(HttpStatus.ALREADY_REPORTED)
-                            .body(new BaseErrorResponse(HttpStatus.ALREADY_REPORTED.value(), "이미 참여 중인 초대자입니다."));
-                }
-            }
+        List<Member> members = memberProjects.stream()
+                .map(MemberProject::getMember)
+                .filter(m -> m.equals(member)) // 초대자가 이 프로젝트에 있는지
+                .collect(Collectors.toList());
+
+        if(members.isEmpty()) {
+            throw new BaseException(HttpStatus.ALREADY_REPORTED.value(), "이미 참여 중인 초대자입니다.");
         }
 
         // Member 초대 - MemberProject 에 찾은 멤버 추가하기
         MemberProject memberProject = MemberProject.builder()
-                .member(findMember.stream().findFirst().get())
-                .project(project.stream().findFirst().get())
+                .member(member)
+                .project(project)
                 .build();
 
         memberProjectRepository.save(memberProject); // 프로젝트에 참여하는 member 로 매핑 후 저장
 
-        List<InviteMember> inviteMembers = new ArrayList<>();
-        resultMemberProject = memberProjectRepository.findByProject(project.stream().findFirst().get());
-
-        for(int i = 0; i<resultMemberProject.size(); i++) {
-            // 프로젝트 참가 중인 멤버 객체
-            Member member = resultMemberProject.get(i).getMember();
-            InviteMember inviteMember = InviteMember.builder()
-                    .member_name(member.getName())
-                    .member_image(member.getProfile_image())
-                    .member_email(member.getEmail()).build();
-
-            inviteMembers.add(inviteMember);
-        }
+        List<InviteMember> inviteMembers = memberProjects.stream()
+                .map(MemberProject::getMember)
+                .map(Member::toInviteMember)
+                .collect(Collectors.toList());
 
         ProjectInviteResponseDto projectInviteResponseDto = ProjectInviteResponseDto.builder()
-                .members(inviteMembers).build();
+                                                            .members(inviteMembers).build();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse<ProjectInviteResponseDto>(HttpStatus.OK.value(), "초대가 완료되었습니다.", projectInviteResponseDto));
