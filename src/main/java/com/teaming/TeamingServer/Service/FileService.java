@@ -130,6 +130,7 @@ public class FileService {
                             fileName,
                             file.getFileUrl(),
                             commentCount,
+                            project.getProject_status(),
                             file.getFile_id()
                     );
 
@@ -206,6 +207,7 @@ public class FileService {
                             fileName,
                             file.getFileUrl(),
                             commentCount,
+                            project.getProject_status(),
                             file.getFile_id()
                     );
 
