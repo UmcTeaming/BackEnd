@@ -17,7 +17,9 @@ import com.teaming.TeamingServer.common.BaseResponse;
 import com.teaming.TeamingServer.common.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,6 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -106,7 +110,7 @@ public class AwsS3Service {
     }
 
     @Transactional
-    public String projectFileUpload(MultipartFile multipartFile, String key, Long projectID) {
+    public String[] projectFileUpload(MultipartFile multipartFile, String key, Long projectID) {
         try {
 
             // 파일 이름 받기 : 파일 이름이 중복될 수 있으니, 랜덤 숫자 추가
@@ -121,12 +125,25 @@ public class AwsS3Service {
             amazonS3Client.putObject(bucket,key + fileName , multipartFile.getInputStream(), metadata);
 
             // S3 에 업로드한 파일 링크 생성하기
-            String fileUrl = generateS3Link(bucket, key + fileName);
+            String[] fileUrl_storedFileName = {generateS3Link(bucket, key + fileName), fileName};
 
-            return fileUrl;
+            return fileUrl_storedFileName;
 
         } catch (Exception e) {
             throw new BaseException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+
+    @Transactional
+    public byte[] download(File file) {
+
+        S3Object s3Object = amazonS3Client.getObject(bucket, "file/" + file.getStoredFileName());
+        S3ObjectInputStream inputStream = s3Object.getObjectContent();
+        try {
+            byte[] content = IOUtils.toByteArray(inputStream);
+            return content;
+        } catch (IOException e) {
+            throw new BaseException(HttpStatus.NO_CONTENT.value(), e.getMessage());
         }
     }
 
@@ -147,15 +164,5 @@ public class AwsS3Service {
     private String generateS3Link(String bucket, String key) {
         //https://teamingbucket.s3.ap-northeast-2.amazonaws.com
         return "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + key;
-    }
-
-    private String getFileName(String fileUrl) {
-        try {
-            String[] fileLink = fileUrl.split("/");
-            String fileName = "/" + fileLink[fileLink.length-2] + "/" + fileLink[fileLink.length - 1];
-            return fileName;
-        } catch (Exception e) {
-            throw new BaseException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
     }
 }

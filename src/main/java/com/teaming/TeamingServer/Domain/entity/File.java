@@ -24,6 +24,9 @@ public class File extends Time {
     @Column(nullable = false)
     private String fileName; // 파일 이름 저장
 
+    @Column(nullable = false)
+    private String storedFileName; // 저장된 파일 이름
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
@@ -42,8 +45,9 @@ public class File extends Time {
     private String fileUrl;
 
     @Builder
-    public File(String fileName, String file_type, Project project, Member member, String fileUrl, Boolean file_status) {
+    public File(String fileName, String storedFileName, String file_type, Project project, Member member, String fileUrl, Boolean file_status) {
         this.fileName = fileName;
+        this.storedFileName = storedFileName;
         this.fileUrl = fileUrl;
         this.file_type = file_type;
         this.project = project;
