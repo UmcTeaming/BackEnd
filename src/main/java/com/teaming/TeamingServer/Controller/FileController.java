@@ -7,6 +7,7 @@ import com.teaming.TeamingServer.Domain.Dto.response.CommentResponseDto;
 import com.teaming.TeamingServer.Domain.entity.File;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.FileRepository;
+import com.teaming.TeamingServer.Service.AwsS3Service;
 import com.teaming.TeamingServer.Service.CommentService;
 import com.teaming.TeamingServer.Service.FileService;
 import com.teaming.TeamingServer.Service.ProjectService;
@@ -14,6 +15,7 @@ import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +38,7 @@ public class FileController {
     private final CommentService commentService;
     private final FileService fileService;
     private final FileRepository fileRepository;
+    private final AwsS3Service awsS3Service;
     private final ProjectService projectService;
 
 
@@ -112,14 +115,16 @@ public class FileController {
                 () -> new BaseException(404, "유효하지 않은 파일 ID")
         );
 
-        UrlResource urlResource = new UrlResource(file.getFileUrl());
+        byte[] data = awsS3Service.download(file);
 
-        String contentDisposition = "attachment; filename=\"" +  file.getFileName() + "\"";
+        ByteArrayResource resource = new ByteArrayResource(data);
 
-        // header에 CONTENT_DISPOSITION 설정을 통해 클릭 시 다운로드 진행
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-                .body(urlResource);
+        return ResponseEntity
+                .ok()
+                .contentLength(data.length)
+                .header("Content-type", "application/octet-stream")
+                .header("Content-disposition", "attachment; filename=\"" + file.getFileName() + "\"")
+                .body(resource);
     }
 
     @GetMapping("/{memberId}/{projectId}/files/{fileId}/view")

@@ -69,14 +69,14 @@ public class FileService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(404, "Member not found"));
 
-
         // 파일 S3 에 저장
-        String fileUrl = awsS3Service.projectFileUpload(file, "file/", projectId);
+        String[] fileUrl_storedFileName = awsS3Service.projectFileUpload(file, "file/", projectId);
 
         File newFile = File.builder()
                 .fileName(file.getOriginalFilename())
+                .storedFileName(fileUrl_storedFileName[1])
                 .file_type(FilenameUtils.getExtension(file.getOriginalFilename()).toLowerCase())
-                .fileUrl(fileUrl)
+                .fileUrl(fileUrl_storedFileName[0])
                 .project(project)
                 .member(member)
                 .file_status(fileStatus) // file_status 설정
