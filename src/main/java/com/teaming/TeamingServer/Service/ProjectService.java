@@ -207,7 +207,7 @@ public class ProjectService {
                 .filter(m -> m.equals(member)) // 초대자가 이 프로젝트에 있는지
                 .collect(Collectors.toList());
 
-        if(members.isEmpty()) {
+        if(!members.isEmpty()) {
             throw new BaseException(HttpStatus.ALREADY_REPORTED.value(), "이미 참여 중인 초대자입니다.");
         }
 
