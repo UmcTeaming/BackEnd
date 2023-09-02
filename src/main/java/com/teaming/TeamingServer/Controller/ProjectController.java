@@ -216,7 +216,8 @@ public class ProjectController {
         try {
             return projectService.inviteMember(projectInviteRequestDto, projectId);
         } catch (BaseException baseException) {
-            return ResponseEntity.status(baseException.getCode()).body(baseException);
+            return ResponseEntity.status(baseException.getCode())
+                    .body(new BaseErrorResponse(baseException.getCode(), baseException.getMessage()));
         }
     }
 
