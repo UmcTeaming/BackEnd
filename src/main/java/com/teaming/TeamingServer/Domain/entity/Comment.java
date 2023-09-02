@@ -39,5 +39,4 @@ public class Comment extends Time {
         this.file = file;
         this.member = member;
     }
-
 }
