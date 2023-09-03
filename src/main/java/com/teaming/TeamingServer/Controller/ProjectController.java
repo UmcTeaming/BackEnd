@@ -334,12 +334,12 @@ public class ProjectController {
     }
 
     // 프로젝트 삭제
-
     @DeleteMapping("/delete/{memberId}/{projectId}")
     public ResponseEntity<BaseResponse> deleteProject(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId){
         try{
 
             projectService.deleteProject(memberId,projectId);
+
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new BaseResponse(HttpStatus.OK.value(),"프로젝트를 삭제했습니다", null));
