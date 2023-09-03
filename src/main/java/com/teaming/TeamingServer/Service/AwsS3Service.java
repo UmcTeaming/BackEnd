@@ -167,6 +167,7 @@ public class AwsS3Service {
     }
 
     // 프로젝트 파일 삭제하기
+    @Transactional
     public void deleteProjectFiles(List<File> filesToDelete){
         try{
             for(File file : filesToDelete)

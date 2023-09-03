@@ -259,9 +259,10 @@ public class ProjectService {
         
        List<File> filesToDelete = project.getFiles();
 
-       awsS3Service.deleteFile(project.getProject_image());
+        if (project.getProject_image() != null) {
+            awsS3Service.deleteFile(project.getProject_image());
+        }
        awsS3Service.deleteProjectFiles(filesToDelete);
-
        projectRepository.delete(project);
     }
 
