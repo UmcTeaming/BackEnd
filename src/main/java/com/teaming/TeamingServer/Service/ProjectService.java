@@ -246,4 +246,18 @@ public class ProjectService {
 
         return projectResponseDto;
     }
+
+
+    // 프로젝트 삭제
+    public void deleteProject(Long memberId, Long projectId){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Member not found"));
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
+        
+        projectRepository.delete(project);
+
+    }
+
 }
