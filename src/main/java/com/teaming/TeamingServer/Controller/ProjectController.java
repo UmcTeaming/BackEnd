@@ -334,10 +334,9 @@ public class ProjectController {
     }
 
     // 프로젝트 삭제
-    @DeleteMapping("/delete/{memberId}/{projectId}")
+    @DeleteMapping("/{memberId}/{projectId}/delete")
     public ResponseEntity<BaseResponse> deleteProject(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId){
         try{
-
             projectService.deleteProject(memberId,projectId);
 
             return ResponseEntity
