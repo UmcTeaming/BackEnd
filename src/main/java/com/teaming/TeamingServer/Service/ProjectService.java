@@ -1,5 +1,6 @@
 package com.teaming.TeamingServer.Service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.teaming.TeamingServer.Domain.Dto.request.FilteringScheduleRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.request.ProjectInviteRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.request.ProjectStatusRequestDto;
@@ -256,8 +257,12 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND.value(), "Project not found"));
         
-        projectRepository.delete(project);
+       List<File> filesToDelete = project.getFiles();
 
+       awsS3Service.deleteFile(project.getProject_image());
+       awsS3Service.deleteProjectFiles(filesToDelete);
+
+       projectRepository.delete(project);
     }
 
 }
