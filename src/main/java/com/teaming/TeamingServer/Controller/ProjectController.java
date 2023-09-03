@@ -332,5 +332,23 @@ public class ProjectController {
                     .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
         }
     }
+
+    // 프로젝트 삭제
+
+    @DeleteMapping("/{memberId}/{projectId}")
+    public ResponseEntity<BaseResponse> deleteProject(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId){
+        try{
+
+            projectService.deleteProject(memberId,projectId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse(HttpStatus.OK.value(),"프로젝트를 삭제했습니다", null));
+        }catch (BaseException e){
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
 }
 
