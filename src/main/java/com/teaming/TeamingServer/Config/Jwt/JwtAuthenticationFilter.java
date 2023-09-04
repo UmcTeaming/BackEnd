@@ -20,7 +20,6 @@ import java.io.IOException;
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
     private final JwtTokenProviderImpl jwtTokenProviderImpl;
-    private final RedisTemplate redisTemplate;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException, BaseException {
