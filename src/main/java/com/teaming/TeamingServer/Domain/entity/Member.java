@@ -1,6 +1,7 @@
 package com.teaming.TeamingServer.Domain.entity;
 
 
+import com.teaming.TeamingServer.Domain.Dto.mainPageDto.InviteMember;
 import com.teaming.TeamingServer.Domain.Dto.request.MemberRequestDto;
 import com.teaming.TeamingServer.Exception.BadRequestException;
 import jakarta.persistence.*;
@@ -106,5 +107,11 @@ public class Member extends Time {
         if(!isPasswordMatched(password)) {
             throw new BadRequestException("비밀번호가 일치하지 않습니다.");
         }
+    }
+
+    public InviteMember toInviteMember() {
+        InviteMember inviteMember = new InviteMember(this.name, this.profile_image, this.email);
+
+        return inviteMember;
     }
 }

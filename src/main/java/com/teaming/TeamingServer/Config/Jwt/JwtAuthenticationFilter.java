@@ -20,7 +20,6 @@ import java.io.IOException;
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
     private final JwtTokenProviderImpl jwtTokenProviderImpl;
-    private final RedisTemplate redisTemplate;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException, BaseException {
@@ -29,12 +28,12 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         try {
             // 토큰 유효성 검사
             if(token != null && jwtTokenProviderImpl.validateToken(token)) {
-                // (추가) Redis 에 해당 accessToken logout 여부 확인
-                String isLogout = (String) redisTemplate.opsForValue().get(token);
-
-                if(isLogout != null) {
-                    throw new BaseException(HttpStatus.FORBIDDEN.value(), "유효하지 않은 AccessToken 입니다.");
-                }
+//                // (추가) Redis 에 해당 accessToken logout 여부 확인
+//                String isLogout = (String) redisTemplate.opsForValue().get(token);
+//
+//                if(isLogout != null) {
+//                    throw new BaseException(HttpStatus.FORBIDDEN.value(), "유효하지 않은 AccessToken 입니다.");
+//                }
 
                 Authentication authentication = jwtTokenProviderImpl.getAuthentication(token);
                 jwtTokenProviderImpl.checkMemberId(authentication, (HttpServletRequest) request);

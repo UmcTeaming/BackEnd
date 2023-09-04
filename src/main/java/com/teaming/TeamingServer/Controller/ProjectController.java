@@ -97,8 +97,6 @@ public class ProjectController {
                                                                           @PathVariable Long memberId,
                                                                           @RequestPart MultipartFile file) {
         try {
-
-
            FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, false);
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -214,7 +212,13 @@ public class ProjectController {
     @PostMapping("/{memberId}/{projectId}/invitations")
     public ResponseEntity inviteMember(@RequestBody ProjectInviteRequestDto projectInviteRequestDto
             , @PathVariable("projectId") Long projectId) {
-        return projectService.inviteMember(projectInviteRequestDto, projectId);
+
+        try {
+            return projectService.inviteMember(projectInviteRequestDto, projectId);
+        } catch (BaseException baseException) {
+            return ResponseEntity.status(baseException.getCode())
+                    .body(new BaseErrorResponse(baseException.getCode(), baseException.getMessage()));
+        }
     }
 
     // 프로젝트 상태 바꾸기
@@ -322,6 +326,23 @@ public class ProjectController {
                     .status(HttpStatus.OK)
                     .body(new BaseResponse<>(HttpStatus.OK.value(), "프로젝트 정보를 불러왔습니다", projectDetail));
         } catch (BaseException e) {
+            BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
+            return ResponseEntity
+                    .status(e.getCode())
+                    .body(new BaseResponse<>(e.getCode(), e.getMessage(), null));
+        }
+    }
+
+    // 프로젝트 삭제
+    @DeleteMapping("/{memberId}/{projectId}/deletes")
+    public ResponseEntity<BaseResponse> deleteProject(@PathVariable("memberId") Long memberId, @PathVariable("projectId") Long projectId){
+        try{
+            projectService.deleteProject(memberId,projectId);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new BaseResponse(HttpStatus.OK.value(),"프로젝트를 삭제했습니다", null));
+        }catch (BaseException e){
             BaseErrorResponse errorResponse = new BaseErrorResponse(e.getCode(), e.getMessage());
             return ResponseEntity
                     .status(e.getCode())
