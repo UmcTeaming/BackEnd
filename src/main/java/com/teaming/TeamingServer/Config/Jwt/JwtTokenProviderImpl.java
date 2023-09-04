@@ -3,9 +3,11 @@ package com.teaming.TeamingServer.Config.Jwt;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
+import com.teaming.TeamingServer.Service.Utils.RedisUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -36,12 +38,12 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     private final Long expiration = System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30; // 유효 기간 한달!
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
-    private final RedisTemplate redisTemplate;
+    private final RedisUtil redisUtil;
 
-    public JwtTokenProviderImpl(@Value("${jwt.secret}") String secretKey, AuthenticationManagerBuilder authenticationManagerBuilder, MemberRepository memberRepository, RedisTemplate redisTemplate) {
+    public JwtTokenProviderImpl(@Value("${jwt.secret}") String secretKey, AuthenticationManagerBuilder authenticationManagerBuilder, MemberRepository memberRepository, RedisUtil redisUtil) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.memberRepository = memberRepository;
-        this.redisTemplate = redisTemplate;
+        this.redisUtil = redisUtil;
         byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);
         this.key = Keys.hmacShaKeyFor(secretByteKey);
     }
@@ -89,6 +91,10 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            // 추가된 부분
+            if (redisUtil.hasKeyBlackList(token)){
+                throw new BaseException(HttpStatus.FORBIDDEN.value(), "로그아웃한 토큰입니다.");
+            }
             return true;
         } catch (io.jsonwebtoken.security.SignatureException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
@@ -130,10 +136,20 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         if(validateToken(accessToken)) {
             Long expirationDate = getExpiration(accessToken);
             // redis 에 로그아웃 토큰 저장
-            redisTemplate.opsForValue().set(accessToken, "logout", expirationDate, TimeUnit.MILLISECONDS);
-            log.info("redis value : " + redisTemplate.opsForValue().get(accessToken));
+            // 레디스에 accessToken 사용못하도록 등록
+            redisUtil.setBlackList(accessToken, "accessToken", expirationDate);
         }
     }
+
+//    @Override
+//    public void logoutToken(String accessToken) {
+//        if(validateToken(accessToken)) {
+//            Long expirationDate = getExpiration(accessToken);
+//            // redis 에 로그아웃 토큰 저장
+//            redisTemplate.opsForValue().set(accessToken, "logout", expirationDate, TimeUnit.MILLISECONDS);
+//            log.info("redis value : " + redisTemplate.opsForValue().get(accessToken));
+//        }
+//    }
 
     @Override
     // 헤더에서 토큰 추출
