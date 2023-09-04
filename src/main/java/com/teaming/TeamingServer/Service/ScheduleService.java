@@ -49,6 +49,7 @@ public class ScheduleService {
                 .schedule_start_time(scheduleEnrollRequestDto.getSchedule_start_time())    // 스케줄시작시간
                 .schedule_end(scheduleEnrollRequestDto.getSchedule_end())    // 스케줄끝날짜
                 .schedule_end_time(scheduleEnrollRequestDto.getSchedule_end_time())   // 스케줄끝시간
+                .project_color(scheduleEnrollRequestDto.getProject_color())
                 .project(project)  // 프로젝트와 스케줄 연결
                 .build();
 
