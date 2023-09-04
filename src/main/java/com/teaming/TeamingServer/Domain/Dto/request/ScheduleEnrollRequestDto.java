@@ -16,5 +16,4 @@ public class ScheduleEnrollRequestDto {
     private LocalDate schedule_end;
     private LocalTime schedule_start_time;
     private LocalTime schedule_end_time;
-    private String project_color;
 }
