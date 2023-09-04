@@ -13,7 +13,9 @@ import com.teaming.TeamingServer.Domain.Dto.response.MemberMyPageResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.response.PortfolioPageResponseDto;
 import com.teaming.TeamingServer.Domain.Dto.response.ProgressProjectsPageResponseDto;
 import com.teaming.TeamingServer.Domain.entity.*;
+import com.teaming.TeamingServer.Exception.BaseException;
 import com.teaming.TeamingServer.Repository.*;
+import com.teaming.TeamingServer.Service.Utils.RedisUtil;
 import com.teaming.TeamingServer.common.BaseErrorResponse;
 import com.teaming.TeamingServer.common.BaseResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,7 +50,7 @@ public class MemberServiceImpl implements MemberService {
     private final ScheduleRepository scheduleRepository;
     private final MemberScheduleRepository memberScheduleRepository;
 
-    private final RedisTemplate redisTemplate;
+    private final RedisUtil redisUtil;
 
     // 상수값들 - 메인 페이지에 반환할 프로젝들 개수들
     private final static int RECENTLY_PROJECT_NUM = 3;
@@ -61,14 +63,12 @@ public class MemberServiceImpl implements MemberService {
     public ResponseEntity logout(HttpServletRequest request) {
         String accessToken = jwtTokenProviderImpl.resolveToken(request);
 
-        Object findToken = redisTemplate.opsForValue().get(accessToken);
-
-        if(findToken != null) {
-            ResponseEntity.status(HttpStatus.ALREADY_REPORTED)
-                    .body(new BaseErrorResponse(HttpStatus.ALREADY_REPORTED.value(), "이미 로그아웃 처리된 사용자입니다."));
+        try {
+            jwtTokenProviderImpl.logoutToken(accessToken);
+        } catch (BaseException baseException) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new BaseErrorResponse(HttpStatus.FORBIDDEN.value(), baseException.getMessage()));
         }
-
-        jwtTokenProviderImpl.logoutToken(accessToken);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new BaseResponse(HttpStatus.OK.value(), "로그아웃 되었습니다."));
