@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProviderImpl jwtTokenProviderImpl;
-    private final RedisTemplate redisTemplate;
 
     private String[] possibleAccess = {"/api/auth/signup"
             , "/api/auth/email-duplication", "/api/auth/email-verification", "/api/auth/login"
@@ -28,7 +27,6 @@ public class SecurityConfig {
 
     public SecurityConfig(JwtTokenProviderImpl jwtTokenProviderImpl, RedisTemplate redisTemplate) {
         this.jwtTokenProviderImpl = jwtTokenProviderImpl;
-        this.redisTemplate = redisTemplate;
     }
 
     @Bean
@@ -65,7 +63,7 @@ public class SecurityConfig {
 //        http
 //                .headers((header) -> header.addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "ContentDisposition")));
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProviderImpl, redisTemplate), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProviderImpl), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
