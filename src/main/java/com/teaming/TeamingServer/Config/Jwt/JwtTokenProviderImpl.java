@@ -20,6 +20,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.xml.bind.DatatypeConverter;
@@ -132,6 +133,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
+    @Transactional
     public void logoutToken(String accessToken) {
         if(validateToken(accessToken)) {
             Long expirationDate = getExpiration(accessToken);
