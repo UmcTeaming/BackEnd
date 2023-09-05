@@ -1,5 +1,6 @@
 package com.teaming.TeamingServer.Service;
 
+import com.teaming.TeamingServer.Config.Jwt.JwtToken;
 import com.teaming.TeamingServer.Config.Jwt.JwtTokenProviderImpl;
 import com.teaming.TeamingServer.Domain.Dto.request.MemberRequestDto;
 import com.teaming.TeamingServer.Domain.Dto.request.MemberResetPasswordRequestDto;
@@ -7,6 +8,7 @@ import com.teaming.TeamingServer.Domain.Dto.response.MemberLoginResponse;
 import com.teaming.TeamingServer.Domain.entity.Member;
 import com.teaming.TeamingServer.Exception.BadRequestException;
 import com.teaming.TeamingServer.Repository.MemberRepository;
+import com.teaming.TeamingServer.Service.Utils.RedisUtil;
 import com.teaming.TeamingServer.common.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -20,6 +22,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final MemberRepository memberRepository;
     private final EmailServiceImpl emailServiceImpl;
+    private final RedisUtil redisUtil;
 
     // email 인증 코드
     private String emailCode;
@@ -52,8 +55,14 @@ public class AuthServiceImpl implements AuthService {
     public MemberLoginResponse login(String email, String password) {
         Member member = getMember(email);
         member.validatePassword(password);
-        return new MemberLoginResponse(member.getName()
-                                        , jwtTokenProviderImpl.generateToken(member));
+        JwtToken jwtToken = jwtTokenProviderImpl.generateToken(member);
+
+        // 로그인 시, BlackList 에 있는 토큰을 삭제해주기 : JWT 토큰은 세션 정보가 바뀌면 새로 바뀌는 것이 아니기 때문에 추가해줘야 로그인 후 발급된 토큰을 사용할 수 있음!
+        if(redisUtil.hasKeyBlackList(jwtToken.getAccessToken())) {
+            redisUtil.delete(jwtToken.getAccessToken());
+        }
+
+        return new MemberLoginResponse(member.getName(), jwtToken);
     }
 
     @Transactional

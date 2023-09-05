@@ -25,7 +25,7 @@ public class SecurityConfig {
             , "/api/auth/email-duplication", "/api/auth/email-verification", "/api/auth/login"
             , "/api/auth/reset-password", "/api/error", "/api", "/error", "/auth/**"};
 
-    public SecurityConfig(JwtTokenProviderImpl jwtTokenProviderImpl, RedisTemplate redisTemplate) {
+    public SecurityConfig(JwtTokenProviderImpl jwtTokenProviderImpl) {
         this.jwtTokenProviderImpl = jwtTokenProviderImpl;
     }
 
