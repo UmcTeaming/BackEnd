@@ -165,4 +165,18 @@ public class AwsS3Service {
         //https://teamingbucket.s3.ap-northeast-2.amazonaws.com
         return "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + key;
     }
+
+    // 프로젝트 파일 삭제하기
+    @Transactional
+    public void deleteProjectFiles(List<File> filesToDelete){
+        try{
+            for(File file : filesToDelete)
+            {
+                amazonS3Client.deleteObject(bucket, "file/" + file.getStoredFileName());
+            }
+        } catch (Exception e){
+            log.debug("Delete File failed", e);
+            throw new BaseException(HttpStatus.NO_CONTENT.value(), "Delete File failed");
+        }
+    }
 }

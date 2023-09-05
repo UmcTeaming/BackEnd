@@ -86,7 +86,6 @@ public class ScheduleService {
     }
 
     // 날짜별 스케쥴
-
     public List<FilteredSchedules> findSchedules(Long memberId, FilteringScheduleRequestDto filteringScheduleRequestDto) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_MODIFIED.value(), "Member not found"));
