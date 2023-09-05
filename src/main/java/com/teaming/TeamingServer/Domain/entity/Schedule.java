@@ -38,10 +38,6 @@ public class Schedule extends Time {
     @Column(nullable = false)
     private LocalTime schedule_end_time;
 
-    // 이거 맞는지 몰라서 확인해야
-    @Column(nullable = false)
-    private String project_color;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
