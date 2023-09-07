@@ -95,7 +95,7 @@ public class ProjectController {
     @PostMapping("/{memberId}/{projectId}/files-upload")
     public ResponseEntity<BaseResponse<FileUploadResponseDto>> uploadFile(@PathVariable Long projectId,
                                                                           @PathVariable Long memberId,
-                                                                          @RequestPart MultipartFile file) {
+                                                                          @RequestPart("file") MultipartFile file) {
         try {
            FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, false);
             return ResponseEntity
@@ -155,7 +155,7 @@ public class ProjectController {
     @PostMapping("/{memberId}/{projectId}/final-file")
     public ResponseEntity<BaseResponse<FileUploadResponseDto>> uploadFinalFile(@PathVariable Long projectId,
                                                         @PathVariable Long memberId,
-                                                        @RequestPart MultipartFile file) {
+                                                        @RequestPart("file") MultipartFile file) {
         try {
            FileUploadResponseDto fileUploadResponseDto =  fileService.generateFile(projectId, memberId, file, true);
             return ResponseEntity
