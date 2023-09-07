@@ -142,8 +142,17 @@ public class ScheduleService {
         return dateToCheck.getMonthValue() == requestedMonth.getMonthValue()
                 && dateToCheck.getYear() == requestedMonth.getYear();
     }
+  //수정 전
+//    private Stream<LocalDate> getDateRange(LocalDate startDate, LocalDate endDate) {
+//        return startDate.datesUntil(endDate.plusDays(1)); // 끝 날짜도 포함시키기 위해 plusDays(1) 사용
+//    }
 
+    //수정 후
     private Stream<LocalDate> getDateRange(LocalDate startDate, LocalDate endDate) {
+        if (startDate.isAfter(endDate)) {
+            // 시작 날짜가 종료 날짜보다 이후인 경우 빈 스트림 반환
+            return Stream.empty();
+        }
         return startDate.datesUntil(endDate.plusDays(1)); // 끝 날짜도 포함시키기 위해 plusDays(1) 사용
     }
 }
