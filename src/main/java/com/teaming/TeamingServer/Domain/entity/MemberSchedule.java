@@ -1,6 +1,7 @@
 package com.teaming.TeamingServer.Domain.entity;
 
 
+import com.teaming.TeamingServer.Repository.MemberScheduleRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,11 @@ public class MemberSchedule {
     }
 
     public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
+    public MemberSchedule(Member member, Schedule schedule) {
+        this.member = member;
         this.schedule = schedule;
     }
 }

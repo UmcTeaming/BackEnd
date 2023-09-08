@@ -37,6 +37,7 @@ public class ProjectService {
     private final MemberProjectRepository memberProjectRepository;
     private final ScheduleRepository scheduleRepository;
     private final AwsS3Service awsS3Service;
+    private final MemberScheduleRepository memberScheduleRepository;
 
     // 프로젝트 생성
     @Transactional
@@ -199,6 +200,16 @@ public class ProjectService {
                 .build();
 
         memberProjectRepository.save(memberProject); // 프로젝트에 참여하는 member 로 매핑 후 저장
+
+        // 초대 후 반환할 멤버 추가
+        memberProjects.add(memberProject);
+
+        // 기존에 있던 프로젝트 스케줄 초대된 회원과 매핑하기
+        List<Schedule> schedules = project.getSchedules().stream().collect(Collectors.toList());
+
+        // MemberSchedule 저장
+        schedules.stream().forEach(schedule -> memberScheduleRepository.save(new MemberSchedule(member, schedule)));
+
 
         List<InviteMember> inviteMembers = memberProjects.stream()
                 .map(MemberProject::getMember)
